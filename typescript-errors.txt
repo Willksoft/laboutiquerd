@@ -1,0 +1,6 @@
+﻿
+> la-boutique-rd@0.0.0 type-check
+> tsc --noEmit
+
+App.tsx(710,9): error TS2322: Type '{ cartCount: number; onOpenCart: () => void; onNavigate: (view: any) => void | Promise<void>; currentView: string; }' is not assignable to type 'IntrinsicAttributes & HeaderProps'.
+  Property 'onNavigate' does not exist on type 'IntrinsicAttributes & HeaderProps'.
