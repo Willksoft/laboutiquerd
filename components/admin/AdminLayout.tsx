@@ -74,10 +74,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ onOpenTracking }) => {
         {/* Logout */}
         <div className="p-4 border-t border-gray-100">
           <button 
-            onClick={() => navigate('/')} 
+            onClick={() => {
+              localStorage.removeItem('laboutiquerd_auth');
+              window.dispatchEvent(new Event('authChanged'));
+              navigate('/');
+            }} 
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-colors"
           >
-             <LogOut size={20} /> Salir a la Tienda
+             <LogOut size={20} /> Cerrar Sesión
           </button>
         </div>
       </aside>

@@ -17,8 +17,10 @@ const CATEGORY_LABELS: Record<string, string> = {
   'personal-care': 'Cuidado Personal',
   'boutique-pc': 'Boutique Punta Cana',
   'boutique-miches': 'Boutique Michès',
+  'boutique-beach': 'Boutique Playa',
   'boutique-playa': 'Boutique Playa',
   bisuteria: 'Bisutería',
+  custom: 'Personalizados',
 };
 
 export default function ProductSidebar({ products, onFilter, t }: ProductSidebarProps) {

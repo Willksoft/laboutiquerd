@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary files
+*.txt
+*.py
+migrated_prompt_history/
+.antigravityignore
+.gemini/

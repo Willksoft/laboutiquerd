@@ -48,12 +48,14 @@ import ProductPageLayout from './components/ProductPageLayout';
 import { ToastContainer } from './components/Toast';
 
 import AdminLayout from './components/admin/AdminLayout';
+import AdminLogin from './components/admin/AdminLogin';
 import Dashboard from './components/admin/Dashboard';
 import CustomizerAdmin from './components/admin/CustomizerAdmin';
 import BraidsAdmin from './components/admin/BraidsAdmin';
 import AdminProducts from './components/admin/Products';
 import AdminSettings from './components/admin/Settings';
 import AdminReceiptPage from './components/admin/AdminReceiptPage';
+import NotFound from './components/NotFound';
 
 import { useProducts } from './hooks/useProducts';
 import { Product, CartItem, Category, LogoStyle, TShirtPreset } from './types';
@@ -881,7 +883,7 @@ function App() {
   return (
     <div className={`min-h-screen flex flex-col font-sans ${isAdmin ? 'bg-gray-50' : 'bg-brand-background'} text-brand-text`}>
       <ToastContainer />
-      {!isAdmin && (
+      {!isAdmin && currentView !== 'login' && (
         <Header 
          cartCount={cart.length} 
          onOpenCart={() => navigate('/cart')} 
@@ -1100,7 +1102,16 @@ function App() {
           } />
 
           {/* ═══════════════ ADMIN ROUTES ═══════════════ */}
-          <Route path="/admin" element={<AdminLayout onOpenTracking={() => setIsTrackingOpen(true)} />}>
+          <Route path="/login" element={<AdminLogin />} />
+          <Route path="/admin" element={
+            (() => {
+              try {
+                const auth = JSON.parse(localStorage.getItem('laboutiquerd_auth') || '{}');
+                if (auth.loggedIn) return <AdminLayout onOpenTracking={() => setIsTrackingOpen(true)} />;
+              } catch {}
+              return <Navigate to="/login" replace />;
+            })()
+          }>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="customizer" element={<CustomizerAdmin />} />
@@ -1110,10 +1121,13 @@ function App() {
             <Route path="receipt" element={<AdminReceiptPage />} />
           </Route>
 
+          {/* 404 Catch-all */}
+          <Route path="*" element={<NotFound />} />
+
         </Routes>
       </main>
 
-      {!isAdmin && currentView !== 'designer' && currentView !== 'universal-designer' && currentView !== 'ticket' && currentView !== 'checkout' && <Footer />}
+      {!isAdmin && currentView !== 'designer' && currentView !== 'universal-designer' && currentView !== 'ticket' && currentView !== 'checkout' && currentView !== 'login' && <Footer />}
 
       {/* GIFT CARD DETAILS MODAL (New) */}
       {selectedGiftCard && (
@@ -1130,7 +1144,7 @@ function App() {
                 <div className="w-full md:w-1/2 bg-gray-100 p-8 flex flex-col items-center justify-center relative">
                     {renderVisualGiftCard(selectedGiftCard)}
                     <p className="mt-4 text-xs text-gray-500 text-center font-medium uppercase tracking-wide">
-                        Imagen Referencial
+                        {t('Imagen Referencial')}
                     </p>
                 </div>
 
@@ -1146,30 +1160,30 @@ function App() {
                     <div className="space-y-6 flex-grow">
                         <div>
                             <h4 className="font-bold text-sm text-gray-900 uppercase tracking-wide mb-2 flex items-center gap-2">
-                                <InformationCircleIcon className="w-4 h-4" /> Descripción
+                                <InformationCircleIcon className="w-4 h-4" /> {t('Descripción')}
                             </h4>
                             <p className="text-gray-600 text-sm leading-relaxed">
-                                {selectedGiftCard.description} El regalo ideal para que tus seres queridos elijan exactamente lo que desean en nuestras exclusivas boutiques.
+                                {t(selectedGiftCard.description)} {t('El regalo ideal para que tus seres queridos elijan exactamente lo que desean en nuestras exclusivas boutiques.')}
                             </p>
                         </div>
 
                         <div className="bg-red-50 p-4 rounded-xl border-l-4 border-red-500">
                             <h4 className="font-bold text-sm text-red-800 uppercase tracking-wide mb-2 flex items-center gap-2">
-                                <ExclamationTriangleIcon className="w-6 h-6" /> Términos y Condiciones
+                                <ExclamationTriangleIcon className="w-6 h-6" /> {t('Términos y Condiciones')}
                             </h4>
                             <ul className="text-xs text-red-700 space-y-2 list-disc list-inside">
-                                <li>Válida <strong>exclusivamente</strong> en Boutiques Club Med Michès Playa Esmeralda y Punta Cana.</li>
-                                <li><strong>No reembolsable</strong> ni canjeable por efectivo.</li>
-                                <li>Debe presentarse la tarjeta física original al momento de la compra.</li>
-                                <li>Vigencia de 1 año a partir de la fecha de compra.</li>
-                                <li>No aplica para servicios externos o excursiones.</li>
+                                <li>{t('Válida exclusivamente en Boutiques Club Med Michès Playa Esmeralda y Punta Cana.')}</li>
+                                <li>{t('No reembolsable ni canjeable por efectivo.')}</li>
+                                <li>{t('Debe presentarse la tarjeta física original al momento de la compra.')}</li>
+                                <li>{t('Vigencia de 1 año a partir de la fecha de compra.')}</li>
+                                <li>{t('No aplica para servicios externos o excursiones.')}</li>
                             </ul>
                         </div>
                     </div>
 
                     <div className="mt-8 pt-6 border-t border-gray-100">
                         <p className="text-center text-xs text-gray-400">
-                            Disponibles para compra en la recepción de la Boutique.
+                            {t('Disponibles para compra en la recepción de la Boutique.')}
                         </p>
                     </div>
                 </div>
