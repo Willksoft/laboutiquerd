@@ -81,6 +81,14 @@ function App() {
   // Gift Card Modal State
   const [selectedGiftCard, setSelectedGiftCard] = useState<Product | null>(null);
 
+  // Lock body scroll when gift card modal is open
+  useEffect(() => {
+    if (selectedGiftCard) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [selectedGiftCard]);
+
   // New State variables for Preset handling
   const [selectedModelStyle, setSelectedModelStyle] = useState<LogoStyle>('classic');
   const [selectedPresetColor, setSelectedPresetColor] = useState<{name: string, value: string} | undefined>(undefined);

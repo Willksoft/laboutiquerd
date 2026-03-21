@@ -2,6 +2,7 @@ import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 import { Product } from '../types';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface ProductModalProps {
   product: Product;
@@ -10,6 +11,7 @@ interface ProductModalProps {
 
 const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   const { t, i18n } = useTranslation();
+  useBodyScrollLock();
 
   const getTranslatedText = (obj: any, field: string) => {
       if (i18n.language === 'en') {

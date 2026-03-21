@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useOrders } from '../hooks/useOrders';
 import { useReservations } from '../hooks/useReservations';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
@@ -38,6 +39,7 @@ const RESERVATION_STATUSES = [
 ];
 
 const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const { orders } = useOrders();
   const { reservations } = useReservations();
@@ -92,8 +94,8 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
               <MagnifyingGlassIcon className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-black font-serif">Rastrea tu Pedido</h2>
-              <p className="text-white/70 text-xs font-medium">Ingresa los últimos 4 dígitos de tu código</p>
+              <h2 className="text-xl font-black font-serif">{t('Rastrea tu Pedido')}</h2>
+              <p className="text-white/70 text-xs font-medium">{t('Ingresa los últimos 4 dígitos de tu código')}</p>
             </div>
           </div>
 
@@ -115,7 +117,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
               className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-brand-primary text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-40 flex items-center gap-1.5"
             >
               <MagnifyingGlassIcon className="w-4 h-4" />
-              Buscar
+              {t('Buscar')}
             </button>
           </form>
         </div>
@@ -129,8 +131,8 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
               <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <XCircleIcon className="w-8 h-8 text-red-400" />
               </div>
-              <p className="text-red-600 font-bold text-lg mb-1">No encontrado</p>
-              <p className="text-gray-500 text-sm">No encontramos ninguna orden o cita con ese código. Verifica e intenta de nuevo.</p>
+              <p className="text-red-600 font-bold text-lg mb-1">{t('No encontrado')}</p>
+              <p className="text-gray-500 text-sm">{t('No encontramos ninguna orden o cita con ese código. Verifica e intenta de nuevo.')}</p>
             </div>
           )}
 
@@ -146,8 +148,8 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
                     <currentStep.icon className={`w-8 h-8 ${currentColor?.text || 'text-gray-500'}`} />
                   ) : null}
                 </div>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">Estado de tu orden</p>
-                <h3 className={`text-2xl font-black ${currentColor?.text || 'text-gray-700'}`}>{resultOrder.status}</h3>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">{t('Estado de tu orden')}</p>
+                <h3 className={`text-2xl font-black ${currentColor?.text || 'text-gray-700'}`}>{t(resultOrder.status)}</h3>
                 <p className="text-xs text-gray-400 mt-1 font-mono font-bold">{resultOrder.id}</p>
               </div>
 
@@ -175,7 +177,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
                             <span className={`mt-1.5 text-[8px] font-bold text-center leading-tight max-w-[60px] ${
                               isCurrent ? sc.text : isCompleted ? 'text-gray-600' : 'text-gray-400'
                             }`}>
-                              {step.label}
+                              {t(step.label)}
                             </span>
                             {isCurrent && (
                               <div className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 ${sc.dot} rounded-full animate-pulse ring-2 ring-white`}></div>
@@ -198,30 +200,30 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
                 <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
                     <User size={12} className="text-gray-400" />
-                    <span className="text-[10px] text-gray-400 font-bold uppercase">Cliente</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase">{t('Cliente')}</span>
                   </div>
                   <p className="font-bold text-gray-900 text-sm">{resultOrder.clientName}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
                     <MapPin size={12} className="text-gray-400" />
-                    <span className="text-[10px] text-gray-400 font-bold uppercase">Habitación</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase">{t('Habitación')}</span>
                   </div>
                   <p className="font-bold text-gray-900 text-sm">{resultOrder.room || 'N/A'}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar size={12} className="text-gray-400" />
-                    <span className="text-[10px] text-gray-400 font-bold uppercase">Fecha</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase">{t('Fecha')}</span>
                   </div>
                   <p className="font-bold text-gray-900 text-sm">{new Date(resultOrder.date).toLocaleDateString('es-DO', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
                     <Package size={12} className="text-gray-400" />
-                    <span className="text-[10px] text-gray-400 font-bold uppercase">Artículos</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase">{t('Artículos')}</span>
                   </div>
-                  <p className="font-bold text-gray-900 text-sm">{resultOrder.items.reduce((acc, curr) => acc + curr.quantity, 0)} productos</p>
+                  <p className="font-bold text-gray-900 text-sm">{resultOrder.items.reduce((acc, curr) => acc + curr.quantity, 0)} {t('productos')}</p>
                 </div>
               </div>
 
@@ -260,7 +262,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
 
               {/* Total */}
               <div className="bg-brand-primary/5 rounded-2xl p-4 border border-brand-primary/10 flex justify-between items-center">
-                <span className="font-black text-brand-primary text-sm uppercase tracking-wider">Total del Pedido</span>
+                <span className="font-black text-brand-primary text-sm uppercase tracking-wider">{t('Total del Pedido')}</span>
                 <span className="font-black text-brand-primary text-2xl">RD${resultOrder.total.toFixed(2)}</span>
               </div>
             </div>
@@ -274,8 +276,8 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
                 <div className={`w-16 h-16 rounded-2xl ${resColor?.bg || 'bg-gray-100'} border-2 ${resColor?.border || ''} flex items-center justify-center mx-auto mb-3 shadow-md`}>
                   {resStep && <resStep.icon className={`w-8 h-8 ${resColor?.text || 'text-gray-500'}`} />}
                 </div>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">Estado de tu cita</p>
-                <h3 className={`text-2xl font-black ${resColor?.text || 'text-gray-700'}`}>{resultRes.status}</h3>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">{t('Estado de tu cita')}</p>
+                <h3 className={`text-2xl font-black ${resColor?.text || 'text-gray-700'}`}>{t(resultRes.status)}</h3>
                 <p className="text-xs text-gray-400 mt-1 font-mono font-bold">{resultRes.id}</p>
               </div>
 
@@ -284,28 +286,28 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
                 <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
                     <User size={12} className="text-gray-400" />
-                    <span className="text-[10px] text-gray-400 font-bold uppercase">Cliente</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase">{t('Cliente')}</span>
                   </div>
                   <p className="font-bold text-gray-900 text-sm">{resultRes.clientName}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
                     <MapPin size={12} className="text-gray-400" />
-                    <span className="text-[10px] text-gray-400 font-bold uppercase">Habitación</span>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase">{t('Habitación')}</span>
                   </div>
                   <p className="font-bold text-gray-900 text-sm">{resultRes.room || 'N/A'}</p>
                 </div>
                 <div className="bg-brand-primary/5 rounded-xl p-3 border border-brand-primary/10">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar size={12} className="text-brand-primary" />
-                    <span className="text-[10px] text-brand-primary font-bold uppercase">Fecha</span>
+                    <span className="text-[10px] text-brand-primary font-bold uppercase">{t('Fecha')}</span>
                   </div>
                   <p className="font-black text-brand-primary text-sm">{resultRes.date}</p>
                 </div>
                 <div className="bg-brand-primary/5 rounded-xl p-3 border border-brand-primary/10">
                   <div className="flex items-center gap-2 mb-1">
                     <ClockIcon className="w-3 h-3 text-brand-primary" />
-                    <span className="text-[10px] text-brand-primary font-bold uppercase">Hora</span>
+                    <span className="text-[10px] text-brand-primary font-bold uppercase">{t('Hora')}</span>
                   </div>
                   <p className="font-black text-brand-primary text-sm">{resultRes.time}</p>
                 </div>
@@ -331,7 +333,7 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
 
               {/* Total */}
               <div className="bg-brand-primary/5 rounded-2xl p-4 border border-brand-primary/10 flex justify-between items-center">
-                <span className="font-black text-brand-primary text-sm uppercase tracking-wider">Total de la Cita</span>
+                <span className="font-black text-brand-primary text-sm uppercase tracking-wider">{t('Total de la Cita')}</span>
                 <span className="font-black text-brand-primary text-2xl">RD${resultRes.total.toFixed(2)}</span>
               </div>
             </div>
@@ -343,8 +345,8 @@ const OrderTracking: React.FC<OrderTrackingProps> = ({ onClose }) => {
               <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <MagnifyingGlassIcon className="w-8 h-8 text-gray-300" />
               </div>
-              <p className="text-gray-400 font-bold text-lg mb-1">Ingresa tu código</p>
-              <p className="text-gray-400 text-sm">Busca el número de orden o cita impreso en tu comprobante</p>
+              <p className="text-gray-400 font-bold text-lg mb-1">{t('Ingresa tu código')}</p>
+              <p className="text-gray-400 text-sm">{t('Busca el número de orden o cita impreso en tu comprobante')}</p>
             </div>
           )}
         </div>
