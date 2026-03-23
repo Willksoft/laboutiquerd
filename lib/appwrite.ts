@@ -252,11 +252,15 @@ export const getUser = async () => {
 
 // ─── STORAGE (File Upload) ─────────────────────────────────
 export const uploadFile = async (file: File) => {
-  return storage.createFile(BUCKET_ID, ID.unique(), file);
+  const bucketId = import.meta.env.VITE_APPWRITE_BUCKET_ID as string;
+  if (!bucketId) throw new Error('VITE_APPWRITE_BUCKET_ID is not set in environment variables');
+  return storage.createFile(bucketId, ID.unique(), file);
 };
 
 export const deleteFile = async (fileId: string) => {
-  return storage.deleteFile(BUCKET_ID, fileId);
+  const bucketId = import.meta.env.VITE_APPWRITE_BUCKET_ID as string;
+  if (!bucketId) throw new Error('VITE_APPWRITE_BUCKET_ID is not set in environment variables');
+  return storage.deleteFile(bucketId, fileId);
 };
 
 // Re-export for convenience
