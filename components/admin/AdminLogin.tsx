@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 const DEMO_USERS = [
-  { email: 'admin@boutique.com', password: 'admin123', role: 'Administrador', name: 'Admin Boutique' },
-  { email: 'vendedor@boutique.com', password: 'venta123', role: 'Vendedor', name: 'María García' },
-  { email: 'gerente@boutique.com', password: 'gerente123', role: 'Gerente', name: 'Carlos Méndez' },
+  { email: 'admin@boutique.com', password: 'Admin123!', role: 'Administrador', name: 'Admin Boutique' },
+  { email: 'vendedor@boutique.com', password: 'Venta123!', role: 'Vendedor', name: 'María García' },
+  { email: 'gerente@boutique.com', password: 'Gerente123!', role: 'Gerente', name: 'Carlos Méndez' },
 ];
 
 const AdminLogin: React.FC = () => {
@@ -15,23 +16,21 @@ const AdminLogin: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    setTimeout(() => {
-      const user = DEMO_USERS.find(u => u.email === email && u.password === password);
-      if (user) {
-        localStorage.setItem('laboutiquerd_auth', JSON.stringify({ ...user, loggedIn: true, loginTime: new Date().toISOString() }));
-        window.dispatchEvent(new Event('authChanged'));
-        navigate('/admin/dashboard');
-      } else {
-        setError('Credenciales inválidas. Use una cuenta demo.');
-      }
+    try {
+      await login(email, password);
+      navigate('/admin/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Credenciales inválidas. Intente de nuevo.');
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const fillCredentials = (idx: number) => {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, Scissors, Box, PackagePlus, Settings, LogOut, Menu, X, User, Palette, Search } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 interface AdminLayoutProps {
   onOpenTracking?: () => void;
@@ -9,6 +10,7 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ onOpenTracking }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const menuItems = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
@@ -41,12 +43,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ onOpenTracking }) => {
 
         {/* User Info */}
         <div className="p-6 border-b border-gray-100 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold shadow-inner">
-            <User size={24} />
+          <div className="w-12 h-12 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold shadow-inner text-lg">
+            {user?.name?.[0] || 'A'}
           </div>
           <div>
-            <p className="font-bold text-gray-800 leading-tight">Administrador</p>
-            <p className="text-xs text-brand-accent font-semibold">Club Med Boutique</p>
+            <p className="font-bold text-gray-800 leading-tight">{user?.name || 'Administrador'}</p>
+            <p className="text-xs text-brand-accent font-semibold">{user?.role || 'Admin'}</p>
           </div>
         </div>
 
@@ -74,9 +76,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ onOpenTracking }) => {
         {/* Logout */}
         <div className="p-4 border-t border-gray-100">
           <button 
-            onClick={() => {
-              localStorage.removeItem('laboutiquerd_auth');
-              window.dispatchEvent(new Event('authChanged'));
+            onClick={async () => {
+              await logout();
               navigate('/');
             }} 
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-colors"
@@ -111,7 +112,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ onOpenTracking }) => {
                </button>
              )}
              <div className="bg-brand-accent/20 text-brand-primary px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
-               Modo Master
+               {user?.role || 'Admin'}
              </div>
           </div>
         </header>
