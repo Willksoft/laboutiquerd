@@ -8,21 +8,21 @@ const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const changeLang = (lang: 'es' | 'en' | 'fr') => i18n.changeLanguage(lang);
   const currentLang = i18n.language as 'es' | 'en' | 'fr';
 
   const menuItems = [
-    { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
-    { name: 'Customizer', icon: <Palette size={20} />, path: '/admin/customizer' },
-    { name: 'Estudio Trenzas', icon: <Scissors size={20} />, path: '/admin/braids' },
-    { name: 'Catálogo Boutique', icon: <Box size={20} />, path: '/admin/products' },
-    { name: 'Marcas', icon: <Tag size={20} />, path: '/admin/brands' },
-    { name: 'Slider Público', icon: <ImageIcon size={20} />, path: '/admin/slider' },
-    { name: 'Contenido Web', icon: <Globe size={20} />, path: '/admin/site-content' },
-    { name: 'Rastreador', icon: <Search size={20} />, path: '/admin/tracking' },
-    { name: 'Configuración', icon: <Settings size={20} />, path: '/admin/settings' },
+    { name: t('Dashboard'), icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { name: t('Customizer'), icon: <Palette size={20} />, path: '/admin/customizer' },
+    { name: t('Estudio Trenzas'), icon: <Scissors size={20} />, path: '/admin/braids' },
+    { name: t('Catálogo Boutique'), icon: <Box size={20} />, path: '/admin/products' },
+    { name: t('Marcas'), icon: <Tag size={20} />, path: '/admin/brands' },
+    { name: t('Slider Público'), icon: <ImageIcon size={20} />, path: '/admin/slider' },
+    { name: t('Contenido Web'), icon: <Globe size={20} />, path: '/admin/site-content' },
+    { name: t('Rastreador'), icon: <Search size={20} />, path: '/admin/tracking' },
+    { name: t('Configuración'), icon: <Settings size={20} />, path: '/admin/settings' },
   ];
 
   return (
@@ -52,8 +52,8 @@ const AdminLayout: React.FC = () => {
             {user?.name?.[0] || 'A'}
           </div>
           <div>
-            <p className="font-bold text-gray-800 leading-tight">{user?.name || 'Administrador'}</p>
-            <p className="text-xs text-brand-accent font-semibold">{user?.role || 'Admin'}</p>
+            <p className="font-bold text-gray-800 leading-tight">{user?.name || t('Administrador')}</p>
+            <p className="text-xs text-brand-accent font-semibold">{user?.role || t('Admin')}</p>
           </div>
         </div>
 
@@ -87,7 +87,7 @@ const AdminLayout: React.FC = () => {
             }} 
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-colors"
           >
-             <LogOut size={20} /> Cerrar Sesión
+             <LogOut size={20} /> {t('Cerrar Sesión')}
           </button>
         </div>
       </aside>
@@ -103,7 +103,7 @@ const AdminLayout: React.FC = () => {
             >
               <Menu size={24} />
             </button>
-            <h1 className="font-serif font-bold text-xl text-gray-800 hidden sm:block">Panel de Control</h1>
+            <h1 className="font-serif font-bold text-xl text-gray-800 hidden sm:block">{t('Panel de Control')}</h1>
           </div>
 
           <div className="flex items-center gap-3">
