@@ -31,9 +31,101 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
   const ticketRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [format, setFormat] = useState<PrintFormat>('ticket');
+  const [ticketLang, setTicketLang] = useState<'es' | 'en' | 'fr'>('es');
   const { vendors } = useVendors();
   const { styles: braidStyles } = useBraidStyles();
   const { content } = useSiteContent();
+
+  // Ticket label translations
+  const TL = {
+    es: {
+      previewTitle: 'Vista Previa Ticket',
+      language: 'Idioma del Ticket',
+      dataTitle: 'DATOS DE CITA',
+      dataClient: 'DATOS DEL CLIENTE',
+      client: 'CLIENTE:',
+      seller: 'VENDEDOR/A:',
+      room: 'HABITACIÓN:',
+      date: 'FECHA:',
+      time: 'HORA:',
+      articles: 'ARTÍCULOS',
+      qty: 'Cant.',
+      description: 'Descripción',
+      price: 'Precio',
+      size: 'Talla',
+      color: 'Color',
+      logo: 'Logo',
+      ref: 'Ref',
+      zones: 'ZONAS',
+      delivery: 'ENTREGA',
+      active: '● ACTIVA',
+      braidNote: 'Por favor, ven con el cabello desenredado, lavado y seco.',
+      total: 'TOTAL',
+      taxNote: 'Impuestos incluidos',
+      scanMessage: 'Escanear para verificar',
+      thankYou: '¡Gracias por tu compra!',
+      orderSlip: 'Comprobante de Orden',
+      conditions: 'Condiciones: No se aceptan devoluciones en artículos personalizados. Las citas deben cancelarse con 24h de antelación.',
+    },
+    en: {
+      previewTitle: 'Ticket Preview',
+      language: 'Ticket Language',
+      dataTitle: 'APPOINTMENT INFO',
+      dataClient: 'CLIENT INFO',
+      client: 'CLIENT:',
+      seller: 'SELLER:',
+      room: 'ROOM:',
+      date: 'DATE:',
+      time: 'TIME:',
+      articles: 'ITEMS',
+      qty: 'Qty.',
+      description: 'Description',
+      price: 'Price',
+      size: 'Size',
+      color: 'Color',
+      logo: 'Logo',
+      ref: 'Ref',
+      zones: 'ZONES',
+      delivery: 'DELIVERY',
+      active: '● ACTIVE',
+      braidNote: 'Please come with your hair detangled, washed and dry.',
+      total: 'TOTAL',
+      taxNote: 'Taxes included',
+      scanMessage: 'Scan to verify',
+      thankYou: 'Thank you for your purchase!',
+      orderSlip: 'Order Receipt',
+      conditions: 'Conditions: No returns on custom items. Appointments must be cancelled 24h in advance.',
+    },
+    fr: {
+      previewTitle: 'Aperçu du Ticket',
+      language: 'Langue du Ticket',
+      dataTitle: 'INFO RENDEZ-VOUS',
+      dataClient: 'INFO CLIENT',
+      client: 'CLIENT:',
+      seller: 'VENDEUR/SE:',
+      room: 'CHAMBRE:',
+      date: 'DATE:',
+      time: 'HEURE:',
+      articles: 'ARTICLES',
+      qty: 'Qté.',
+      description: 'Description',
+      price: 'Prix',
+      size: 'Taille',
+      color: 'Couleur',
+      logo: 'Logo',
+      ref: 'Réf',
+      zones: 'ZONES',
+      delivery: 'LIVRAISON',
+      active: '● ACTIF',
+      braidNote: 'Veuillez venir avec les cheveux démêlés, lavés et secs.',
+      total: 'TOTAL',
+      taxNote: 'Taxes comprises',
+      scanMessage: 'Scanner pour vérifier',
+      thankYou: 'Merci pour votre achat !',
+      orderSlip: 'Reçu de Commande',
+      conditions: "Conditions : Pas de retour sur articles personnalisés. Les rendez-vous doivent être annulés 24h à l'avance.",
+    },
+  }[ticketLang];
 
   const handleClose = () => {
       if (onClose) {
@@ -239,7 +331,7 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
                </div>
 
                <div className={format === 'letter' ? 'text-right' : ''}>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Comprobante de Orden</p>
+                     <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">{TL.orderSlip}</p>
                     <h2 className={`${format === 'letter' ? 'text-4xl' : 'text-3xl'} font-black text-gray-800 my-1 tracking-tight`}>{orderId}</h2>
                     <p className="text-sm text-gray-500 font-medium">{date}</p>
                </div>
@@ -256,38 +348,38 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
 
                 return (
                     <div className={`border-2 border-gray-800 p-3 font-mono text-xs mb-6 ${format === 'letter' ? 'max-w-md' : ''}`}>
-                        <div className="text-center font-black uppercase tracking-widest border-b-2 border-gray-800 pb-1 mb-2 text-sm">
-                            {details.date ? 'DATOS DE CITA' : 'DATOS DEL CLIENTE'}
-                        </div>
+                         <div className="text-center font-black uppercase tracking-widest border-b-2 border-gray-800 pb-1 mb-2 text-sm">
+                            {details.date ? TL.dataTitle : TL.dataClient}
+                         </div>
                         <table className="w-full text-left" style={{ borderCollapse: 'collapse' }}>
                             <tbody>
                                 {details.clientName && (
                                     <tr className="border-b border-gray-300">
-                                        <td className="py-1 font-bold pr-2 w-[40%]">CLIENTE:</td>
+                                     <td className="py-1 font-bold pr-2 w-[40%]">{TL.client}</td>
                                         <td className="py-1 font-bold">{details.clientName}</td>
                                     </tr>
                                 )}
                                 {details.vendorId && (
                                     <tr className="border-b border-gray-300">
-                                        <td className="py-1 font-bold pr-2">VENDEDOR/A:</td>
+                                         <td className="py-1 font-bold pr-2">{TL.seller}</td>
                                         <td className="py-1">{vendors.find(v => v.id === details.vendorId)?.name || details.vendorId}</td>
                                     </tr>
                                 )}
                                 {details.room && (
                                     <tr className="border-b border-gray-300">
-                                        <td className="py-1 font-bold pr-2">HABITACIÓN:</td>
+                                         <td className="py-1 font-bold pr-2">{TL.room}</td>
                                         <td className="py-1">{details.room}</td>
                                     </tr>
                                 )}
                                 {details.date && (
                                     <tr className="border-b border-gray-300">
-                                        <td className="py-1 font-bold pr-2">FECHA:</td>
+                                         <td className="py-1 font-bold pr-2">{TL.date}</td>
                                         <td className="py-1">{details.date}</td>
                                     </tr>
                                 )}
                                 {details.time && (
                                     <tr>
-                                        <td className="py-1 font-bold pr-2">HORA:</td>
+                                         <td className="py-1 font-bold pr-2">{TL.time}</td>
                                         <td className="py-1 font-black">{details.time}</td>
                                     </tr>
                                 )}
@@ -300,15 +392,15 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
             {/* Compact Items List */}
             <div className="mb-6">
                 <div className="text-xs font-black uppercase tracking-widest text-gray-500 mb-3 border-b border-gray-200 pb-1">
-                    ARTÍCULOS
+                    {TL.articles}
                 </div>
                 <table className="w-full text-left" style={{ borderCollapse: 'collapse' }}>
                     <thead>
-                        <tr className="border-b-2 border-gray-800 text-xs font-black uppercase text-gray-600">
-                            <td className="py-1.5 pr-2">Cant.</td>
-                            <td className="py-1.5">Descripción</td>
-                            <td className="py-1.5 text-right pl-2">Precio</td>
-                        </tr>
+                         <tr className="border-b-2 border-gray-800 text-xs font-black uppercase text-gray-600">
+                             <td className="py-1.5 pr-2">{TL.qty}</td>
+                             <td className="py-1.5">{TL.description}</td>
+                             <td className="py-1.5 text-right pl-2">{TL.price}</td>
+                         </tr>
                     </thead>
                     <tbody>
                         {mergedCart.map((item, index) => (
@@ -318,11 +410,11 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
                                     <span className="font-bold text-gray-900">{item.name}</span>
                                     {item.type === 'product' && item.details?.color && (
                                         <div className="text-[10px] text-gray-500 mt-1 space-y-0.5">
-                                            {item.details.size && <span>Talla: {item.details.size} · </span>}
-                                            <span>Color: {item.details.color}</span>
-                                            {item.details.logoStyle && <span> · Logo: {item.details.logoStyle === 'dominican' ? 'Dominicano' : 'Clásico'}</span>}
-                                            {item.details.logoColor && <span> ({getLogoColorName(item.details.logoColor)})</span>}
-                                            {item.details.customName && <div>Ref: {item.details.customName}</div>}
+                                             {item.details.size && <span>{TL.size}: {item.details.size} · </span>}
+                                             <span>{TL.color}: {item.details.color}</span>
+                                             {item.details.logoStyle && <span> · {TL.logo}: {item.details.logoStyle === 'dominican' ? 'Dominicano' : 'Clásico'}</span>}
+                                             {item.details.logoColor && <span> ({getLogoColorName(item.details.logoColor)})</span>}
+                                             {item.details.customName && <div>{TL.ref}: {item.details.customName}</div>}
                                         </div>
                                     )}
                                 </td>
@@ -372,9 +464,9 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
             {/* Product Zone Details (only if there are custom products) */}
             {mergedCart.filter(i => i.type === 'product' && i.details?.designs).map(item => (
                 <div key={`zones-${item.id}`} className={`border-2 border-gray-800 p-3 font-mono text-xs mb-4 ${format === 'letter' ? 'break-inside-avoid' : ''}`}>
-                    <div className="text-center font-black uppercase tracking-widest border-b-2 border-gray-800 pb-1 mb-2 text-[10px]">
-                        ZONAS — {item.name}
-                    </div>
+                     <div className="text-center font-black uppercase tracking-widest border-b-2 border-gray-800 pb-1 mb-2 text-[10px]">
+                         {TL.zones} — {item.name}
+                     </div>
                     {['front', 'back', 'left', 'right'].map(zone => {
                         const design = item.details?.designs?.[zone] as DesignConfig | undefined;
                         if (!design?.enabled) return null;
@@ -383,7 +475,7 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
                             <div key={zone} className="border-b border-dashed border-gray-300 py-1">
                                 <div className="flex justify-between">
                                     <span className="font-bold">{label}:</span>
-                                    <span className="font-bold">● ACTIVA</span>
+                                     <span className="font-bold">{TL.active}</span>
                                 </div>
                                 {design.text && (
                                     <div className="pl-2 mt-0.5 text-[10px] text-gray-600">
@@ -394,28 +486,28 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
                         );
                     })}
                     {item.details?.deliveryDate && (
-                        <div className="mt-2 border-t-2 border-gray-800 pt-1 text-center font-black">
-                            ENTREGA: {item.details.deliveryDate}
-                        </div>
+                         <div className="mt-2 border-t-2 border-gray-800 pt-1 text-center font-black">
+                             {TL.delivery}: {item.details.deliveryDate}
+                         </div>
                     )}
                 </div>
             ))}
 
             {/* Note for braids */}
             {mergedCart.some(i => i.type === 'service' && i.details?.date) && (
-                <div className="text-center text-[9px] text-gray-500 font-bold uppercase mb-4 bg-gray-50 py-2 rounded border border-gray-200">
-                    Por favor, ven con el cabello desenredado, lavado y seco.
-                </div>
+                 <div className="text-center text-[9px] text-gray-500 font-bold uppercase mb-4 bg-gray-50 py-2 rounded border border-gray-200">
+                     {TL.braidNote}
+                 </div>
             )}
 
             {/* Totals */}
             <div className={`border-t-2 border-dashed border-gray-200 pt-6 mb-8 ${format === 'letter' ? 'flex justify-end' : ''}`}>
               <div className={format === 'letter' ? 'w-1/2' : 'w-full'}>
-                  <div className="flex justify-between items-center text-2xl font-black text-brand-primary">
-                    <span>TOTAL</span>
+                   <div className="flex justify-between items-center text-2xl font-black text-brand-primary">
+                     <span>{TL.total}</span>
                     <span>RD${total.toFixed(2)}</span>
                   </div>
-                  <p className="text-[10px] text-center text-gray-400 mt-2">Impuestos incluidos</p>
+                   <p className="text-[10px] text-center text-gray-400 mt-2">{TL.taxNote}</p>
               </div>
             </div>
 
@@ -429,16 +521,15 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
                         className={format === 'letter' ? 'w-[120px] h-[120px]' : 'w-[90px] h-[90px]'} 
                      />
                   </div>
-                  <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest">Escanear para verificar</p>
+                   <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest">{TL.scanMessage}</p>
               </div>
               
               <div className={`${format === 'letter' ? 'text-left' : 'mt-6'} text-gray-400 space-y-1`}>
-                  <p className="text-[10px] font-bold">¡Gracias por tu compra!</p>
+                   <p className="text-[10px] font-bold">{TL.thankYou}</p>
                   <p className="text-[10px]">{content.contact_address || 'Punta Cana, RD'}</p>
                   {format === 'letter' && (
                       <div className="mt-4 text-[9px] max-w-sm">
-                          Condiciones: No se aceptan devoluciones en artículos personalizados. 
-                          Las citas deben cancelarse con 24h de antelación.
+                           {TL.conditions}
                       </div>
                   )}
               </div>
@@ -470,7 +561,25 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
         {/* Header Actions (No Print) */}
         <div className="p-4 bg-brand-primary text-white flex justify-between items-center no-print">
            <div className="flex items-center gap-4">
-               <h3 className="font-serif font-bold text-lg hidden md:block">Vista Previa Ticket</h3>
+               <h3 className="font-serif font-bold text-lg hidden md:block">{TL.previewTitle}</h3>
+               
+               {/* Language Selector */}
+               <div className="flex bg-white/10 p-1 rounded-lg gap-0.5">
+                   {(['es','en','fr'] as const).map((lang) => (
+                       <button
+                           key={lang}
+                           onClick={() => setTicketLang(lang)}
+                           title={TL.language}
+                           className={`px-2.5 py-1 rounded-md text-sm font-black transition-all ${
+                               ticketLang === lang
+                                   ? 'bg-brand-accent text-brand-primary shadow'
+                                   : 'text-gray-300 hover:text-white'
+                           }`}
+                       >
+                           {lang === 'es' ? '🇪🇸' : lang === 'en' ? '🇺🇸' : '🇫🇷'}
+                       </button>
+                   ))}
+               </div>
                
                {/* Format Toggle */}
                <div className="flex bg-white/10 p-1 rounded-lg">
