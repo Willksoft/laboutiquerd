@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Settings as SettingsIcon, Save, Users, Plus, Trash2, Edit2, X, Check,
   Store, Phone, MessageCircle, Globe, Image, AlignLeft, Palette, Bell,
   Instagram, Facebook, Twitter, Youtube, Linkedin, MapPin, Mail, Link,
-  ShieldCheck, Info
+  ShieldCheck, Info, Lock, KeyRound, MonitorSmartphone, Smartphone,
+  EyeOff, Eye, LogOut, Shield, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { useVendors } from '../../hooks/useVendors';
 import { useSiteContent } from '../../hooks/useSiteContent';
+import { account } from '../../lib/appwrite';
 import { Vendor } from '../../types';
 import CustomSelect from '../ui/CustomSelect';
 import ImageUploader from './ImageUploader';
@@ -141,12 +143,77 @@ const Settings: React.FC = () => {
   };
 
   // ── Sidebar Tabs ───────────────────────────────────────────────────────────
+  // ── Security State ──────────────────────────────────────────────────────
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
+  const [pwVisible, setPwVisible] = useState({ current: false, next: false, confirm: false });
+  const [pwLoading, setPwLoading] = useState(false);
+  const [emailForm, setEmailForm] = useState({ newEmail: '', password: '' });
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [nameForm, setNameForm] = useState('');
+  const [nameLoading, setNameLoading] = useState(false);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+
+  const loadSessions = useCallback(async () => {
+    setSessionsLoading(true);
+    try { const res = await account.listSessions(); setSessions(res.sessions); }
+    catch { setSessions([]); }
+    finally { setSessionsLoading(false); }
+  }, []);
+
+  useEffect(() => { if (activeTab === 'security') loadSessions(); }, [activeTab, loadSessions]);
+
+  const handleChangePassword = async () => {
+    if (!pwForm.current || !pwForm.next) { toast.error('Completa todos los campos.'); return; }
+    if (pwForm.next !== pwForm.confirm) { toast.error('Las contraseñas no coinciden.'); return; }
+    if (pwForm.next.length < 8) { toast.error('Mínimo 8 caracteres.'); return; }
+    setPwLoading(true);
+    try {
+      await account.updatePassword(pwForm.next, pwForm.current);
+      toast.success('Contraseña actualizada correctamente.');
+      setPwForm({ current: '', next: '', confirm: '' });
+    } catch (err: any) { toast.error(err.message || 'Error al cambiar la contraseña.'); }
+    finally { setPwLoading(false); }
+  };
+
+  const handleChangeEmail = async () => {
+    if (!emailForm.newEmail || !emailForm.password) { toast.error('Completa todos los campos.'); return; }
+    setEmailLoading(true);
+    try {
+      await account.updateEmail(emailForm.newEmail, emailForm.password);
+      toast.success('Email actualizado. Verifica tu nuevo correo.');
+      setEmailForm({ newEmail: '', password: '' });
+    } catch (err: any) { toast.error(err.message || 'Error al cambiar el email.'); }
+    finally { setEmailLoading(false); }
+  };
+
+  const handleChangeName = async () => {
+    if (!nameForm.trim()) return;
+    setNameLoading(true);
+    try { await account.updateName(nameForm.trim()); toast.success('Nombre actualizado.'); }
+    catch (err: any) { toast.error(err.message || 'Error.'); }
+    finally { setNameLoading(false); }
+  };
+
+  const handleDeleteSession = async (sessionId: string) => {
+    try { await account.deleteSession(sessionId); await loadSessions(); toast.success('Sesión cerrada.'); }
+    catch { toast.error('Error al cerrar la sesión.'); }
+  };
+
+  const handleDeleteAllSessions = async () => {
+    if (!(await showConfirm('¿Cerrar todas las demás sesiones activas?'))) return;
+    try { await account.deleteSessions(); await loadSessions(); toast.success('Sesiones cerradas.'); }
+    catch { toast.error('Error.'); }
+  };
+
+  // ── Sidebar Tabs────────────────────────────────────────────────────────────
   const tabs = [
-    { id: 'store',   label: 'Tienda',        icon: <Store size={17}/> },
-    { id: 'contact', label: 'Contacto',       icon: <Phone size={17}/> },
-    { id: 'hero',    label: 'Textos & Hero',  icon: <AlignLeft size={17}/> },
-    { id: 'social',  label: 'Redes Sociales', icon: <Globe size={17}/> },
-    { id: 'vendors', label: 'Vendedores',     icon: <Users size={17}/> },
+    { id: 'store',    label: 'Tienda',        icon: <Store size={17}/> },
+    { id: 'contact',  label: 'Contacto',       icon: <Phone size={17}/> },
+    { id: 'hero',     label: 'Textos & Hero',  icon: <AlignLeft size={17}/> },
+    { id: 'social',   label: 'Redes Sociales', icon: <Globe size={17}/> },
+    { id: 'security', label: 'Seguridad',      icon: <Shield size={17}/> },
+    { id: 'vendors',  label: 'Vendedores',     icon: <Users size={17}/> },
   ];
 
   const inp = "w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-accent focus:outline-none text-sm bg-white";
@@ -390,7 +457,154 @@ const Settings: React.FC = () => {
               </div>
             )}
 
+
+            {/* ═══ SEGURIDAD ══════════════════════════════════════════════════ */}
+            {activeTab === 'security' && (
+              <div className="animate-fade-in">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-black text-gray-800">Seguridad & Acceso</h2>
+                  <p className="text-sm text-gray-500 mt-1">Gestiona tu contraseña, email y sesiones activas en tiempo real.</p>
+                </div>
+
+                {/* Change Password */}
+                <Section title="Cambiar Contraseña" icon={<KeyRound size={16}/>} onSave={handleChangePassword} saving={pwLoading}>
+                  {(['current','next','confirm'] as const).map((field) => {
+                    const labels = { current: 'Contraseña actual', next: 'Nueva contraseña', confirm: 'Confirmar nueva contraseña' };
+                    const hints  = { current: '', next: 'Mínimo 8 caracteres.', confirm: '' };
+                    return (
+                      <div key={field} className="md:col-span-2">
+                        <Field label={labels[field]} hint={hints[field]}>
+                          <div className="relative">
+                            <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+                            <input
+                              className={`${inp} pl-9 pr-10`}
+                              type={pwVisible[field] ? 'text' : 'password'}
+                              value={pwForm[field]}
+                              onChange={e => setPwForm({...pwForm, [field]: e.target.value})}
+                              placeholder={labels[field]}
+                              autoComplete={field === 'current' ? 'current-password' : 'new-password'}
+                            />
+                            <button type="button"
+                              onClick={() => setPwVisible(v => ({...v, [field]: !v[field]}))}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            >
+                              {pwVisible[field] ? <EyeOff size={14}/> : <Eye size={14}/>}
+                            </button>
+                          </div>
+                        </Field>
+                      </div>
+                    );
+                  })}
+                </Section>
+
+                {/* Change Email */}
+                <Section title="Cambiar Email de Acceso" icon={<Mail size={16}/>} onSave={handleChangeEmail} saving={emailLoading}>
+                  <Field label="Nuevo email">
+                    <input className={inp} type="email" value={emailForm.newEmail}
+                      onChange={e => setEmailForm({...emailForm, newEmail: e.target.value})}
+                      placeholder="nuevo@correo.com"/>
+                  </Field>
+                  <Field label="Contraseña actual (confirmación)">
+                    <div className="relative">
+                      <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+                      <input className={`${inp} pl-9`} type="password" value={emailForm.password}
+                        onChange={e => setEmailForm({...emailForm, password: e.target.value})}
+                        placeholder="Tu contraseña actual"/>
+                    </div>
+                  </Field>
+                </Section>
+
+                {/* Change Name */}
+                <Section title="Nombre de Perfil" icon={<Users size={16}/>} onSave={handleChangeName} saving={nameLoading}>
+                  <div className="md:col-span-2">
+                    <Field label="Nombre visible en el panel">
+                      <input className={inp} value={nameForm}
+                        onChange={e => setNameForm(e.target.value)}
+                        placeholder="Tu nombre o alias"/>
+                    </Field>
+                  </div>
+                </Section>
+
+                {/* Active Sessions */}
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
+                  <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <h4 className="font-bold text-gray-800 flex items-center gap-2 text-sm uppercase tracking-widest">
+                      <span className="text-brand-accent"><MonitorSmartphone size={16}/></span> Sesiones Activas
+                    </h4>
+                    <div className="flex gap-2">
+                      <button onClick={loadSessions} title="Actualizar" className="p-1.5 text-gray-400 hover:text-brand-primary hover:bg-gray-100 rounded-lg transition-colors">
+                        <RefreshCw size={14} className={sessionsLoading ? 'animate-spin' : ''}/>
+                      </button>
+                      {sessions.length > 1 && (
+                        <button onClick={handleDeleteAllSessions}
+                          className="text-red-500 hover:bg-red-50 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 border border-red-100 transition-colors">
+                          <LogOut size={12}/> Cerrar todas
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="divide-y divide-gray-50">
+                    {sessionsLoading ? (
+                      <div className="p-8 text-center text-gray-400">
+                        <RefreshCw size={24} className="animate-spin mx-auto mb-2"/>
+                        <p className="text-sm">Cargando sesiones...</p>
+                      </div>
+                    ) : sessions.length === 0 ? (
+                      <div className="p-8 text-center text-gray-400">
+                        <Shield size={28} className="mx-auto mb-2 opacity-30"/>
+                        <p className="text-sm font-bold">No hay sesiones registradas</p>
+                      </div>
+                    ) : sessions.map((s) => {
+                      const isCurrent = s.current;
+                      const isMobile  = (s.deviceName || '').toLowerCase().includes('mobile') || s.clientType === 'mobile';
+                      const date = new Date(s.$createdAt);
+                      return (
+                        <div key={s.$id} className={`flex items-center justify-between px-6 py-4 transition-colors ${isCurrent ? 'bg-green-50/50' : 'hover:bg-gray-50/50'}`}>
+                          <div className="flex items-center gap-4">
+                            <div className={`p-2 rounded-xl ${isCurrent ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                              {isMobile ? <Smartphone size={20}/> : <MonitorSmartphone size={20}/>}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                {s.clientName || s.deviceName || 'Navegador desconocido'}
+                                {isCurrent && <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">ACTUAL</span>}
+                              </p>
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                {[s.ip, s.countryName, date.toLocaleString('es-DO')].filter(Boolean).join(' · ')}
+                              </p>
+                              {s.osName && <p className="text-xs text-gray-400">{s.osName} {s.osVersion} — {s.clientName} {s.clientVersion}</p>}
+                            </div>
+                          </div>
+                          {!isCurrent && (
+                            <button onClick={() => handleDeleteSession(s.$id)}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Cerrar sesión">
+                              <LogOut size={16}/>
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Tips */}
+                <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 flex gap-4">
+                  <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5"/>
+                  <div className="text-sm text-amber-800">
+                    <p className="font-bold mb-1">Buenas prácticas de seguridad</p>
+                    <ul className="space-y-1 text-xs list-disc list-inside">
+                      <li>Usa una contraseña de al menos 12 caracteres con símbolos y números.</li>
+                      <li>No compartas tus credenciales, ni por WhatsApp.</li>
+                      <li>Cierra sesión desde dispositivos que ya no uses.</li>
+                      <li>Si sospechas acceso no autorizado, cambia tu contraseña inmediatamente.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* ═══ VENDEDORES ════════════════════════════════════════════════ */}
+
             {activeTab === 'vendors' && (
               <div className="animate-fade-in">
                 <div className="mb-6">
