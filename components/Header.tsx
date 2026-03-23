@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Bars3Icon, XMarkIcon, ShoppingBagIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Bars3Icon, XMarkIcon, ShoppingBagIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSiteContent } from '../hooks/useSiteContent';
@@ -11,6 +11,33 @@ const TridentIcon: React.FC<{ className?: string }> = ({ className = 'w-7 h-7' }
   </svg>
 );
 
+// Category definition type
+interface Category {
+  key: string;         // used in URL: /products?category=key
+  label: string;       // Spanish label (translated via t())
+  image: string;       // Unsplash image URL
+  emoji: string;
+}
+
+// All product categories with curated Unsplash images
+const CATEGORIES: Category[] = [
+  { key: 'Moda & Ropa',          label: 'Moda & Ropa',          emoji: '👗', image: 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Calzado',              label: 'Calzado',              emoji: '👟', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Accesorios',           label: 'Accesorios',           emoji: '👜', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Alta Joyería',         label: 'Alta Joyería',         emoji: '💎', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Bisutería',            label: 'Bisutería',            emoji: '📿', image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Cuidado Personal',     label: 'Cuidado Personal',     emoji: '🧴', image: 'https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Perfumes',             label: 'Perfumes',             emoji: '🌸', image: 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Artesanía',            label: 'Artesanía',            emoji: '🏺', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Artículos del Hogar',  label: 'Artículos del Hogar',  emoji: '🏠', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Artículos Personales', label: 'Artículos Personales', emoji: '🎒', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Juguetes',             label: 'Juguetes',             emoji: '🧸', image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Tecnología',           label: 'Tecnología',           emoji: '📱', image: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Bolsos & Carteras',    label: 'Bolsos & Carteras',    emoji: '👛', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Ropa Interior',        label: 'Ropa Interior',        emoji: '🩱', image: 'https://images.unsplash.com/photo-1624206112918-f140f087f9b5?w=300&q=80&auto=format&fit=crop' },
+  { key: 'Deportes',             label: 'Deportes',             emoji: '⚽', image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=300&q=80&auto=format&fit=crop' },
+];
+
 interface HeaderProps {
   cartCount: number;
   onOpenCart: () => void;
@@ -20,16 +47,17 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, currentView }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const megaMenuTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const servicesRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { content } = useSiteContent();
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
+  const changeLanguage = (lng: string) => { i18n.changeLanguage(lng); };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -37,29 +65,10 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = [
-    { label: t('Inicio'), path: '/' },
-    { label: t('Ofertas'), path: '/offers' },
-    { label: t('Productos'), path: '/products' },
-    { label: t('Boutiques'), path: '/boutiques' },
-    { 
-      label: t('Servicios'), 
-      path: '#',
-      subItems: [
-        { label: t('Estudio de Trenzas'), path: '/braids' },
-        { label: t('Bisutería'), path: '/bisuteria' },
-        { label: t('Personalizados'), path: '/custom' },
-      ]
-    },
-    { label: t('Juguetes'), path: '/toys' },
-    { label: t('Cuidado Personal'), path: '/personal-care' },
-    { label: t('Alta Joyería'), path: '/jewelry' },
-    { label: t('Gift Cards'), path: '/gift-cards' },
-  ];
-
+  // Close services dropdown on outside click
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (servicesRef.current && !servicesRef.current.contains(e.target as Node)) {
         setServicesDropdownOpen(false);
       }
     };
@@ -67,15 +76,49 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Mega menu hover handlers with delay to avoid accidental close
+  const handleMegaEnter = useCallback(() => {
+    if (megaMenuTimeout.current) clearTimeout(megaMenuTimeout.current);
+    setMegaMenuOpen(true);
+  }, []);
+
+  const handleMegaLeave = useCallback(() => {
+    megaMenuTimeout.current = setTimeout(() => setMegaMenuOpen(false), 180);
+  }, []);
+
+  const goToCategory = (cat: Category) => {
+    setMegaMenuOpen(false);
+    setMobileMenuOpen(false);
+    navigate(`/products?category=${encodeURIComponent(cat.key)}`);
+  };
+
+  const getCategoryLabel = (cat: Category) => t(cat.label);
+
+  const navItems = [
+    { label: t('Inicio'), path: '/' },
+    { label: t('Ofertas'), path: '/offers' },
+    { label: t('Boutiques'), path: '/boutiques' },
+    {
+      label: t('Servicios'),
+      path: '#',
+      subItems: [
+        { label: t('Estudio de Trenzas'), path: '/braids' },
+        { label: t('Bisutería'), path: '/bisuteria' },
+        { label: t('Personalizados'), path: '/custom' },
+      ]
+    },
+    { label: t('Gift Cards'), path: '/gift-cards' },
+  ];
+
   return (
     <header className={`sticky top-0 z-50 transition-all duration-500 ${
-      scrolled 
-        ? 'bg-white/80 backdrop-blur-xl shadow-glass border-b border-gray-100/50' 
+      scrolled
+        ? 'bg-white/80 backdrop-blur-xl shadow-glass border-b border-gray-100/50'
         : 'bg-white border-b border-gray-100'
     }`}>
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Brand Name with Trident */}
-        <Link to="/" className="flex items-center gap-0.5 cursor-pointer group">
+        <Link to="/" className="flex items-center gap-0.5 cursor-pointer group shrink-0">
           {content.store_logo ? (
             <img src={content.store_logo} alt={content.store_name || 'Boutique'} className="h-10 object-contain" />
           ) : (
@@ -90,52 +133,139 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
 
         {/* Desktop Nav */}
         <nav className="hidden xl:flex gap-0.5 text-[13px] font-medium items-center">
-          {navItems.map((item) => (
-            item.subItems ? (
-              <div key={item.label} className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
-                  className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 ${
-                    item.subItems.some(sub => currentView === sub.path.substring(1)) 
-                      ? 'bg-black text-white font-semibold' 
-                      : 'text-brand-primary/70 hover:bg-black hover:text-white'
-                  }`}
-                >
-                  {item.label}
-                  <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {servicesDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-2xl shadow-glass-lg py-2 animate-slide-down border border-gray-100">
-                    {item.subItems.map((sub) => (
-                      <Link
-                        key={sub.path}
-                        to={sub.path}
-                        onClick={() => setServicesDropdownOpen(false)}
-                        className={`block px-4 py-2.5 text-sm transition-colors ${
-                          currentView === sub.path.substring(1) ? 'text-white bg-black font-semibold' : 'text-brand-primary/70 hover:bg-black hover:text-white'
-                        }`}
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-                  currentView === item.path.substring(1) || (item.path === '/' && currentView === 'home') 
-                    ? 'bg-black text-white font-semibold' 
-                    : 'text-brand-primary/70 hover:bg-black hover:text-white'
-                }`}
-              >
-                {item.label}
-              </Link>
-            )
+          {/* Inicio, Ofertas */}
+          {navItems.slice(0, 2).map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                currentView === item.path.substring(1) || (item.path === '/' && currentView === 'home')
+                  ? 'bg-black text-white font-semibold'
+                  : 'text-brand-primary/70 hover:bg-black hover:text-white'
+              }`}
+            >
+              {item.label}
+            </Link>
           ))}
+
+          {/* Productos – Mega Menu trigger */}
+          <div
+            className="relative"
+            onMouseEnter={handleMegaEnter}
+            onMouseLeave={handleMegaLeave}
+          >
+            <button
+              onClick={() => setMegaMenuOpen(v => !v)}
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 ${
+                currentView === 'products'
+                  ? 'bg-black text-white font-semibold'
+                  : 'text-brand-primary/70 hover:bg-black hover:text-white'
+              }`}
+            >
+              {t('Productos')}
+              <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform duration-200 ${megaMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Mega Menu Panel */}
+            {megaMenuOpen && (
+              <div
+                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[780px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-slide-down z-50"
+                onMouseEnter={handleMegaEnter}
+                onMouseLeave={handleMegaLeave}
+              >
+                {/* Header strip */}
+                <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50/60">
+                  <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{t('Todas las Categorías')}</span>
+                  <button
+                    onClick={() => { setMegaMenuOpen(false); navigate('/products'); }}
+                    className="text-xs font-bold text-brand-accent hover:underline flex items-center gap-1"
+                  >
+                    {t('Ver todos los productos')} <ChevronRightIcon className="w-3 h-3" />
+                  </button>
+                </div>
+
+                {/* Categories Grid */}
+                <div className="grid grid-cols-5 gap-0 p-4">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.key}
+                      onClick={() => goToCategory(cat)}
+                      className="group flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition-all duration-200 text-center"
+                    >
+                      {/* Category image */}
+                      <div className="w-full aspect-square rounded-xl overflow-hidden bg-gray-100 relative">
+                        <img
+                          src={cat.image}
+                          alt={getCategoryLabel(cat)}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 rounded-xl" />
+                      </div>
+                      <span className="text-[11px] font-bold text-gray-700 group-hover:text-brand-primary leading-tight">
+                        {getCategoryLabel(cat)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Boutiques */}
+          <Link
+            to="/boutiques"
+            className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+              currentView === 'boutiques'
+                ? 'bg-black text-white font-semibold'
+                : 'text-brand-primary/70 hover:bg-black hover:text-white'
+            }`}
+          >
+            {t('Boutiques')}
+          </Link>
+
+          {/* Servicios dropdown */}
+          <div className="relative" ref={servicesRef}>
+            <button
+              onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 ${
+                ['/braids', '/bisuteria', '/custom'].some(p => currentView === p.substring(1))
+                  ? 'bg-black text-white font-semibold'
+                  : 'text-brand-primary/70 hover:bg-black hover:text-white'
+              }`}
+            >
+              {t('Servicios')}
+              <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {servicesDropdownOpen && (
+              <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-2xl shadow-glass-lg py-2 animate-slide-down border border-gray-100">
+                {navItems[3].subItems!.map((sub) => (
+                  <Link
+                    key={sub.path}
+                    to={sub.path}
+                    onClick={() => setServicesDropdownOpen(false)}
+                    className={`block px-4 py-2.5 text-sm transition-colors ${
+                      currentView === sub.path.substring(1) ? 'text-white bg-black font-semibold' : 'text-brand-primary/70 hover:bg-black hover:text-white'
+                    }`}
+                  >
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Gift Cards */}
+          <Link
+            to="/gift-cards"
+            className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+              currentView === 'gift-cards'
+                ? 'bg-black text-white font-semibold'
+                : 'text-brand-primary/70 hover:bg-black hover:text-white'
+            }`}
+          >
+            {t('Gift Cards')}
+          </Link>
         </nav>
 
         {/* Actions */}
@@ -147,8 +277,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
                 key={lng}
                 onClick={() => changeLanguage(lng)}
                 className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase transition-all duration-200 ${
-                  i18n.language === lng 
-                    ? 'bg-black text-white shadow-sm' 
+                  i18n.language === lng
+                    ? 'bg-black text-white shadow-sm'
                     : 'text-brand-muted hover:text-brand-primary'
                 }`}
               >
@@ -157,7 +287,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
             ))}
           </div>
           {/* Order Tracking */}
-          <button 
+          <button
             onClick={onOpenTracking}
             className="p-2.5 hover:bg-black hover:text-white rounded-xl transition-all duration-200 text-brand-primary"
             title={t("Rastrear Orden / Cita")}
@@ -166,9 +296,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
                <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.543-1.59-1.59" />
             </svg>
           </button>
-          
+
           {/* Cart */}
-          <button 
+          <button
             onClick={onOpenCart}
             className="relative p-2.5 hover:bg-black hover:text-white rounded-xl transition-all duration-200"
           >
@@ -181,12 +311,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
           </button>
 
           {/* Mobile Menu Toggle */}
-          <button 
+          <button
             className="xl:hidden p-2 hover:bg-black hover:text-white rounded-xl transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => { setMobileMenuOpen(!mobileMenuOpen); setMobileCatsOpen(false); }}
           >
-            {mobileMenuOpen 
-              ? <XMarkIcon className="w-5 h-5" /> 
+            {mobileMenuOpen
+              ? <XMarkIcon className="w-5 h-5" />
               : <Bars3Icon className="w-5 h-5" />
             }
           </button>
@@ -197,7 +327,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
       {mobileMenuOpen && (
         <div className="xl:hidden bg-white/95 backdrop-blur-xl border-t border-gray-100 max-h-[80vh] overflow-y-auto animate-slide-down">
           <nav className="flex flex-col p-4 gap-1">
-            {navItems.map((item) => (
+            {/* Standard nav items */}
+            {navItems.map((item) =>
               item.subItems ? (
                 <div key={item.label} className="flex flex-col gap-1">
                   <div className="text-brand-muted text-[11px] font-bold uppercase tracking-[0.15em] px-3 pt-3 pb-1">{item.label}</div>
@@ -208,8 +339,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
                         to={sub.path}
                         onClick={() => setMobileMenuOpen(false)}
                         className={`px-3 py-2.5 rounded-lg text-[15px] transition-colors ${
-                          currentView === sub.path.substring(1) 
-                            ? 'bg-black text-white font-semibold' 
+                          currentView === sub.path.substring(1)
+                            ? 'bg-black text-white font-semibold'
                             : 'text-brand-primary/80 hover:bg-black hover:text-white'
                         }`}
                       >
@@ -224,15 +355,51 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`px-3 py-2.5 rounded-lg text-[15px] transition-colors ${
-                    currentView === item.path.substring(1) || (item.path === '/' && currentView === 'home') 
-                      ? 'bg-black text-white font-semibold' 
+                    currentView === item.path.substring(1) || (item.path === '/' && currentView === 'home')
+                      ? 'bg-black text-white font-semibold'
                       : 'text-brand-primary/80 hover:bg-black hover:text-white'
                   }`}
                 >
                   {item.label}
                 </Link>
               )
-            ))}
+            )}
+
+            {/* Productos / Categories accordion */}
+            <div className="mt-1">
+              <button
+                onClick={() => setMobileCatsOpen(v => !v)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[15px] transition-colors ${
+                  currentView === 'products'
+                    ? 'bg-black text-white font-semibold'
+                    : 'text-brand-primary/80 hover:bg-black hover:text-white'
+                }`}
+              >
+                <span>{t('Productos')}</span>
+                <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${mobileCatsOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {mobileCatsOpen && (
+                <div className="mt-1 pl-2 grid grid-cols-2 gap-1">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.key}
+                      onClick={() => goToCategory(cat)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-brand-primary/80 hover:bg-black hover:text-white transition-colors text-left"
+                    >
+                      <span>{cat.emoji}</span>
+                      <span>{getCategoryLabel(cat)}</span>
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => { navigate('/products'); setMobileMenuOpen(false); }}
+                    className="col-span-2 px-3 py-2 rounded-lg text-sm font-bold text-brand-accent hover:bg-brand-accent/10 transition-colors text-center"
+                  >
+                    {t('Ver todos los productos')} →
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Mobile language switcher */}
             <div className="flex items-center gap-1 mt-3 pt-3 border-t border-gray-100 px-3">
               {['fr', 'en', 'es'].map((lng) => (
@@ -240,8 +407,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
                   key={lng}
                   onClick={() => changeLanguage(lng)}
                   className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase ${
-                    i18n.language === lng 
-                      ? 'bg-black text-white' 
+                    i18n.language === lng
+                      ? 'bg-black text-white'
                       : 'bg-gray-100 text-brand-muted'
                   }`}
                 >

@@ -8,9 +8,24 @@ const resources = {
       // Nav & Header
       "Inicio": "Accueil", "Ofertas": "Offres", "Productos": "Produits", "Boutiques": "Boutiques", "Servicios": "Services",
       "Rastrear Orden / Cita": "Suivre Commande / Rendez-vous",
-      "Estudio de Trenzas": "Studio de Tresses", "Bisutería": "Bijouterie", "Personalizados": "Personnalisés",
+      "Estudio de Trenzas": "Studio de Tresses", "Serv. Bisutería": "Bijouterie", "Personalizados": "Personnalisés",
       "Juguetes": "Jouets", "Cuidado Personal": "Soins Personnels", "Alta Joyería": "Haute Joaillerie",
       "Gift Cards": "Cartes Cadeaux", "Joyería Fina": "Joaillerie Fine",
+      // Product categories (mega menu)
+      "Moda & Ropa": "Mode & V\u00eatements",
+      "Calzado": "Chaussures",
+      "Accesorios": "Accessoires",
+      "Bisutería": "Bijoux Fantaisie",
+      "Perfumes": "Parfums",
+      "Art\u00edculos del Hogar": "Articles M\u00e9nagers",
+      "Art\u00edculos Personales": "Articles Personnels",
+      "Tecnolog\u00eda": "Technologie",
+      "Bolsos & Carteras": "Sacs & Portefeuilles",
+      "Ropa Interior": "Sous-v\u00eatements",
+      "Deportes": "Sports",
+      // Mega menu UI
+      "Todas las Categor\u00edas": "Toutes les Cat\u00e9gories",
+      "Ver todos los productos": "Voir tous les produits",
       "Cargando...": "Chargement...",
       // Product names
       "Taza Personalizada": "Tasse Personnalisée", "T-Shirt Cotton": "T-Shirt Coton",
@@ -667,6 +682,22 @@ const resources = {
       "Estudio de Trenzas": "Braids Studio", "Bisutería": "Jewelry", "Personalizados": "Customized",
       "Juguetes": "Toys", "Cuidado Personal": "Personal Care", "Alta Joyería": "Fine Jewelry",
       "Gift Cards": "Gift Cards", "Joyería Fina": "Fine Jewelry",
+      // Product categories (mega menu)
+      "Moda & Ropa": "Fashion & Clothing",
+      "Calzado": "Footwear",
+      "Accesorios": "Accessories",
+      // Bisutería already exists as "Jewelry" above - use as costume jewelry category
+      "Perfumes": "Fragrances",
+      "Artesanía": "Handicrafts",
+      "Artículos del Hogar": "Home Goods",
+      "Artículos Personales": "Personal Items",
+      "Tecnología": "Technology",
+      "Bolsos & Carteras": "Bags & Wallets",
+      "Ropa Interior": "Underwear",
+      "Deportes": "Sports",
+      // Mega menu UI
+      "Todas las Categorías": "All Categories",
+      "Ver todos los productos": "View All Products",
       // Product names
       "Taza Personalizada": "Custom Mug", "T-Shirt Cotton": "Cotton T-Shirt",
       "Gorra Trucker": "Trucker Cap", "Mochila Urbana": "Urban Backpack",
@@ -759,7 +790,7 @@ const resources = {
       "Explora nuestro catálogo completo.": "Explore our complete catalog.",
       "Productos con descuento en todas las categorías.": "Discounted products across all categories.",
       "de": "of",
-      "Joyería": "Jewelry", "Artesanía": "Crafts",
+      "Joyería": "Jewelry",
       // Jewelry product names (jw5-jw16)
       "Anillo Larimar Corazón": "Larimar Heart Ring",
       "Piedra larimar tallada en corazón montada en plata 925. Pieza única.": "Larimar stone carved in heart shape set in 925 silver. Unique piece.",
