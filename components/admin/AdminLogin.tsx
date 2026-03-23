@@ -3,15 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Lock, User, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
-const DEMO_USERS = [
-  { email: 'admin@boutique.com', password: 'Admin123!', role: 'Administrador', name: 'Admin Boutique' },
-  { email: 'vendedor@boutique.com', password: 'Venta123!', role: 'Vendedor', name: 'María García' },
-  { email: 'gerente@boutique.com', password: 'Gerente123!', role: 'Gerente', name: 'Carlos Méndez' },
-];
-
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState(DEMO_USERS[0].email);
-  const [password, setPassword] = useState(DEMO_USERS[0].password);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,12 +25,6 @@ const AdminLogin: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillCredentials = (idx: number) => {
-    setEmail(DEMO_USERS[idx].email);
-    setPassword(DEMO_USERS[idx].password);
-    setError('');
   };
 
   return (
@@ -84,6 +72,7 @@ const AdminLogin: React.FC = () => {
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all"
                   placeholder="correo@boutique.com"
                   required
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -101,11 +90,13 @@ const AdminLogin: React.FC = () => {
                   className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all"
                   placeholder="••••••••"
                   required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -113,14 +104,14 @@ const AdminLogin: React.FC = () => {
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 text-xs font-bold px-4 py-3 rounded-xl border border-red-100">
+              <div className="bg-red-50 text-red-600 text-xs font-bold px-4 py-3 rounded-xl border border-red-100" role="alert">
                 {error}
               </div>
             )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !email || !password}
               className="w-full py-3.5 bg-brand-primary text-brand-accent font-bold rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/25"
             >
               {loading ? (
@@ -132,38 +123,6 @@ const AdminLogin: React.FC = () => {
               )}
             </button>
           </form>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 pt-5 border-t border-gray-100">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 text-center">
-              Cuentas Demo
-            </p>
-            <div className="space-y-2">
-              {DEMO_USERS.map((user, i) => (
-                <button
-                  key={i}
-                  onClick={() => fillCredentials(i)}
-                  className={`w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 border ${
-                    email === user.email 
-                      ? 'bg-brand-primary/5 border-brand-primary/20 text-brand-primary' 
-                      : 'bg-gray-50 border-gray-100 text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black ${
-                      email === user.email ? 'bg-brand-primary text-brand-accent' : 'bg-gray-200 text-gray-500'
-                    }`}>
-                      {user.name[0]}
-                    </div>
-                    <div className="text-left">
-                      <div className="font-bold text-xs">{user.name}</div>
-                      <div className="text-[10px] text-gray-400">{user.email}</div>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Back to store */}

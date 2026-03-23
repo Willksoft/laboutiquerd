@@ -48,6 +48,7 @@ import ProductPageLayout from './components/ProductPageLayout';
 import { ToastContainer } from './components/Toast';
 
 import AdminLayout from './components/admin/AdminLayout';
+import AdminGuard from './components/admin/AdminGuard';
 import AdminLogin from './components/admin/AdminLogin';
 import Dashboard from './components/admin/Dashboard';
 import CustomizerAdmin from './components/admin/CustomizerAdmin';
@@ -1112,13 +1113,9 @@ function App() {
           {/* ═══════════════ ADMIN ROUTES ═══════════════ */}
           <Route path="/login" element={<AdminLogin />} />
           <Route path="/admin" element={
-            (() => {
-              try {
-                const auth = JSON.parse(localStorage.getItem('laboutiquerd_auth') || '{}');
-                if (auth.loggedIn) return <AdminLayout onOpenTracking={() => setIsTrackingOpen(true)} />;
-              } catch {}
-              return <Navigate to="/login" replace />;
-            })()
+            <AdminGuard>
+              <AdminLayout onOpenTracking={() => setIsTrackingOpen(true)} />
+            </AdminGuard>
           }>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
