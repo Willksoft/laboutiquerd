@@ -72,63 +72,70 @@ const BrandsAdmin: React.FC = () => {
             </div>
           </div>
 
-          {/* Brands Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 flex-1 overflow-y-auto custom-scrollbar">
-            {filteredBrands.map(brand => (
-              <div
-                key={brand.id}
-                className={`bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden group hover:border-brand-accent/30 transition-all duration-200 hover:shadow-sm ${brand.isVisible === false ? 'opacity-50' : ''}`}
-              >
-                {/* Logo area */}
-                <div className="aspect-[3/2] bg-white flex items-center justify-center border-b border-gray-100 relative overflow-hidden">
-                  {brand.logo ? (
-                    <img src={brand.logo} alt={brand.name} className="w-full h-full object-contain p-6" />
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 text-gray-300">
-                      <ImageIcon size={40} />
-                      <span className="text-xs font-bold uppercase tracking-wider">Sin Logo</span>
-                    </div>
-                  )}
-                  {brand.isVisible === false && (
-                    <div className="absolute top-2 right-2 bg-black text-white p-1.5 rounded-lg shadow-xl">
-                      <EyeOff size={14} />
-                    </div>
-                  )}
-                </div>
+          {/* Brands List View */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="flex flex-col gap-3 pr-2">
+              {filteredBrands.map(brand => (
+                <div
+                  key={brand.id}
+                  className={`bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4 group hover:border-brand-accent/50 hover:shadow-sm transition-all duration-200 ${brand.isVisible === false ? 'opacity-60 bg-gray-50' : ''}`}
+                >
+                  {/* Avatar / Logo Thumb */}
+                  <div className="w-16 h-16 rounded-lg bg-gray-50 flex-shrink-0 flex items-center justify-center border border-gray-100 overflow-hidden relative">
+                    {brand.logo ? (
+                      <img src={brand.logo} alt={brand.name} className="w-full h-full object-contain p-2" />
+                    ) : (
+                      <div className="text-gray-300">
+                        <ImageIcon size={24} />
+                      </div>
+                    )}
+                    {brand.isVisible === false && (
+                      <div className="absolute top-1 right-1 bg-black/70 text-white p-0.5 rounded shadow-sm">
+                        <EyeOff size={10} />
+                      </div>
+                    )}
+                  </div>
 
-                {/* Info */}
-                <div className="p-4">
-                  <h3 className="font-bold text-gray-800 text-lg">{brand.name}</h3>
-                  {brand.description && (
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{brand.description}</p>
-                  )}
-                  <div className="flex justify-end gap-1 mt-3 pt-3 border-t border-gray-100">
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-800 text-lg truncate">{brand.name}</h3>
+                    {brand.description ? (
+                      <p className="text-sm text-gray-500 truncate mt-0.5">{brand.description}</p>
+                    ) : (
+                       <p className="text-xs text-gray-400 italic mt-0.5">Sin descripción</p>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => setEditingBrand({ ...brand })}
-                      className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-2 text-blue-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors"
+                      title="Editar Marca"
                     >
-                      <Edit2 size={16} />
+                      <Edit2 size={18} />
                     </button>
                     <button
                       onClick={async () => {
                         if (await showConfirm(`¿Eliminar la marca "${brand.name}"?`)) deleteBrand(brand.id);
                       }}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-red-500 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors"
+                      title="Eliminar Marca"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            {filteredBrands.length === 0 && (
-              <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
-                <Tag size={48} className="opacity-20 mb-3" />
-                <p className="font-bold text-lg">No hay marcas registradas</p>
-                <p className="text-sm mt-1">Crea una marca para asociarla a tus productos.</p>
-              </div>
-            )}
+              {filteredBrands.length === 0 && (
+                <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-400 border-2 border-dashed border-gray-100 rounded-2xl">
+                  <Tag size={48} className="opacity-20 mb-3" />
+                  <p className="font-bold text-lg">No hay marcas registradas</p>
+                  <p className="text-sm mt-1">Crea una marca para asociarla a tus productos.</p>
+                </div>
+              )}
+            </div>
           </div>
         </>
       ) : (

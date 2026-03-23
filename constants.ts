@@ -575,3 +575,21 @@ export const TSHIRT_PRESETS: TShirtPreset[] = [
   { id: 'classic-black-gold', name: 'Black & Gold Luxury', description: 'Elegancia atemporal. Logo dorado sobre fondo negro profundo.', logoStyle: 'classic', baseColorName: 'Negro', baseColorValue: '#1a1a1a', defaultLogoColor: '#ca8a04', tags: ['Best Seller'] },
   { id: 'classic-white-black', name: 'Minimalist White', description: 'Limpio y versátil. El básico que no puede faltar.', logoStyle: 'classic', baseColorName: 'Blanco', baseColorValue: '#ffffff', defaultLogoColor: '#000000', tags: ['Esencial'] },
 ];
+
+export const BRANDS = [
+  { name: '45', fontClass: 'font-bold tracking-widest text-[#4A3D2A]' },
+  { name: 'Collection Club Med', fontClass: 'font-serif font-bold tracking-widest text-brand-primary' },
+  { name: 'Quiksilver', fontClass: 'font-sans font-black tracking-tighter text-red-600' },
+  { name: 'Billabong', fontClass: 'font-sans font-bold italic tracking-wide text-gray-800' },
+  { name: 'Vilebrequin', fontClass: 'font-sans font-black uppercase tracking-wide text-blue-900' },
+  { name: 'Sundek', fontClass: 'font-sans font-bold text-orange-500 uppercase' },
+  { name: 'Banana Moon', fontClass: 'font-cursive text-2xl md:text-3xl text-pink-500' },
+  { name: 'Havaianas', fontClass: 'font-sans font-black text-yellow-500 tracking-wider' },
+  { name: 'Livia', fontClass: 'font-serif italic font-bold text-gray-700' },
+  { name: 'Carbon', fontClass: 'font-mono font-bold uppercase tracking-tighter text-gray-900' },
+  { name: 'Happy & So', fontClass: 'font-handwriting text-xl font-bold text-purple-900' },
+  { name: 'Gold & Silver', fontClass: 'font-serif font-bold text-yellow-600' },
+  { name: 'Kreoli Bijoux', fontClass: 'font-sans font-light tracking-[0.2em] uppercase text-gray-800' },
+  { name: 'Cacatoès', fontClass: 'font-sans font-black uppercase text-green-600' },
+  { name: 'Hipanema', fontClass: 'font-serif font-bold text-red-500 tracking-wider' }
+];

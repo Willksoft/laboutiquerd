@@ -38,30 +38,32 @@ export const useBrands = () => {
   useEffect(() => {
     fetchBrands()
       .then(async (docs) => {
-        if (docs.length === 0) {
-           const mapped: Brand[] = [];
-           for (const item of DEFAULT_BRANDS) {
-               try {
-                   const { id, ...data } = item;
-                   await apiCreate(data as any);
-                   mapped.push(item);
-               } catch (e) {
-                   mapped.push(item);
-               }
-           }
-           setBrands(mapped);
-           localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(mapped));
-        } else {
-            const mapped: Brand[] = docs.map((d: any) => ({
-              id: d.$id,
-              name: d.name,
-              logo: d.logo || '',
-              description: d.description || '',
-              isVisible: d.isVisible ?? true,
-            }));
-            setBrands(mapped);
-            localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(mapped));
+        const existingNames = docs.map((d: any) => d.name);
+        let mapped: Brand[] = docs.map((d: any) => ({
+             id: d.$id,
+             name: d.name,
+             logo: d.logo || '',
+             description: d.description || '',
+             isVisible: d.isVisible ?? true,
+        }));
+        
+        const missingBrands = DEFAULT_BRANDS.filter(b => !existingNames.includes(b.name));
+        
+        if (missingBrands.length > 0) {
+            console.log(`Seeding ${missingBrands.length} missing brands...`);
+            for (const item of missingBrands) {
+                try {
+                    const { id, ...data } = item;
+                    const result = await apiCreate(data as any);
+                    mapped.push({ ...item, id: result.$id });
+                } catch (e) {
+                    mapped.push(item);
+                }
+            }
         }
+        
+        setBrands(mapped);
+        localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(mapped));
       })
       .catch(() => { /* silently use cached data */ })
       .finally(() => setLoading(false));
