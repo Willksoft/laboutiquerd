@@ -65,16 +65,20 @@ export const useCategories = () => {
   }, []);
 
   const addCategory = async (data: Omit<ProductCategory, 'id'>) => {
-    const doc = await apiCreate(data as Record<string, unknown>);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...cleanData } = data as ProductCategory;
+    const doc = await apiCreate(cleanData as Record<string, unknown>);
     const newCat = mapDoc(doc as Record<string, unknown>);
     setCategories(prev => [...prev, newCat].sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99)));
     return newCat;
   };
 
   const updateCategory = async (id: string, data: Partial<ProductCategory>) => {
-    await apiUpdate(id, data as Record<string, unknown>);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _stripId, ...safeData } = data as ProductCategory;
+    await apiUpdate(id, safeData as Record<string, unknown>);
     setCategories(prev =>
-      prev.map(c => c.id === id ? { ...c, ...data } : c)
+      prev.map(c => c.id === id ? { ...c, ...safeData } : c)
           .sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99))
     );
   };

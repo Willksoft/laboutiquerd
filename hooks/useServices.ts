@@ -108,18 +108,26 @@ export const useServices = () => {
   }, []);
 
   const addService = async (data: Omit<ServiceItem, 'id'>) => {
-    const doc = await apiCreate(data as Record<string, unknown>);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...cleanData } = data as ServiceItem;
+    const doc = await apiCreate(cleanData as Record<string, unknown>);
     const newSvc = mapDoc(doc as Record<string, unknown>);
     setServices(prev => [...prev, newSvc].sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99)));
     return newSvc;
   };
 
   const updateServiceItem = async (id: string, data: Partial<ServiceItem>) => {
+    // Strip 'id' field — Appwrite uses $id internally, not 'id'
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _stripId, ...safeData } = data as ServiceItem;
+
     if (isDefaultId(id)) {
       // This is a local default — create it in Appwrite for the first time
       const existing = services.find(s => s.id === id);
       if (!existing) return;
-      const merged = { ...existing, ...data } as Omit<ServiceItem, 'id'>;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id: _existingId, ...existingClean } = existing;
+      const merged = { ...existingClean, ...safeData };
       const doc = await apiCreate(merged as Record<string, unknown>);
       const created = mapDoc(doc as Record<string, unknown>);
       setServices(prev =>
@@ -128,9 +136,9 @@ export const useServices = () => {
       );
       return;
     }
-    await apiUpdate(id, data as Record<string, unknown>);
+    await apiUpdate(id, safeData as Record<string, unknown>);
     setServices(prev =>
-      prev.map(s => s.id === id ? { ...s, ...data } : s)
+      prev.map(s => s.id === id ? { ...s, ...safeData } : s)
           .sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99))
     );
   };
