@@ -37,6 +37,12 @@ const DEFAULT_CONTENT: Record<string, string> = {
   service_img_braids: '',
   service_img_bisuteria: '',
   service_img_custom: '',
+  // Social media links
+  social_instagram: '',
+  social_facebook: '',
+  social_twitter: '',
+  social_youtube: '',
+  social_tiktok: '',
 };
 
 export const useSiteContent = () => {
