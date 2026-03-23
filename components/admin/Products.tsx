@@ -6,6 +6,7 @@ import { Product } from '../../types';
 import ImageUploader from './ImageUploader';
 import CustomSelect from '../ui/CustomSelect';
 import { useConfirm } from '../../hooks/useConfirm';
+import { useTranslation } from 'react-i18next';
 
 const CUSTOM_CATEGORIES = ['custom'];
 
@@ -14,6 +15,7 @@ const ProductsAdmin: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const { brands } = useBrands();
   const { showConfirm, ConfirmDialog } = useConfirm();
+  const { t } = useTranslation();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productTab, setProductTab] = useState<'custom' | 'boutique'>('boutique');
   const [brandFilter, setBrandFilter] = useState('');
@@ -62,13 +64,13 @@ const ProductsAdmin: React.FC = () => {
        <table className="w-full text-left border-collapse min-w-[900px]">
           <thead className="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-widest sticky top-0 z-10">
              <tr>
-               <th className="p-4 w-16">Estado</th>
-               <th className="p-4">Imagen</th>
-               <th className="p-4 w-1/4">Nombre / Descripción</th>
-               <th className="p-4">Marca</th>
-               <th className="p-4">Categoría</th>
-               <th className="p-4">Precio (RD$)</th>
-               <th className="p-4 text-center">Acciones</th>
+               <th className="p-4 w-16">{t('Estado')}</th>
+               <th className="p-4">{t('Imagen')}</th>
+               <th className="p-4 w-1/4">{t('Nombre / Descripción')}</th>
+               <th className="p-4">{t('Marca')}</th>
+               <th className="p-4">{t('Categoría')}</th>
+               <th className="p-4">{t('Precio (RD$)')}</th>
+               <th className="p-4 text-center">{t('Acciones')}</th>
              </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 text-sm">
@@ -76,8 +78,8 @@ const ProductsAdmin: React.FC = () => {
                 <tr key={product.id} className={`hover:bg-gray-50/50 transition-colors group ${product.isVisible === false ? 'bg-gray-50 opacity-60' : ''}`}>
                    <td className="p-4">
                        <div className="flex flex-col gap-1">
-                          {product.isVisible === false && <span className="text-[9px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider flex items-center gap-1 w-fit"><EyeOff size={10}/> Oculto</span>}
-                          {product.isSoldOut && <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider w-fit">Agotado</span>}
+                          {product.isVisible === false && <span className="text-[9px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider flex items-center gap-1 w-fit"><EyeOff size={10}/> {t('Oculto')}</span>}
+                          {product.isSoldOut && <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider w-fit">{t('Agotado')}</span>}
                        </div>
                    </td>
                    <td className="p-4">
@@ -112,7 +114,7 @@ const ProductsAdmin: React.FC = () => {
              ))}
              {items.length === 0 && (
                  <tr>
-                     <td colSpan={7} className="p-8 text-center text-gray-400 font-bold">No se encontraron productos.</td>
+                     <td colSpan={7} className="p-8 text-center text-gray-400 font-bold">{t('No se encontraron productos.')}</td>
                  </tr>
              )}
           </tbody>
@@ -130,9 +132,9 @@ const ProductsAdmin: React.FC = () => {
             <div>
                <h2 className="text-2xl font-serif font-black text-brand-primary flex items-center gap-3">
                    <Box className="text-brand-accent p-1.5 bg-brand-accent/10 rounded-lg" size={32}/> 
-                   Catálogo de Productos
+                   {t('Catálogo de Productos')}
                </h2>
-               <p className="text-gray-500 mt-1 font-medium text-sm">Productos divididos por tipo: personalizables y boutique.</p>
+               <p className="text-gray-500 mt-1 font-medium text-sm">{t('Productos divididos por tipo: personalizables y boutique.')}</p>
             </div>
             
             <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -140,14 +142,14 @@ const ProductsAdmin: React.FC = () => {
                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18}/>
                    <input 
                      type="text" 
-                     placeholder="Buscar producto..." 
+                     placeholder={t('Buscar producto...')} 
                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-accent focus:outline-none"
                      value={searchTerm}
                      onChange={(e) => setSearchTerm(e.target.value)}
                    />
                </div>
                <button onClick={handleCreateNew} className="bg-brand-primary text-white font-bold px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-brand-accent hover:text-brand-primary transition-colors whitespace-nowrap">
-                  <Plus size={18} /> Nuevo
+                  <Plus size={18} /> {t('Nuevo')}
                </button>
             </div>
           </div>
@@ -159,13 +161,13 @@ const ProductsAdmin: React.FC = () => {
                 onClick={() => { setProductTab('boutique'); setSearchTerm(''); setBrandFilter(''); }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-colors ${productTab === 'boutique' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-500 hover:text-gray-700'}`}
               >
-                  <ShoppingBag size={16}/> Boutique ({boutiqueProducts.length})
+                  <ShoppingBag size={16}/> {t('Boutique')} ({boutiqueProducts.length})
               </button>
               <button 
                 onClick={() => { setProductTab('custom'); setSearchTerm(''); setBrandFilter(''); }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-colors ${productTab === 'custom' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-500 hover:text-gray-700'}`}
               >
-                  <Palette size={16}/> Personalizables ({customProducts.length})
+                  <Palette size={16}/> {t('Personalizables')} ({customProducts.length})
               </button>
             </div>
 
@@ -176,7 +178,7 @@ const ProductsAdmin: React.FC = () => {
                   value={brandFilter}
                   onChange={val => setBrandFilter(val)}
                   options={[
-                    { label: 'Todas las marcas', value: '' },
+                    { label: t('Todas las marcas'), value: '' },
                     ...brands.filter(b => b.isVisible !== false).map(b => ({ label: b.name, value: b.id }))
                   ]}
                   variant="input"
@@ -192,14 +194,14 @@ const ProductsAdmin: React.FC = () => {
          <div className="flex-1 flex flex-col h-full overflow-hidden w-full bg-gray-50/30 -m-6 p-6 rounded-2xl">
              <div className="flex justify-between items-center mb-6">
                  <h2 className="text-2xl font-black text-gray-800">
-                    {products.some(p => p.id === editingProduct.id) ? 'Editar Producto' : 'Agregar Nuevo Producto'}
+                    {products.some(p => p.id === editingProduct.id) ? t('Editar Producto') : t('Agregar Nuevo Producto')}
                  </h2>
                  <button onClick={() => setEditingProduct(null)} className="text-gray-500 hover:bg-gray-200 p-2 rounded-full transition-colors"><X size={20} /></button>
              </div>
              
              <div className="flex flex-col lg:flex-row gap-6 overflow-y-auto custom-scrollbar">
                  <div className="w-full lg:w-1/3 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center sticky top-0 h-fit">
-                     <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center border-b border-gray-100 pb-2">Vista Previa</h3>
+                     <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center border-b border-gray-100 pb-2">{t('Vista Previa')}</h3>
                      <div className="w-full aspect-square overflow-hidden rounded-xl bg-gray-100 relative shadow-sm border border-gray-200">
                          <img src={editingProduct.image} alt="preview" className={`w-full h-full object-cover ${editingProduct.isSoldOut ? 'grayscale opacity-70' : ''}`}/>
                          
@@ -216,7 +218,7 @@ const ProductsAdmin: React.FC = () => {
 
                          {editingProduct.isSoldOut && (
                              <div className="absolute inset-0 bg-white/50 flex flex-col items-center justify-center pointer-events-none">
-                                <span className="bg-red-500 text-white font-black px-4 py-2 uppercase tracking-widest rounded-xl shadow-lg border-2 border-white -rotate-12">Agotado</span>
+                                <span className="bg-red-500 text-white font-black px-4 py-2 uppercase tracking-widest rounded-xl shadow-lg border-2 border-white -rotate-12">{t('Agotado')}</span>
                              </div>
                          )}
                          {editingProduct.isVisible === false && (
@@ -234,26 +236,26 @@ const ProductsAdmin: React.FC = () => {
                  
                  <div className="flex-1 bg-white p-6 rounded-2xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6 shadow-sm h-fit">
                      <div>
-                         <label className="block text-sm font-bold text-gray-700 mb-1">Nombre</label>
+                         <label className="block text-sm font-bold text-gray-700 mb-1">{t('Nombre')}</label>
                          <input type="text" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent" maxLength={200}/>
                      </div>
                      <div>
-                         <label className="block text-sm font-bold text-gray-700 mb-1">Categoría</label>
+                         <label className="block text-sm font-bold text-gray-700 mb-1">{t('Categoría')}</label>
                          <CustomSelect
                            value={editingProduct.category}
                            onChange={val => setEditingProduct({...editingProduct, category: val as any})}
                            options={[
-                             { label: 'Merch (Custom)', value: 'custom' },
-                             { label: 'Boutique Punta Cana', value: 'boutique-pc' },
-                             { label: 'Boutique El Cedro', value: 'boutique-miches' },
-                             { label: 'Boutique Playa', value: 'boutique-beach' },
-                             { label: 'Ropa', value: 'fashion' },
-                             { label: 'Joyería', value: 'jewelry' },
-                             { label: 'Cuidado Personal', value: 'personal-care' },
-                             { label: 'Bisutería', value: 'bisuteria' },
-                             { label: 'Artesanía', value: 'crafts' },
-                             { label: 'Gift Cards', value: 'gift-card' },
-                             { label: 'Juguetes', value: 'toys' }
+                             { label: t('Merch (Custom)'), value: 'custom' },
+                             { label: t('Boutique Punta Cana'), value: 'boutique-pc' },
+                             { label: t('Boutique El Cedro'), value: 'boutique-miches' },
+                             { label: t('Boutique Playa'), value: 'boutique-beach' },
+                             { label: t('Ropa'), value: 'fashion' },
+                             { label: t('Joyería'), value: 'jewelry' },
+                             { label: t('Cuidado Personal'), value: 'personal-care' },
+                             { label: t('Bisutería'), value: 'bisuteria' },
+                             { label: t('Artesanía'), value: 'crafts' },
+                             { label: t('Gift Cards'), value: 'gift-card' },
+                             { label: t('Juguetes'), value: 'toys' }
                            ]}
                            variant="input"
                          />
@@ -262,24 +264,24 @@ const ProductsAdmin: React.FC = () => {
                      {/* BRAND SELECTOR */}
                      <div>
                          <label className="block text-sm font-bold text-gray-700 mb-1 flex items-center gap-1">
-                           <Tag size={14} className="text-purple-500" /> Marca
+                           <Tag size={14} className="text-purple-500" /> {t('Marca')}
                          </label>
                          <CustomSelect
                            value={editingProduct.brandId || ''}
                            onChange={val => setEditingProduct({...editingProduct, brandId: val || undefined})}
                            options={[
-                             { label: 'Sin marca específica (Global)', value: '' },
+                             { label: t('Sin marca específica (Global)'), value: '' },
                              ...brands.map(b => ({ label: b.name, value: b.id }))
                            ]}
                            variant="input"
                          />
                          {brands.length === 0 && (
-                           <p className="text-[10px] text-gray-400 mt-1">No hay marcas creadas. Créalas en la sección "Marcas" del menú.</p>
+                           <p className="text-[10px] text-gray-400 mt-1">{t('No hay marcas creadas. Créalas en la sección "Marcas" del menú.')}</p>
                          )}
                      </div>
 
                      <div className="md:col-span-2">
-                         <label className="block text-sm font-bold text-gray-700 mb-2">Imagen del Producto</label>
+                         <label className="block text-sm font-bold text-gray-700 mb-2">{t('Imagen del Producto')}</label>
                          <ImageUploader 
                            currentUrl={editingProduct.image} 
                            onImageChange={(url) => setEditingProduct({...editingProduct, image: url})} 
@@ -287,55 +289,55 @@ const ProductsAdmin: React.FC = () => {
                      </div>
 
                      <div>
-                         <label className="block text-sm font-bold text-gray-700 mb-1">Precio Real (RD$)</label>
+                         <label className="block text-sm font-bold text-gray-700 mb-1">{t('Precio Real (RD$)')}</label>
                          <input type="number" value={editingProduct.price} onChange={e => setEditingProduct({...editingProduct, price: Number(e.target.value)})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent font-black text-brand-primary"/>
                      </div>
                      <div>
-                         <label className="block text-sm font-bold text-gray-700 mb-1">Precio Anterior (Tachado) Opcional</label>
+                         <label className="block text-sm font-bold text-gray-700 mb-1">{t('Precio Anterior (Tachado) Opcional')}</label>
                          <input type="number" value={editingProduct.originalPrice || ''} onChange={e => setEditingProduct({...editingProduct, originalPrice: e.target.value ? Number(e.target.value) : undefined})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-gray-400"/>
                      </div>
 
                      <div className="md:col-span-2">
-                         <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
+                         <label className="block text-sm font-bold text-gray-700 mb-1">{t('Descripción')}</label>
                          <textarea value={editingProduct.description || ''} onChange={e => setEditingProduct({...editingProduct, description: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent h-20" maxLength={1000}></textarea>
                      </div>
 
                      <div className="md:col-span-2 bg-gray-50/50 p-4 rounded-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                          <label className="flex items-start gap-3 cursor-pointer">
                              <input type="checkbox" checked={editingProduct.isVisible !== false} onChange={e => setEditingProduct({...editingProduct, isVisible: e.target.checked})} className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-primary focus:ring-brand-accent"/>
-                             <div><span className="block font-bold text-gray-800">Visible en Tienda</span><span className="block text-xs text-gray-500 mt-0.5">Ocultar completamente del catálogo.</span></div>
+                             <div><span className="block font-bold text-gray-800">{t('Visible en Tienda')}</span><span className="block text-xs text-gray-500 mt-0.5">{t('Ocultar completamente del catálogo.')}</span></div>
                          </label>
                          <label className="flex items-start gap-3 cursor-pointer">
                              <input type="checkbox" checked={editingProduct.isSoldOut || false} onChange={e => setEditingProduct({...editingProduct, isSoldOut: e.target.checked})} className="w-5 h-5 mt-0.5 rounded border-gray-300 text-red-500 focus:ring-red-500"/>
-                             <div><span className="block font-bold text-red-600">Marcado como Agotado</span><span className="block text-xs text-red-400 mt-0.5">Aparece pero no se puede seleccionar.</span></div>
+                             <div><span className="block font-bold text-red-600">{t('Marcado como Agotado')}</span><span className="block text-xs text-red-400 mt-0.5">{t('Aparece pero no se puede seleccionar.')}</span></div>
                          </label>
                      </div>
 
                      <div className="md:col-span-2 border-t border-gray-100 pt-4 mt-2">
-                         <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traductor Global (Opcional)</h4>
+                         <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">{t('Traductor Global (Opcional)')}</h4>
                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                              <div>
-                                 <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Inglés)</label>
+                                 <label className="block text-xs font-bold text-gray-500 mb-1">{t('Nombre (Inglés)')}</label>
                                  <input type="text" value={editingProduct.nameEn || ''} onChange={e => setEditingProduct({...editingProduct, nameEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" maxLength={200}/>
                              </div>
                              <div>
-                                 <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Inglés)</label>
+                                 <label className="block text-xs font-bold text-gray-500 mb-1">{t('Descripción (Inglés)')}</label>
                                  <input type="text" value={editingProduct.descEn || ''} onChange={e => setEditingProduct({...editingProduct, descEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" maxLength={500}/>
                              </div>
                              <div>
-                                 <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Francés)</label>
+                                 <label className="block text-xs font-bold text-gray-500 mb-1">{t('Nombre (Francés)')}</label>
                                  <input type="text" value={editingProduct.nameFr || ''} onChange={e => setEditingProduct({...editingProduct, nameFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" maxLength={200}/>
                              </div>
                              <div>
-                                 <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Francés)</label>
+                                 <label className="block text-xs font-bold text-gray-500 mb-1">{t('Descripción (Francés)')}</label>
                                  <input type="text" value={editingProduct.descFr || ''} onChange={e => setEditingProduct({...editingProduct, descFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" maxLength={500}/>
                              </div>
                          </div>
                      </div>
 
                      <div className="md:col-span-2 pt-4 flex justify-end gap-3 border-t border-gray-100 mt-4">
-                         <button onClick={() => setEditingProduct(null)} className="px-5 py-2 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors">Cancelar</button>
-                         <button onClick={handleSaveProduct} className="bg-brand-primary text-white font-bold px-6 py-2 rounded-xl hover:bg-brand-accent hover:text-brand-primary transition-colors flex items-center gap-2"><Save size={18} /> Guardar Cambios</button>
+                         <button onClick={() => setEditingProduct(null)} className="px-5 py-2 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors">{t('Cancelar')}</button>
+                         <button onClick={handleSaveProduct} className="bg-brand-primary text-white font-bold px-6 py-2 rounded-xl hover:bg-brand-accent hover:text-brand-primary transition-colors flex items-center gap-2"><Save size={18} /> {t('Guardar Cambios')}</button>
                      </div>
                  </div>
              </div>

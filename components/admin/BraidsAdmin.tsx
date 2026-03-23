@@ -9,6 +9,7 @@ import ImageUploader from './ImageUploader';
 import { useConfirm } from '../../hooks/useConfirm';
 import { useSiteContent } from '../../hooks/useSiteContent';
 import { toast } from '../Toast';
+import { useTranslation } from 'react-i18next';
 
 const BraidsAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('reservations');
@@ -44,6 +45,7 @@ const BraidsAdmin: React.FC = () => {
   const [blockedHourInput, setBlockedHourInput] = useState('10:00');
 
   const { showConfirm, ConfirmDialog } = useConfirm();
+  const { t } = useTranslation();
 
   // ─── 12h helpers ─────────────────────────────────────────────────────
   const to12h = (time: string) => {
@@ -177,14 +179,14 @@ const BraidsAdmin: React.FC = () => {
        {/* Sidebar */}
        <div className="w-full md:w-64 bg-gray-50/50 border-r border-gray-100 p-6 flex flex-col gap-2 shrink-0">
            <h3 className="font-serif font-black text-gray-800 text-lg mb-6 flex items-center gap-2 uppercase tracking-wide">
-               <Scissors size={20} className="text-brand-accent"/> Trenzas
+               <Scissors size={20} className="text-brand-accent"/> {t('Trenzas')}
            </h3>
 
            {[
-              { id: 'reservations', label: 'Calendario y Citas', icon: <Calendar size={18}/> },
-              { id: 'styles', label: 'Estilos (Imágenes)', icon: <List size={18}/> },
-              { id: 'services', label: 'Servicios y Precios', icon: <Scissors size={18}/> },
-              { id: 'settings', label: 'Horarios y Agenda', icon: <Clock size={18}/> },
+              { id: 'reservations', label: t('Calendario y Citas'), icon: <Calendar size={18}/> },
+              { id: 'styles', label: t('Estilos (Imágenes)'), icon: <List size={18}/> },
+              { id: 'services', label: t('Servicios y Precios'), icon: <Scissors size={18}/> },
+              { id: 'settings', label: t('Horarios y Agenda'), icon: <Clock size={18}/> },
            ].map(tab => (
                <button 
                   key={tab.id}
@@ -208,19 +210,19 @@ const BraidsAdmin: React.FC = () => {
                <div className="flex-1 bg-gray-50/20 p-6 overflow-y-auto w-full">
                    <div className="flex justify-between items-center mb-6">
                        <h2 className="text-2xl font-black text-gray-800">
-                          {styles.some(s => s.id === editingStyle.id) ? 'Editar Estilo' : 'Agregar Estilo'}
+                          {styles.some(s => s.id === editingStyle.id) ? t('Editar Estilo') : t('Agregar Estilo')}
                        </h2>
                        <button onClick={() => setEditingStyle(null)} className="text-gray-500 hover:bg-gray-200 p-2 rounded-full"><X size={20} /></button>
                    </div>
                    
                    <div className="flex flex-col lg:flex-row gap-6">
                        <div className="w-full lg:w-1/3 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center">
-                           <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center border-b border-gray-100 pb-2">Vista Previa</h3>
+                           <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center border-b border-gray-100 pb-2">{t('Vista Previa')}</h3>
                            <div className="w-full aspect-square overflow-hidden rounded-xl bg-gray-100 relative shadow-sm border border-gray-200">
                                <img src={editingStyle.image} alt="preview" className={`w-full h-full object-cover ${editingStyle.isSoldOut ? 'grayscale opacity-70' : ''}`}/>
                                {editingStyle.isSoldOut && (
                                    <div className="absolute inset-0 bg-white/50 flex flex-col items-center justify-center pointer-events-none">
-                                      <span className="bg-red-500 text-white font-black px-4 py-2 uppercase tracking-widest rounded-xl shadow-lg border-2 border-white -rotate-12">Agotado</span>
+                                      <span className="bg-red-500 text-white font-black px-4 py-2 uppercase tracking-widest rounded-xl shadow-lg border-2 border-white -rotate-12">{t('Agotado')}</span>
                                    </div>
                                )}
                                {editingStyle.isVisible === false && (
@@ -232,53 +234,53 @@ const BraidsAdmin: React.FC = () => {
                        
                        <div className="flex-1 bg-white p-6 rounded-2xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6 shadow-sm h-fit">
                            <div>
-                               <label className="block text-sm font-bold text-gray-700 mb-1">Nombre</label>
+                               <label className="block text-sm font-bold text-gray-700 mb-1">{t('Nombre')}</label>
                                <input type="text" value={editingStyle.name} onChange={e => setEditingStyle({...editingStyle, name: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent"/>
                            </div>
                            <div>
-                               <label className="block text-sm font-bold text-gray-700 mb-1">URL Imagen</label>
+                               <label className="block text-sm font-bold text-gray-700 mb-1">{t('URL Imagen')}</label>
                                <input type="text" value={editingStyle.image} onChange={e => setEditingStyle({...editingStyle, image: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm text-gray-500"/>
                            </div>
                            <div className="md:col-span-2">
-                               <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
+                               <label className="block text-sm font-bold text-gray-700 mb-1">{t('Descripción')}</label>
                                <textarea value={editingStyle.description || ''} onChange={e => setEditingStyle({...editingStyle, description: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent h-20"></textarea>
                            </div>
 
                            <div className="md:col-span-2 bg-gray-50/50 p-4 rounded-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                                <label className="flex items-start gap-3 cursor-pointer">
                                    <input type="checkbox" checked={editingStyle.isVisible !== false} onChange={e => setEditingStyle({...editingStyle, isVisible: e.target.checked})} className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-primary focus:ring-brand-accent"/>
-                                   <div><span className="block font-bold text-gray-800">Visible en Tienda</span><span className="block text-xs text-gray-500 mt-0.5">Ocultar de la galería.</span></div>
+                                   <div><span className="block font-bold text-gray-800">{t('Visible en Tienda')}</span><span className="block text-xs text-gray-500 mt-0.5">{t('Ocultar de la galería.')}</span></div>
                                </label>
                                <label className="flex items-start gap-3 cursor-pointer">
                                    <input type="checkbox" checked={editingStyle.isSoldOut || false} onChange={e => setEditingStyle({...editingStyle, isSoldOut: e.target.checked})} className="w-5 h-5 mt-0.5 rounded border-gray-300 text-red-500 focus:ring-red-500"/>
-                                   <div><span className="block font-bold text-red-600">Marcado como Agotado</span><span className="block text-xs text-red-400 mt-0.5">Visible pero sin clics.</span></div>
+                                   <div><span className="block font-bold text-red-600">{t('Marcado como Agotado')}</span><span className="block text-xs text-red-400 mt-0.5">{t('Visible pero sin clics.')}</span></div>
                                </label>
                            </div>
 
                            <div className="md:col-span-2 border-t border-gray-100 pt-4 mt-2">
-                               <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traductor Global</h4>
+                               <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">{t('Traductor Global')}</h4>
                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                    <div>
-                                       <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Inglés)</label>
+                                       <label className="block text-xs font-bold text-gray-500 mb-1">{t('Nombre (Inglés)')}</label>
                                        <input type="text" value={editingStyle.nameEn || ''} onChange={e => setEditingStyle({...editingStyle, nameEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
                                    </div>
                                    <div>
-                                       <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Inglés)</label>
+                                       <label className="block text-xs font-bold text-gray-500 mb-1">{t('Descripción (Inglés)')}</label>
                                        <input type="text" value={editingStyle.descEn || ''} onChange={e => setEditingStyle({...editingStyle, descEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
                                    </div>
                                    <div>
-                                       <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Francés)</label>
+                                       <label className="block text-xs font-bold text-gray-500 mb-1">{t('Nombre (Francés)')}</label>
                                        <input type="text" value={editingStyle.nameFr || ''} onChange={e => setEditingStyle({...editingStyle, nameFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
                                    </div>
                                    <div>
-                                       <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Francés)</label>
+                                       <label className="block text-xs font-bold text-gray-500 mb-1">{t('Descripción (Francés)')}</label>
                                        <input type="text" value={editingStyle.descFr || ''} onChange={e => setEditingStyle({...editingStyle, descFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
                                    </div>
                                </div>
                            </div>
 
                            <div className="md:col-span-2 pt-4 flex justify-end gap-3 border-t border-gray-100 mt-4">
-                               <button onClick={handleSaveStyle} className="bg-brand-primary text-white font-bold px-6 py-2 rounded-xl hover:bg-brand-accent hover:text-brand-primary transition-colors flex items-center gap-2"><Save size={18} /> Guardar</button>
+                               <button onClick={handleSaveStyle} className="bg-brand-primary text-white font-bold px-6 py-2 rounded-xl hover:bg-brand-accent hover:text-brand-primary transition-colors flex items-center gap-2"><Save size={18} /> {t('Guardar')}</button>
                            </div>
                        </div>
                    </div>
@@ -290,33 +292,33 @@ const BraidsAdmin: React.FC = () => {
                <div className="flex-1 bg-gray-50/20 p-6 overflow-y-auto w-full">
                    <div className="flex justify-between items-center mb-6">
                        <h2 className="text-2xl font-black text-gray-800">
-                          {services.some(s => s.id === editingService.id) ? 'Editar Servicio' : 'Agregar Servicio'}
+                          {services.some(s => s.id === editingService.id) ? t('Editar Servicio') : t('Agregar Servicio')}
                        </h2>
                        <button onClick={() => setEditingService(null)} className="text-gray-500 hover:bg-gray-200 p-2 rounded-full"><X size={20} /></button>
                    </div>
                    
                    <div className="bg-white p-6 rounded-2xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6 shadow-sm max-w-4xl mx-auto">
                        <div>
-                           <label className="block text-sm font-bold text-gray-700 mb-1">Nombre del Servicio</label>
+                           <label className="block text-sm font-bold text-gray-700 mb-1">{t('Nombre del Servicio')}</label>
                            <input type="text" value={editingService.name} onChange={e => setEditingService({...editingService, name: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent"/>
                        </div>
                        <div>
-                           <label className="block text-sm font-bold text-gray-700 mb-1">Precio (RD$)</label>
+                           <label className="block text-sm font-bold text-gray-700 mb-1">{t('Precio (RD$)')}</label>
                            <input type="number" value={editingService.price} onChange={e => setEditingService({...editingService, price: Number(e.target.value)})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent"/>
                        </div>
                        <div className="md:col-span-2">
-                           <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
+                           <label className="block text-sm font-bold text-gray-700 mb-1">{t('Descripción')}</label>
                            <textarea value={editingService.description || ''} onChange={e => setEditingService({...editingService, description: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent h-20"></textarea>
                        </div>
 
                        <div className="md:col-span-2 bg-gray-50/50 p-4 rounded-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                            <label className="flex items-start gap-3 cursor-pointer">
                                <input type="checkbox" checked={editingService.isVisible !== false} onChange={e => setEditingService({...editingService, isVisible: e.target.checked})} className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-primary focus:ring-brand-accent"/>
-                               <div><span className="block font-bold text-gray-800">Visible en Tienda</span></div>
+                               <div><span className="block font-bold text-gray-800">{t('Visible en Tienda')}</span></div>
                            </label>
                            <label className="flex items-start gap-3 cursor-pointer">
                                <input type="checkbox" checked={editingService.isSoldOut || false} onChange={e => setEditingService({...editingService, isSoldOut: e.target.checked})} className="w-5 h-5 mt-0.5 rounded border-gray-300 text-red-500 focus:ring-red-500"/>
-                               <div><span className="block font-bold text-red-600">Marcado como Agotado</span></div>
+                               <div><span className="block font-bold text-red-600">{t('Marcado como Agotado')}</span></div>
                            </label>
                        </div>
 
@@ -397,7 +399,7 @@ const BraidsAdmin: React.FC = () => {
                                        )}
                                        {style.isSoldOut && (
                                            <div className="absolute inset-0 bg-white/40 flex items-center justify-center pointer-events-none">
-                                              <span className="bg-red-500 text-[10px] text-white font-black px-2 py-1 uppercase tracking-widest rounded-md shadow-lg border border-white -rotate-12">Agotado</span>
+                                              <span className="bg-red-500 text-[10px] text-white font-black px-2 py-1 uppercase tracking-widest rounded-md shadow-lg border border-white -rotate-12">{t('Agotado')}</span>
                                            </div>
                                        )}
                                    </div>
@@ -405,7 +407,7 @@ const BraidsAdmin: React.FC = () => {
                                        <p className="text-xs font-bold text-gray-800 truncate mb-1">{style.name}</p>
                                        <div className="mt-auto flex items-center justify-between">
                                           <p className="text-[10px] text-gray-400 truncate">ID: {style.id}</p>
-                                          <button onClick={() => setEditingStyle(style)} className="text-[10px] font-bold text-brand-accent hover:underline">Editar</button>
+                                           <button onClick={() => setEditingStyle(style)} className="text-[10px] font-bold text-brand-accent hover:underline">{t('Editar')}</button>
                                        </div>
                                    </div>
                                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 p-1 rounded-lg shadow-sm">
@@ -430,10 +432,10 @@ const BraidsAdmin: React.FC = () => {
                            <table className="w-full text-left border-collapse">
                                <thead className="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-widest sticky top-0">
                                    <tr>
-                                       <td className="p-4">ID / Estado</td>
-                                       <td className="p-4 w-1/2">Servicio / Descripción</td>
-                                       <td className="p-4">Precio (RD$)</td>
-                                       <td className="p-4 text-center">Gestión</td>
+                                       <td className="p-4">{t('ID / Estado')}</td>
+                                        <td className="p-4 w-1/2">{t('Servicio / Descripción')}</td>
+                                        <td className="p-4">{t('Precio (RD$)')}</td>
+                                        <td className="p-4 text-center">{t('Gestión')}</td>
                                    </tr>
                                </thead>
                                <tbody className="divide-y divide-gray-100 text-sm">
@@ -442,8 +444,8 @@ const BraidsAdmin: React.FC = () => {
                                            <td className="p-4">
                                                <span className="font-mono text-gray-400 text-xs block mb-1">{srv.id}</span>
                                                <div className="flex gap-1">
-                                                  {srv.isVisible === false && <span className="text-[9px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider flex items-center gap-1"><EyeOff size={10}/> Oculto</span>}
-                                                  {srv.isSoldOut && <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Agotado</span>}
+                                                  {srv.isVisible === false && <span className="text-[9px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider flex items-center gap-1"><EyeOff size={10}/> {t('Oculto')}</span>}
+                                                  {srv.isSoldOut && <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">{t('Agotado')}</span>}
                                                </div>
                                            </td>
                                            <td className="p-4">
@@ -477,37 +479,37 @@ const BraidsAdmin: React.FC = () => {
                    {activeTab === 'settings' && (
                        <div className="max-w-2xl">
                            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mb-6">
-                               <h3 className="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2"><Clock size={20} className="text-brand-accent" /> Horario Comercial</h3>
+                               <h3 className="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2"><Clock size={20} className="text-brand-accent" /> {t('Horario Comercial')}</h3>
                                <div className="grid grid-cols-2 gap-4">
                                    <div>
-                                       <label className="block text-sm font-bold text-gray-700 mb-1">Hora de Apertura</label>
+                                       <label className="block text-sm font-bold text-gray-700 mb-1">{t('Hora de Apertura')}</label>
                                        <select value={businessHours.start} onChange={e => setBusinessHours({...businessHours, start: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none bg-white">
                                            {HOUR_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                        </select>
                                    </div>
                                    <div>
-                                       <label className="block text-sm font-bold text-gray-700 mb-1">Hora de Cierre</label>
+                                       <label className="block text-sm font-bold text-gray-700 mb-1">{t('Hora de Cierre')}</label>
                                        <select value={businessHours.end} onChange={e => setBusinessHours({...businessHours, end: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none bg-white">
                                            {HOUR_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                        </select>
                                    </div>
                                </div>
-                               <p className="text-xs text-gray-500 mt-3 font-medium">Las horas disponibles para reservar se generarán automáticamente dentro de este rango.</p>
+                               <p className="text-xs text-gray-500 mt-3 font-medium">{t('Las horas disponibles para reservar se generarán automáticamente dentro de este rango.')}</p>
                            </div>
 
                            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                               <h3 className="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2"><Calendar size={20} className="text-brand-accent" /> Días Feriados / No Laborables</h3>
+                               <h3 className="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2"><Calendar size={20} className="text-brand-accent" /> {t('Días Feriados / No Laborables')}</h3>
                                <div className="flex gap-2 mb-4">
                                    <input type="date" value={newHoliday} onChange={e => setNewHoliday(e.target.value)} className="flex-1 border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"/>
                                    <button 
                                       onClick={handleAddHoliday}
                                       className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2"
                                    >
-                                       <Ban size={16}/> Bloquear Día
+                                       <Ban size={16}/> {t('Bloquear Día')}
                                    </button>
                                </div>
                                <div className="flex flex-wrap gap-2">
-                                   {holidays.length === 0 && <span className="text-sm text-gray-400 italic">No hay días bloqueados.</span>}
+                                   {holidays.length === 0 && <span className="text-sm text-gray-400 italic">{t('No hay días bloqueados.')}</span>}
                                    {holidays.map(date => (
                                        <span key={date} className="bg-red-50 text-red-600 border border-red-100 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2">
                                            {date}
@@ -520,9 +522,9 @@ const BraidsAdmin: React.FC = () => {
                             {/* Bloqueo de Horas Específicas */}
                             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mt-6">
                                 <h3 className="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">
-                                    <Clock size={20} className="text-orange-500" /> Bloquear Horas Específicas
+                                    <Clock size={20} className="text-orange-500" /> {t('Bloquear Horas Específicas')}
                                 </h3>
-                                <p className="text-xs text-gray-500 mb-4">Bloquea una hora concreta en un día concreto (ej. las 2:00 PM del lunes por una reunión).</p>
+                                <p className="text-xs text-gray-500 mb-4">{t('Bloquea una hora concreta en un día concreto (ej. las 2:00 PM del lunes por una reunión).')}</p>
                                 <div className="flex flex-col sm:flex-row gap-2 mb-4">
                                     <input
                                         type="date" value={blockedDateInput}
@@ -540,11 +542,11 @@ const BraidsAdmin: React.FC = () => {
                                         onClick={handleAddBlockedHour}
                                         className="bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2 whitespace-nowrap"
                                     >
-                                        <Ban size={16}/> Bloquear Hora
+                                        <Ban size={16}/> {t('Bloquear Hora')}
                                     </button>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    {blockedTimes.length === 0 && <span className="text-sm text-gray-400 italic">No hay horas bloqueadas específicas.</span>}
+                                    {blockedTimes.length === 0 && <span className="text-sm text-gray-400 italic">{t('No hay horas bloqueadas específicas.')}</span>}
                                     {blockedTimes.map(bt => (
                                         <span key={bt.id} className="bg-orange-50 text-orange-700 border border-orange-100 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2">
                                             <Clock size={12}/> {bt.date} @ {to12h(bt.time || '')}
@@ -557,7 +559,7 @@ const BraidsAdmin: React.FC = () => {
 
                            <div className="mt-6 flex justify-end">
                                <button onClick={handleSaveSettings} className="bg-brand-primary text-white font-bold px-8 py-3 rounded-xl hover:bg-brand-accent hover:text-brand-primary transition-colors flex items-center gap-2 shadow-sm">
-                                   <Save size={18} /> Guardar Configuración
+                                   <Save size={18} /> {t('Guardar Configuración')}
                                </button>
                            </div>
                        </div>

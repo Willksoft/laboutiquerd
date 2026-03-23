@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { TrendingUp, Users, ShoppingBag, ArrowRight, Activity, DollarSign, Package, Calendar, Clock, User, MapPin, FileDown } from 'lucide-react';
 import { useOrders } from '../../hooks/useOrders';
 import { useReservations } from '../../hooks/useReservations';
+import { useTranslation } from 'react-i18next';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { orders } = useOrders();
   const { reservations } = useReservations();
+  const { t } = useTranslation();
 
   // ═══════ REAL KPIs ═══════
   const today = new Date();
@@ -99,15 +101,15 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between md:items-end gap-4">
         <div>
-           <h2 className="text-2xl font-serif font-black text-gray-800">Resumen General</h2>
-           <p className="text-gray-500 font-medium">Métricas en tiempo real de pedidos, reservas y diseños.</p>
+           <h2 className="text-2xl font-serif font-black text-gray-800">{t('Resumen General')}</h2>
+           <p className="text-gray-500 font-medium">{t('Métricas en tiempo real de pedidos, reservas y diseños.')}</p>
         </div>
         <div className="flex gap-2">
           <button onClick={exportOrdersCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
-            <FileDown size={16} /> Exportar Órdenes
+            <FileDown size={16} /> {t('Exportar Órdenes')}
           </button>
           <button onClick={exportReservationsCSV} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
-            <FileDown size={16} /> Exportar Citas
+            <FileDown size={16} /> {t('Exportar Citas')}
           </button>
         </div>
       </div>
@@ -115,10 +117,10 @@ const Dashboard: React.FC = () => {
       {/* KPI Grid — REAL DATA */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
          {[
-           { title: 'Ventas Totales', value: `RD$ ${totalSales.toLocaleString('es-DO', { minimumFractionDigits: 2 })}`, icon: <DollarSign className="text-emerald-500" size={24}/>, trend: `${totalOrders} órdenes`, color: 'from-emerald-500/10 to-transparent border-emerald-500/20' },
-           { title: 'Hoy', value: `${todayOrders} pedidos`, icon: <ShoppingBag className="text-brand-accent" size={24}/>, trend: `${todayReservations} citas`, color: 'from-brand-accent/10 text-brand-primary border-brand-accent/30' },
-           { title: 'Citas Trenzas', value: String(totalReservations), icon: <Users className="text-blue-500" size={24}/>, trend: `${pendingReservations} pendientes`, color: 'from-blue-500/10 to-transparent border-blue-500/20' },
-           { title: 'Pendientes', value: String(pendingOrders), icon: <Activity className="text-purple-500" size={24}/>, trend: 'órdenes por gestionar', color: 'from-purple-500/10 to-transparent border-purple-500/20' }
+           { title: t('Ventas Totales'), value: `RD$ ${totalSales.toLocaleString('es-DO', { minimumFractionDigits: 2 })}`, icon: <DollarSign className="text-emerald-500" size={24}/>, trend: `${totalOrders} ${t('órdenes')}`, color: 'from-emerald-500/10 to-transparent border-emerald-500/20' },
+           { title: t('Hoy'), value: `${todayOrders} ${t('pedidos')}`, icon: <ShoppingBag className="text-brand-accent" size={24}/>, trend: `${todayReservations} ${t('citas')}`, color: 'from-brand-accent/10 text-brand-primary border-brand-accent/30' },
+           { title: t('Citas Trenzas'), value: String(totalReservations), icon: <Users className="text-blue-500" size={24}/>, trend: `${pendingReservations} ${t('pendientes')}`, color: 'from-blue-500/10 to-transparent border-blue-500/20' },
+           { title: t('Pendientes'), value: String(pendingOrders), icon: <Activity className="text-purple-500" size={24}/>, trend: t('órdenes por gestionar'), color: 'from-purple-500/10 to-transparent border-purple-500/20' }
          ].map((kpi, i) => (
              <div key={i} className={`bg-white rounded-2xl p-6 border shadow-sm flex flex-col justify-between bg-gradient-to-br ${kpi.color}`}>
                  <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
@@ -140,14 +142,14 @@ const Dashboard: React.FC = () => {
          {/* Recent Orders */}
          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col">
              <h3 className="font-bold text-gray-800 uppercase tracking-wider text-sm mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
-                <Package size={16} className="text-brand-accent" /> Órdenes Recientes
+                <Package size={16} className="text-brand-accent" /> {t('Órdenes Recientes')}
              </h3>
              <div className="flex-1 space-y-2">
                  {recentOrders.length === 0 ? (
                      <div className="flex-1 flex items-center justify-center text-gray-400 py-12">
                        <div className="text-center">
                          <Package size={32} className="mx-auto mb-2 opacity-30" />
-                         <p className="font-bold text-sm">Sin órdenes aún</p>
+                         <p className="font-bold text-sm">{t('Sin órdenes aún')}</p>
                        </div>
                      </div>
                  ) : recentOrders.map((order) => (
@@ -178,7 +180,7 @@ const Dashboard: React.FC = () => {
                  onClick={() => navigate('/admin/customizer')}
                  className="w-full mt-4 py-3 bg-gray-50 hover:bg-gray-100 text-brand-primary font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
                >
-                   Ver Todas ({orders.length}) <ArrowRight size={16} />
+                 {t('Ver Todas')} ({orders.length}) <ArrowRight size={16} />
                </button>
              )}
          </div>
@@ -186,14 +188,14 @@ const Dashboard: React.FC = () => {
          {/* Recent Reservations */}
          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col">
              <h3 className="font-bold text-gray-800 uppercase tracking-wider text-sm mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
-                <Calendar size={16} className="text-brand-accent" /> Citas Recientes
+                <Calendar size={16} className="text-brand-accent" /> {t('Citas Recientes')}
              </h3>
              <div className="flex-1 space-y-2">
                  {recentReservations.length === 0 ? (
                      <div className="flex-1 flex items-center justify-center text-gray-400 py-12">
                        <div className="text-center">
                          <Calendar size={32} className="mx-auto mb-2 opacity-30" />
-                         <p className="font-bold text-sm">Sin citas aún</p>
+                         <p className="font-bold text-sm">{t('Sin citas aún')}</p>
                        </div>
                      </div>
                  ) : recentReservations.map((res) => (
@@ -226,7 +228,7 @@ const Dashboard: React.FC = () => {
                  onClick={() => navigate('/admin/braids')}
                  className="w-full mt-4 py-3 bg-gray-50 hover:bg-gray-100 text-brand-primary font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
                >
-                   Ver Todas ({reservations.length}) <ArrowRight size={16} />
+                 {t('Ver Todas')} ({reservations.length}) <ArrowRight size={16} />
                </button>
              )}
          </div>

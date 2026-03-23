@@ -6,6 +6,7 @@ import ImageUploader from './ImageUploader';
 import { useConfirm } from '../../hooks/useConfirm';
 import { useSiteContent } from '../../hooks/useSiteContent';
 import { useProducts } from '../../hooks/useProducts';
+import { useTranslation } from 'react-i18next';
 
 const SliderAdmin: React.FC = () => {
   const { offers, addOffer, updateOffer, deleteOffer, updateOrderings } = useOffers();
@@ -14,6 +15,7 @@ const SliderAdmin: React.FC = () => {
   const [editingSlide, setEditingSlide] = useState<Offer | null>(null);
   const { showConfirm, showAlert, ConfirmDialog } = useConfirm();
   const [activeTab, setActiveTab] = useState<'slider' | 'categories'>('slider');
+  const { t } = useTranslation();
 
   // Parse quick categories
   const [quickCats, setQuickCats] = useState<any[]>([]);
@@ -86,18 +88,18 @@ const SliderAdmin: React.FC = () => {
           <div>
             <h2 className="text-2xl font-serif font-black text-brand-primary flex items-center gap-3">
               <LayoutDashboard className="text-brand-accent p-1.5 bg-brand-accent/10 rounded-lg" size={32} />
-              Editor de Slider & Categorías
+              {t('Editor de Slider & Categorías')}
             </h2>
             <p className="text-gray-500 mt-1 font-medium text-sm">
-              Configura el slider principal y la cantidad de categorías rápidas a mostrar en el Home.
+              {t('Configura el slider principal y la cantidad de categorías rápidas a mostrar en el Home.')}
             </p>
           </div>
           <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
              <button onClick={() => setActiveTab('slider')} className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'slider' ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}>
-                Banners (Slider)
+                {t('Banners (Slider)')}
              </button>
              <button onClick={() => setActiveTab('categories')} className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === 'categories' ? 'bg-white text-brand-primary shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}>
-                Categorías Rápidas
+                {t('Categorías Rápidas')}
              </button>
           </div>
           {activeTab === 'slider' && (
@@ -105,7 +107,7 @@ const SliderAdmin: React.FC = () => {
                 onClick={handleCreateNew}
                 className="bg-brand-primary text-white font-bold px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-brand-accent hover:text-brand-primary transition-colors whitespace-nowrap"
              >
-                <Plus size={18} /> Nuevo Slide
+                <Plus size={18} /> {t('Nuevo Slide')}
              </button>
           )}
         </div>

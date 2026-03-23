@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Globe, Save, CheckCircle, Layout, MessageCircle, Phone, MapPin, Mail, Scissors, Palette, Type, Image as ImageIcon } from 'lucide-react';
 import { useSiteContent } from '../../hooks/useSiteContent';
 import ImageUploader from './ImageUploader';
+import { useTranslation } from 'react-i18next';
 
 interface SectionConfig {
   id: string;
@@ -79,6 +80,7 @@ const SiteContentAdmin: React.FC = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const { t } = useTranslation();
 
   // Sync local state when content loads
   useEffect(() => {
@@ -115,7 +117,7 @@ const SiteContentAdmin: React.FC = () => {
       {/* Sections Sidebar */}
       <div className="w-full md:w-64 bg-gray-50/50 border-r border-gray-100 p-6 flex flex-col gap-2">
         <h3 className="font-serif font-black text-gray-800 text-lg mb-6 flex items-center gap-2 uppercase tracking-wide">
-          <Globe size={20} className="text-brand-accent" /> Contenido Web
+          <Globe size={20} className="text-brand-accent" /> {t('Contenido Web')}
         </h3>
 
         {SECTIONS.map(section => (
@@ -141,7 +143,7 @@ const SiteContentAdmin: React.FC = () => {
               <h4 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                 {currentSection.icon} {currentSection.title}
               </h4>
-              <p className="text-sm text-gray-500 mt-1">Edita los textos e imágenes de esta sección. Los cambios se reflejarán en la web pública.</p>
+              <p className="text-sm text-gray-500 mt-1">{t('Edita los textos e imágenes de esta sección. Los cambios se reflejarán en la web pública.')}</p>
             </div>
             <button
               onClick={handleSaveAll}
@@ -154,7 +156,7 @@ const SiteContentAdmin: React.FC = () => {
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
               }`}
             >
-              {saved ? <><CheckCircle size={18} /> Guardado</> : saving ? 'Guardando...' : <><Save size={18} /> Guardar</>}
+              {saved ? <><CheckCircle size={18} /> {t('Guardado')}</> : saving ? t('Guardando...') : <><Save size={18} /> {t('Guardar')}</>}
             </button>
           </div>
 
