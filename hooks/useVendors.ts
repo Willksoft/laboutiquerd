@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Vendor } from '../types';
 import { fetchVendors } from '../lib/appwrite';
 import { databases, DATABASE_ID, COLLECTIONS, ID } from '../lib/appwrite';
+import { sanitizeName, sanitizeText } from '../lib/sanitize';
 
 const VENDORS_STORAGE_KEY = 'laboutiquerd_vendors';
 
@@ -10,7 +11,7 @@ export const useVendors = () => {
       try {
         const stored = localStorage.getItem(VENDORS_STORAGE_KEY);
         if (stored) return JSON.parse(stored);
-      } catch (e) { console.error(e); }
+      } catch (e) { /* ignore */ }
       return [];
     });
     const [loading, setLoading] = useState(true);
@@ -26,8 +27,8 @@ export const useVendors = () => {
           setVendors(mapped);
           localStorage.setItem(VENDORS_STORAGE_KEY, JSON.stringify(mapped));
         })
-        .catch((err) => {
-          console.warn('Appwrite vendors fetch failed:', err.message);
+        .catch(() => {
+          // Silently use cached data
         })
         .finally(() => setLoading(false));
     }, []);
@@ -43,7 +44,7 @@ export const useVendors = () => {
         try {
           const stored = localStorage.getItem(VENDORS_STORAGE_KEY);
           if (stored) setVendors(JSON.parse(stored));
-        } catch (e) { console.error(e); }
+        } catch (e) { /* ignore */ }
       };
       window.addEventListener('vendorsUpdated', handleChange);
       window.addEventListener('storage', handleChange);
@@ -53,34 +54,48 @@ export const useVendors = () => {
       };
     }, []);
 
+    const VALID_ROLES = ['Vendedor', 'Gerente', 'Admin'];
+
     const addVendor = async (vendor: Omit<Vendor, 'id'>) => {
+      // ═══════ SANITIZE ═══════
+      const safeName = sanitizeName(vendor.name);
+      const safeRole = VALID_ROLES.includes(vendor.role) ? vendor.role : 'Vendedor';
+      
+      if (!safeName) return; // Reject empty names
+
       const tempId = `v-${Date.now()}`;
-      const newVendor: Vendor = { id: tempId, ...vendor };
+      const newVendor: Vendor = { id: tempId, name: safeName, role: safeRole };
       try {
         const doc = await databases.createDocument(DATABASE_ID, COLLECTIONS.VENDORS, ID.unique(), {
-          name: vendor.name,
-          role: vendor.role,
+          name: safeName,
+          role: safeRole,
         });
         newVendor.id = doc.$id;
-      } catch (e) { console.warn('API create vendor failed:', e); }
+      } catch (e) { /* API create failed */ }
       persistAndDispatch([...vendors, newVendor]);
     };
 
     const deleteVendor = async (id: string) => {
       try {
         await databases.deleteDocument(DATABASE_ID, COLLECTIONS.VENDORS, id);
-      } catch (e) { console.warn('API delete vendor failed:', e); }
+      } catch (e) { /* API delete failed */ }
       persistAndDispatch(vendors.filter(v => v.id !== id));
     };
 
     const updateVendor = async (updatedVendor: Vendor) => {
+      // ═══════ SANITIZE ═══════
+      const safeName = sanitizeName(updatedVendor.name);
+      const safeRole = VALID_ROLES.includes(updatedVendor.role) ? updatedVendor.role : 'Vendedor';
+      
+      if (!safeName) return; // Reject empty names
+
       try {
         await databases.updateDocument(DATABASE_ID, COLLECTIONS.VENDORS, updatedVendor.id, {
-          name: updatedVendor.name,
-          role: updatedVendor.role,
+          name: safeName,
+          role: safeRole,
         });
-      } catch (e) { console.warn('API update vendor failed:', e); }
-      persistAndDispatch(vendors.map(v => v.id === updatedVendor.id ? updatedVendor : v));
+      } catch (e) { /* API update failed */ }
+      persistAndDispatch(vendors.map(v => v.id === updatedVendor.id ? { ...v, name: safeName, role: safeRole } : v));
     };
 
     return { vendors, addVendor, deleteVendor, updateVendor, loading };

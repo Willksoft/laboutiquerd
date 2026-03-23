@@ -241,7 +241,8 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
                          placeholder="Ej: Laura G."
                          value={clientName}
                          onChange={(e) => setClientName(e.target.value)}
-                         required
+                         maxLength={100}
+                         autoComplete="name"
                       />
                    </div>
                    <div>
@@ -252,7 +253,7 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
                          placeholder="Ej: 402"
                          value={room}
                          onChange={(e) => setRoom(e.target.value)}
-                         required
+                         maxLength={20}
                       />
                    </div>
                    <div>

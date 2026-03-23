@@ -307,6 +307,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onRemoveItem, onEditI
                     value={clientName} 
                     onChange={(e) => setClientName(e.target.value)}
                     placeholder={t('Nombre del huésped...')}
+                    maxLength={100}
+                    autoComplete="name"
                     className="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-accent focus:outline-none bg-gray-50"
                   />
                 </div>
@@ -319,6 +321,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onRemoveItem, onEditI
                     value={clientPhone} 
                     onChange={(e) => setClientPhone(e.target.value)}
                     placeholder="+1 (809) 555-0123"
+                    maxLength={20}
+                    autoComplete="tel"
                     className="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-accent focus:outline-none bg-gray-50"
                   />
                 </div>
@@ -331,6 +335,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onRemoveItem, onEditI
                     value={clientRoom} 
                     onChange={(e) => setClientRoom(e.target.value)}
                     placeholder={t('Ej: Room 4210')}
+                    maxLength={20}
                     className="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-accent focus:outline-none bg-gray-50"
                   />
                 </div>
@@ -356,6 +361,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onRemoveItem, onEditI
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder={t('Instrucciones especiales...')}
                     rows={2}
+                    maxLength={500}
                     className="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-accent focus:outline-none bg-gray-50 resize-none"
                   />
                 </div>

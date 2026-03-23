@@ -3,8 +3,22 @@ import { Product } from '../types';
 import { PRODUCTS as DEFAULT_PRODUCTS } from '../constants';
 import { useTranslation } from 'react-i18next';
 import { fetchProducts, createProduct as apiCreate, updateProduct as apiUpdate, deleteProduct as apiDelete } from '../lib/appwrite';
+import { sanitizeText, sanitizeDescription, sanitizeNumber, sanitizeUrl } from '../lib/sanitize';
 
 const PRODUCTS_STORAGE_KEY = 'laboutiquerd_products';
+
+const sanitizeProduct = (product: Product): Product => ({
+  ...product,
+  name: sanitizeText(product.name, 200),
+  description: sanitizeDescription(product.description || ''),
+  image: sanitizeUrl(product.image),
+  price: sanitizeNumber(product.price, 0, 9999999),
+  originalPrice: product.originalPrice ? sanitizeNumber(product.originalPrice, 0, 9999999) : undefined,
+  nameEn: product.nameEn ? sanitizeText(product.nameEn, 200) : undefined,
+  descEn: product.descEn ? sanitizeDescription(product.descEn) : undefined,
+  nameFr: product.nameFr ? sanitizeText(product.nameFr, 200) : undefined,
+  descFr: product.descFr ? sanitizeDescription(product.descFr) : undefined,
+});
 
 export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>(() => {
@@ -12,7 +26,7 @@ export const useProducts = () => {
       const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
     } catch (e) {
-      console.error("Error reading products from localStorage", e);
+      /* ignore corrupt data */
     }
     return DEFAULT_PRODUCTS;
   });
@@ -42,8 +56,8 @@ export const useProducts = () => {
         setProducts(mapped);
         localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(mapped));
       })
-      .catch((err) => {
-        console.warn('Appwrite fetch failed, using local data:', err.message);
+      .catch(() => {
+        // Silently use cached data
       })
       .finally(() => setLoading(false));
   }, []);
@@ -61,7 +75,7 @@ export const useProducts = () => {
       try {
         const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
         if (stored) setProducts(JSON.parse(stored));
-      } catch (e) { console.error(e); }
+      } catch (e) { /* ignore */ }
     };
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('productsUpdated', handleStorageChange);
@@ -78,30 +92,32 @@ export const useProducts = () => {
   };
 
   const addProduct = async (product: Product) => {
-    if(products.some(p => p.id === product.id)) {
-        product.id = `${product.id}-${Date.now()}`;
+    const safe = sanitizeProduct(product);
+    if(products.some(p => p.id === safe.id)) {
+        safe.id = `${safe.id}-${Date.now()}`;
     }
     try {
-      const { id, ...data } = product;
+      const { id, ...data } = safe;
       await apiCreate(data as any);
-    } catch (e) { console.warn('API create failed:', e); }
-    const newProducts = [product, ...products];
+    } catch (e) { /* API create failed */ }
+    const newProducts = [safe, ...products];
     persistAndDispatch(newProducts);
   };
 
   const updateProduct = async (updatedProduct: Product) => {
+    const safe = sanitizeProduct(updatedProduct);
     try {
-      const { id, ...data } = updatedProduct;
+      const { id, ...data } = safe;
       await apiUpdate(id, data as any);
-    } catch (e) { console.warn('API update failed:', e); }
-    const newProducts = products.map(p => p.id === updatedProduct.id ? updatedProduct : p);
+    } catch (e) { /* API update failed */ }
+    const newProducts = products.map(p => p.id === safe.id ? safe : p);
     persistAndDispatch(newProducts);
   };
 
   const deleteProduct = async (id: string) => {
     try {
       await apiDelete(id);
-    } catch (e) { console.warn('API delete failed:', e); }
+    } catch (e) { /* API delete failed */ }
     const newProducts = products.filter(p => p.id !== id);
     persistAndDispatch(newProducts);
   };

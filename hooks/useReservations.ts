@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Reservation, ReservationStatus, BlockedTime } from '../types';
 import { fetchReservations, createReservation as apiCreateReservation, updateReservationStatus as apiUpdateStatus } from '../lib/appwrite';
+import { sanitizeName, sanitizeRoom, sanitizeText, sanitizeNumber, sanitizeJsonString } from '../lib/sanitize';
 
 const RESERVATIONS_STORAGE_KEY = 'laboutiquerd_reservations';
 const BLOCKED_TIMES_STORAGE_KEY = 'laboutiquerd_blocked_times';
@@ -127,21 +128,29 @@ export const useReservations = () => {
   };
 
   const addReservation = async (reservation: Reservation) => {
+      // ═══════ SANITIZE ALL INPUTS ═══════
+      const safe: Reservation = {
+        ...reservation,
+        clientName: sanitizeName(reservation.clientName),
+        room: sanitizeRoom(reservation.room || ''),
+        modelName: sanitizeText(reservation.modelName, 200),
+        total: sanitizeNumber(reservation.total, 0, 9999999),
+      };
       try {
         await apiCreateReservation({
-          clientName: reservation.clientName,
-          room: reservation.room || '',
-          vendorId: reservation.vendorId || '',
-          date: reservation.date,
-          time: reservation.time,
-          modelId: reservation.modelId,
-          modelName: reservation.modelName,
-          servicesDetails: JSON.stringify(reservation.servicesDetails),
-          total: reservation.total,
-          status: reservation.status,
+          clientName: safe.clientName,
+          room: safe.room || '',
+          vendorId: safe.vendorId || '',
+          date: safe.date,
+          time: safe.time,
+          modelId: safe.modelId,
+          modelName: safe.modelName,
+          servicesDetails: sanitizeJsonString(JSON.stringify(safe.servicesDetails)),
+          total: safe.total,
+          status: safe.status,
         });
-      } catch (e) { console.warn('API create reservation failed:', e); }
-      persistReservations([reservation, ...reservations]);
+      } catch (e) { /* API create reservation failed */ }
+      persistReservations([safe, ...reservations]);
   };
 
   const updateReservation = (reservation: Reservation) => {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Order, OrderStatus } from '../types';
 import { fetchOrders, createOrder as apiCreateOrder, updateOrderStatus as apiUpdateStatus } from '../lib/appwrite';
+import { sanitizeName, sanitizeRoom, sanitizePhone, sanitizeNumber, sanitizeJsonString } from '../lib/sanitize';
 
 const ORDERS_STORAGE_KEY = 'laboutiquerd_orders';
 
@@ -9,7 +10,7 @@ export const useOrders = () => {
     try {
       const stored = localStorage.getItem(ORDERS_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* ignore corrupt data */ }
     return [];
   });
   const [loading, setLoading] = useState(true);
@@ -31,8 +32,8 @@ export const useOrders = () => {
         setOrders(mapped);
         localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(mapped));
       })
-      .catch((err) => {
-        console.warn('Appwrite orders fetch failed:', err.message);
+      .catch(() => {
+        // Silently use cached data
       })
       .finally(() => setLoading(false));
   }, []);
@@ -42,7 +43,7 @@ export const useOrders = () => {
       try {
         const stored = localStorage.getItem(ORDERS_STORAGE_KEY);
         if (stored) setOrders(JSON.parse(stored));
-      } catch (e) { console.error(e); }
+      } catch (e) { /* ignore */ }
     };
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('ordersUpdated', handleStorageChange);
@@ -61,24 +62,33 @@ export const useOrders = () => {
   const updateOrderStatus = async (id: string, newStatus: OrderStatus) => {
       try {
         await apiUpdateStatus(id, newStatus);
-      } catch (e) { console.warn('API update order status failed:', e); }
+      } catch (e) { /* API update failed, local state still updates */ }
       const newOrders = orders.map(o => o.id === id ? { ...o, status: newStatus } : o);
       persistAndDispatch(newOrders);
   };
 
   const addOrder = async (order: Order) => {
+      // ═══════ SANITIZE ALL INPUTS ═══════
+      const sanitizedOrder: Order = {
+        ...order,
+        clientName: sanitizeName(order.clientName),
+        room: sanitizeRoom(order.room || ''),
+        whatsapp: sanitizePhone(order.whatsapp || ''),
+        total: sanitizeNumber(order.total, 0, 9999999),
+      };
+
       try {
         await apiCreateOrder({
-          clientName: order.clientName,
-          room: order.room || '',
-          whatsapp: order.whatsapp || '',
-          date: order.date,
-          total: order.total,
-          status: order.status,
-          items: JSON.stringify(order.items),
+          clientName: sanitizedOrder.clientName,
+          room: sanitizedOrder.room || '',
+          whatsapp: sanitizedOrder.whatsapp || '',
+          date: sanitizedOrder.date,
+          total: sanitizedOrder.total,
+          status: sanitizedOrder.status,
+          items: sanitizeJsonString(JSON.stringify(sanitizedOrder.items)),
         });
-      } catch (e) { console.warn('API create order failed:', e); }
-      const newOrders = [order, ...orders];
+      } catch (e) { /* API create failed, local state still updates */ }
+      const newOrders = [sanitizedOrder, ...orders];
       persistAndDispatch(newOrders);
   };
 
