@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { FunnelIcon, XMarkIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon, XMarkIcon, ChevronDownIcon, ChevronUpIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Product } from '../types';
 
 interface ProductSidebarProps {
@@ -29,6 +29,7 @@ export default function ProductSidebar({ products, onFilter, t }: ProductSidebar
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('default');
   const [showOnlyOffers, setShowOnlyOffers] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     sort: true,
     category: true,
@@ -57,9 +58,19 @@ export default function ProductSidebar({ products, onFilter, t }: ProductSidebar
     tags: string[],
     categories: string[],
     sort: SortOption,
-    offers: boolean
+    offers: boolean,
+    search: string
   ) => {
     let filtered = [...products];
+
+    // Search
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q)
+      );
+    }
 
     // Category
     if (categories.length > 0) {
@@ -87,30 +98,35 @@ export default function ProductSidebar({ products, onFilter, t }: ProductSidebar
 
   const handlePriceChange = (min: number, max: number) => {
     setPriceRange([min, max]);
-    applyAllFilters([min, max], selectedTags, selectedCategories, sortBy, showOnlyOffers);
+    applyAllFilters([min, max], selectedTags, selectedCategories, sortBy, showOnlyOffers, searchQuery);
   };
 
   const handleTagToggle = (tag: string) => {
     const newTags = selectedTags.includes(tag) ? selectedTags.filter(t => t !== tag) : [...selectedTags, tag];
     setSelectedTags(newTags);
-    applyAllFilters(priceRange, newTags, selectedCategories, sortBy, showOnlyOffers);
+    applyAllFilters(priceRange, newTags, selectedCategories, sortBy, showOnlyOffers, searchQuery);
   };
 
   const handleCategoryToggle = (cat: string) => {
     const newCats = selectedCategories.includes(cat) ? selectedCategories.filter(c => c !== cat) : [...selectedCategories, cat];
     setSelectedCategories(newCats);
-    applyAllFilters(priceRange, selectedTags, newCats, sortBy, showOnlyOffers);
+    applyAllFilters(priceRange, selectedTags, newCats, sortBy, showOnlyOffers, searchQuery);
   };
 
   const handleSortChange = (sort: SortOption) => {
     setSortBy(sort);
-    applyAllFilters(priceRange, selectedTags, selectedCategories, sort, showOnlyOffers);
+    applyAllFilters(priceRange, selectedTags, selectedCategories, sort, showOnlyOffers, searchQuery);
   };
 
   const handleOffersToggle = () => {
     const newVal = !showOnlyOffers;
     setShowOnlyOffers(newVal);
-    applyAllFilters(priceRange, selectedTags, selectedCategories, sortBy, newVal);
+    applyAllFilters(priceRange, selectedTags, selectedCategories, sortBy, newVal, searchQuery);
+  };
+
+  const handleSearchChange = (q: string) => {
+    setSearchQuery(q);
+    applyAllFilters(priceRange, selectedTags, selectedCategories, sortBy, showOnlyOffers, q);
   };
 
   const clearFilters = () => {
@@ -119,10 +135,11 @@ export default function ProductSidebar({ products, onFilter, t }: ProductSidebar
     setSelectedCategories([]);
     setSortBy('default');
     setShowOnlyOffers(false);
+    setSearchQuery('');
     onFilter(products);
   };
 
-  const hasActiveFilters = selectedTags.length > 0 || selectedCategories.length > 0 || showOnlyOffers || sortBy !== 'default' || priceRange[0] > 0 || priceRange[1] < 99999;
+  const hasActiveFilters = selectedTags.length > 0 || selectedCategories.length > 0 || showOnlyOffers || sortBy !== 'default' || priceRange[0] > 0 || priceRange[1] < 99999 || searchQuery.trim() !== '';
 
   return (
     <aside className="w-64 flex-shrink-0 hidden lg:block">
@@ -137,6 +154,23 @@ export default function ProductSidebar({ products, onFilter, t }: ProductSidebar
             <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1 transition-colors">
               <XMarkIcon className="w-3.5 h-3.5" />
               {t('Limpiar')}
+            </button>
+          )}
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative mb-4">
+          <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => handleSearchChange(e.target.value)}
+            placeholder={t('Buscar productos...')}
+            className="w-full pl-9 pr-9 py-2.5 text-sm border border-gray-200 rounded-xl focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10 outline-none bg-white transition-all"
+          />
+          {searchQuery && (
+            <button onClick={() => handleSearchChange('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <XMarkIcon className="w-3.5 h-3.5" />
             </button>
           )}
         </div>

@@ -34,7 +34,7 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import Footer from './components/Footer';
 import ProductCard from './components/ProductCard';
-import ProductModal from './components/ProductModal';
+import ProductDetailPage from './components/ProductDetailPage';
 import Customizer from './components/Customizer';
 import UniversalCustomizer from './components/UniversalCustomizer';
 import BraidsBooking from './components/BraidsBooking';
@@ -86,7 +86,6 @@ function App() {
   
   // Customization State
   const [customizingProduct, setCustomizingProduct] = useState<Product | null>(null);
-  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
   
   // Gift Card Modal State
   const [selectedGiftCard, setSelectedGiftCard] = useState<Product | null>(null);
@@ -146,11 +145,11 @@ function App() {
   };
 
   const handleViewProduct = (product: Product) => {
-     // If it's a custom product, go to customizer. If not, open read-only modal.
+     // If it's a custom product, go to customizer. Otherwise navigate to product page.
      if (product.category === 'custom') {
         handleCustomizeStart(product);
      } else {
-        setViewingProduct(product);
+        navigate(`/product/${product.id}`);
      }
   };
 
@@ -912,25 +911,8 @@ function App() {
         />
       )}
 
-      {/* Dynamic SEO — product modal overrides page meta */}
-      {viewingProduct && (
-        <SEO
-          type="product"
-          title={viewingProduct.nameEn || viewingProduct.name}
-          description={viewingProduct.descEn || viewingProduct.description || `${viewingProduct.name} — Disponible en Boutique Creattive, Punta Cana & Michès.`}
-          image={viewingProduct.image}
-          url={`/products?product=${encodeURIComponent(viewingProduct.id)}`}
-          product={{
-            name: viewingProduct.nameEn || viewingProduct.name,
-            price: viewingProduct.price,
-            currency: 'DOP',
-            availability: viewingProduct.isSoldOut ? 'OutOfStock' : 'InStock',
-            image: viewingProduct.image,
-            sku: viewingProduct.id,
-            category: viewingProduct.category,
-          }}
-        />
-      )}
+
+
 
       <main className="flex-grow">
         <Routes>
@@ -1013,6 +995,14 @@ function App() {
           } />
 
           <Route path="/home" element={<Navigate to="/" replace />} />
+
+          {/* Product detail page */}
+          <Route path="/product/:id" element={
+            <ProductDetailPage
+              products={PRODUCTS}
+              onCustomize={handleCustomizeStart}
+            />
+          } />
 
           <Route path="/boutiques" element={
             <div className="pt-8">
@@ -1265,14 +1255,6 @@ function App() {
                 </div>
             </div>
         </div>
-      )}
-
-      {/* VIEW PRODUCT MODAL (READ ONLY) */}
-      {viewingProduct && (
-        <ProductModal 
-           product={viewingProduct}
-           onClose={() => setViewingProduct(null)}
-        />
       )}
 
       {/* Order Tracking Modal */}
