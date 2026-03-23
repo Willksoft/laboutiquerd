@@ -110,6 +110,14 @@ export const updateOrderStatus = async (id: string, status: string) => {
   return databases.updateDocument(DATABASE_ID, COLLECTIONS.ORDERS, id, { status });
 };
 
+export const updateOrder = async (id: string, data: Record<string, unknown>) => {
+  return databases.updateDocument(DATABASE_ID, COLLECTIONS.ORDERS, id, data);
+};
+
+export const deleteOrder = async (id: string) => {
+  return databases.deleteDocument(DATABASE_ID, COLLECTIONS.ORDERS, id);
+};
+
 // ─── RESERVATIONS ───────────────────────────────────────────
 export const fetchReservations = async () => {
   const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.RESERVATIONS, [
@@ -135,6 +143,14 @@ export const createReservation = async (data: Record<string, unknown>) => {
 
 export const updateReservationStatus = async (id: string, status: string) => {
   return databases.updateDocument(DATABASE_ID, COLLECTIONS.RESERVATIONS, id, { status });
+};
+
+export const updateReservation = async (id: string, data: Record<string, unknown>) => {
+  return databases.updateDocument(DATABASE_ID, COLLECTIONS.RESERVATIONS, id, data);
+};
+
+export const deleteReservation = async (id: string) => {
+  return databases.deleteDocument(DATABASE_ID, COLLECTIONS.RESERVATIONS, id);
 };
 
 // ─── BRAID MODELS ───────────────────────────────────────────

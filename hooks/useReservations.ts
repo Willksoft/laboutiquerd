@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Reservation, ReservationStatus, BlockedTime } from '../types';
-import { fetchReservations, createReservation as apiCreateReservation, updateReservationStatus as apiUpdateStatus } from '../lib/appwrite';
+import { fetchReservations, createReservation as apiCreateReservation, updateReservationStatus as apiUpdateStatus, updateReservation as apiUpdateReservation, deleteReservation as apiDeleteReservation } from '../lib/appwrite';
 import { sanitizeName, sanitizeRoom, sanitizeText, sanitizeNumber, sanitizeJsonString } from '../lib/sanitize';
 
 const RESERVATIONS_STORAGE_KEY = 'laboutiquerd_reservations';
@@ -22,7 +22,7 @@ export const useReservations = () => {
     try {
       const stored = localStorage.getItem(RESERVATIONS_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch (e) { console.error(e); }
+    } catch (e) { /* ignore corrupt data */ }
     return [];
   });
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ export const useReservations = () => {
     try {
       const stored = localStorage.getItem(BLOCKED_TIMES_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch(e) { console.error(e); }
+    } catch(e) { /* ignore */ }
     return [];
   });
 
@@ -39,7 +39,7 @@ export const useReservations = () => {
     try {
       const stored = localStorage.getItem(BLOCKED_DAYS_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch(e) { console.error(e); }
+    } catch(e) { /* ignore */ }
     return [1]; // Lunes disabled by default
   });
 
@@ -47,7 +47,7 @@ export const useReservations = () => {
     try {
       const stored = localStorage.getItem(BLOCKED_HOURS_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch(e) { console.error(e); }
+    } catch(e) { /* ignore */ }
     return [];
   });
 
@@ -71,7 +71,7 @@ export const useReservations = () => {
         setReservations(mapped);
         localStorage.setItem(RESERVATIONS_STORAGE_KEY, JSON.stringify(mapped));
       })
-      .catch((err) => console.warn('Appwrite reservations fetch failed:', err.message))
+      .catch(() => { /* silently use cached data */ })
       .finally(() => setLoading(false));
   }, []);
 
@@ -86,7 +86,7 @@ export const useReservations = () => {
         if (storedD) setBlockedDaysOfWeek(JSON.parse(storedD));
         const storedH = localStorage.getItem(BLOCKED_HOURS_STORAGE_KEY);
         if (storedH) setBlockedStandardHours(JSON.parse(storedH));
-      } catch (e) { console.error(e); }
+      } catch (e) { /* ignore */ }
     };
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('bookingsUpdated', handleStorageChange);
@@ -123,7 +123,7 @@ export const useReservations = () => {
   const updateReservationStatus = async (id: string, newStatus: ReservationStatus) => {
       try {
         await apiUpdateStatus(id, newStatus);
-      } catch (e) { console.warn('API update reservation status failed:', e); }
+      } catch (e) { /* API update failed */ }
       persistReservations(reservations.map(r => r.id === id ? { ...r, status: newStatus } : r));
   };
 
@@ -153,11 +153,36 @@ export const useReservations = () => {
       persistReservations([safe, ...reservations]);
   };
 
-  const updateReservation = (reservation: Reservation) => {
-      persistReservations(reservations.map(r => r.id === reservation.id ? reservation : r));
+  const updateReservation = async (reservation: Reservation) => {
+      // ═══════ SANITIZE ═══════
+      const safe: Reservation = {
+        ...reservation,
+        clientName: sanitizeName(reservation.clientName),
+        room: sanitizeRoom(reservation.room || ''),
+        modelName: sanitizeText(reservation.modelName, 200),
+        total: sanitizeNumber(reservation.total, 0, 9999999),
+      };
+      try {
+        await apiUpdateReservation(safe.id, {
+          clientName: safe.clientName,
+          room: safe.room || '',
+          vendorId: safe.vendorId || '',
+          date: safe.date,
+          time: safe.time,
+          modelId: safe.modelId,
+          modelName: safe.modelName,
+          servicesDetails: sanitizeJsonString(JSON.stringify(safe.servicesDetails)),
+          total: safe.total,
+          status: safe.status,
+        });
+      } catch (e) { /* API update failed */ }
+      persistReservations(reservations.map(r => r.id === safe.id ? safe : r));
   };
 
-  const deleteReservation = (id: string) => {
+  const deleteReservation = async (id: string) => {
+      try {
+        await apiDeleteReservation(id);
+      } catch (e) { /* API delete failed */ }
       persistReservations(reservations.filter(r => r.id !== id));
   };
 

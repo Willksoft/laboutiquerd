@@ -12,7 +12,7 @@ export const useBraidStyles = () => {
       const stored = localStorage.getItem(BRAID_STYLES_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
     } catch (e) {
-      console.error("Error reading braid styles from localStorage", e);
+      /* ignore corrupt data */
     }
     return DEFAULT_BRAID_STYLES;
   });
@@ -36,7 +36,7 @@ export const useBraidStyles = () => {
           localStorage.setItem(BRAID_STYLES_STORAGE_KEY, JSON.stringify(mapped));
         }
       })
-      .catch((err) => console.warn('Appwrite braid models fetch failed:', err.message))
+      .catch(() => { /* silently use cached data */ })
       .finally(() => setLoading(false));
   }, []);
 
@@ -52,7 +52,7 @@ export const useBraidStyles = () => {
       try {
         const stored = localStorage.getItem(BRAID_STYLES_STORAGE_KEY);
         if (stored) setStyles(JSON.parse(stored));
-      } catch (e) { console.error(e); }
+      } catch (e) { /* ignore */ }
     };
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('braidStylesUpdated', handleStorageChange);
@@ -75,7 +75,7 @@ export const useBraidStyles = () => {
     try {
       const { id, ...data } = style;
       await createBraidModel(data as any);
-    } catch (e) { console.warn('API create braid model failed:', e); }
+    } catch (e) { /* API create failed */ }
     persistAndDispatch([style, ...styles]);
   };
 
@@ -83,14 +83,14 @@ export const useBraidStyles = () => {
     try {
       const { id, ...data } = updatedStyle;
       await updateBraidModel(id, data as any);
-    } catch (e) { console.warn('API update braid model failed:', e); }
+    } catch (e) { /* API update failed */ }
     persistAndDispatch(styles.map(s => s.id === updatedStyle.id ? updatedStyle : s));
   };
 
   const deleteStyle = async (id: string) => {
     try {
       await deleteBraidModel(id);
-    } catch (e) { console.warn('API delete braid model failed:', e); }
+    } catch (e) { /* API delete failed */ }
     persistAndDispatch(styles.filter(s => s.id !== id));
   };
 

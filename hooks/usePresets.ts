@@ -12,7 +12,7 @@ export const usePresets = () => {
       const stored = localStorage.getItem(PRESETS_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
     } catch (e) {
-      console.error("Error reading presets from localStorage", e);
+      /* ignore corrupt data */
     }
     return DEFAULT_PRESETS;
   });
@@ -39,7 +39,7 @@ export const usePresets = () => {
           localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(mapped));
         }
       })
-      .catch((err) => console.warn('Appwrite presets fetch failed:', err.message))
+      .catch(() => { /* silently use cached data */ })
       .finally(() => setLoading(false));
   }, []);
 
@@ -59,7 +59,7 @@ export const usePresets = () => {
       try {
         const stored = localStorage.getItem(PRESETS_STORAGE_KEY);
         if (stored) setPresets(JSON.parse(stored));
-      } catch (e) { console.error(e); }
+      } catch (e) { /* ignore */ }
     };
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('presetsUpdated', handleStorageChange);
@@ -82,7 +82,7 @@ export const usePresets = () => {
     try {
       const { id, ...rest } = preset;
       await createTShirtPreset(rest as any);
-    } catch (e) { console.warn('API create preset failed:', e); }
+    } catch (e) { /* API create failed */ }
     persistAndDispatch([preset, ...presets]);
   };
 
@@ -90,14 +90,14 @@ export const usePresets = () => {
     try {
       const { id, ...rest } = updatedPreset;
       await updateTShirtPreset(id, rest as any);
-    } catch (e) { console.warn('API update preset failed:', e); }
+    } catch (e) { /* API update failed */ }
     persistAndDispatch(presets.map(p => p.id === updatedPreset.id ? updatedPreset : p));
   };
 
   const deletePreset = async (id: string) => {
     try {
       await deleteTShirtPreset(id);
-    } catch (e) { console.warn('API delete preset failed:', e); }
+    } catch (e) { /* API delete failed */ }
     persistAndDispatch(presets.filter(p => p.id !== id));
   };
 

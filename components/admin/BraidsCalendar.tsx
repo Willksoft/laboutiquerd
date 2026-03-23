@@ -144,6 +144,51 @@ const BraidsCalendar: React.FC = () => {
 
   const saveReservation = () => {
       if (!editingRes) return;
+
+      // ═══════ VALIDATION ═══════
+      if (!editingRes.clientName.trim()) {
+          alert('El nombre del cliente es requerido.');
+          return;
+      }
+      if (!editingRes.modelId) {
+          alert('Debes seleccionar un modelo/estilo.');
+          return;
+      }
+      if (!editingRes.servicesDetails || editingRes.servicesDetails.length === 0) {
+          alert('Debes agregar al menos un servicio.');
+          return;
+      }
+      // Check past date
+      const resDate = new Date(editingRes.date + 'T' + editingRes.time);
+      if (resDate < new Date()) {
+          alert('No se pueden crear citas en el pasado.');
+          return;
+      }
+      // Check blocked day
+      const resDay = new Date(editingRes.date).getDay();
+      if (blockedDaysOfWeek.includes(resDay)) {
+          alert('Este día está bloqueado. No se pueden crear citas.');
+          return;
+      }
+      // Check blocked hour
+      if (blockedStandardHours.includes(editingRes.time)) {
+          alert(`La hora ${editingRes.time} está bloqueada.`);
+          return;
+      }
+      // Check conflict with existing reservations (same date+time)
+      const conflict = reservations.find(r =>
+          r.id !== editingRes.id &&
+          r.date === editingRes.date &&
+          r.time === editingRes.time &&
+          r.status !== 'Cancelada' &&
+          r.status !== 'Completada'
+      );
+      if (conflict) {
+          if (!confirm(`Ya existe una cita a las ${editingRes.time} con ${conflict.clientName}. ¿Deseas continuar de todos modos?`)) {
+              return;
+          }
+      }
+
       if (reservations.some(r => r.id === editingRes.id)) {
           updateReservation(editingRes);
       } else {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Order, OrderStatus } from '../types';
-import { fetchOrders, createOrder as apiCreateOrder, updateOrderStatus as apiUpdateStatus } from '../lib/appwrite';
+import { fetchOrders, createOrder as apiCreateOrder, updateOrderStatus as apiUpdateStatus, deleteOrder as apiDeleteOrder } from '../lib/appwrite';
 import { sanitizeName, sanitizeRoom, sanitizePhone, sanitizeNumber, sanitizeJsonString } from '../lib/sanitize';
 
 const ORDERS_STORAGE_KEY = 'laboutiquerd_orders';
@@ -62,7 +62,7 @@ export const useOrders = () => {
   const updateOrderStatus = async (id: string, newStatus: OrderStatus) => {
       try {
         await apiUpdateStatus(id, newStatus);
-      } catch (e) { /* API update failed, local state still updates */ }
+      } catch (e) { /* API update failed */ }
       const newOrders = orders.map(o => o.id === id ? { ...o, status: newStatus } : o);
       persistAndDispatch(newOrders);
   };
@@ -87,10 +87,17 @@ export const useOrders = () => {
           status: sanitizedOrder.status,
           items: sanitizeJsonString(JSON.stringify(sanitizedOrder.items)),
         });
-      } catch (e) { /* API create failed, local state still updates */ }
+      } catch (e) { /* API create failed */ }
       const newOrders = [sanitizedOrder, ...orders];
       persistAndDispatch(newOrders);
   };
 
-  return { orders, updateOrderStatus, addOrder, loading };
+  const deleteOrder = async (id: string) => {
+      try {
+        await apiDeleteOrder(id);
+      } catch (e) { /* API delete failed */ }
+      persistAndDispatch(orders.filter(o => o.id !== id));
+  };
+
+  return { orders, updateOrderStatus, addOrder, deleteOrder, loading };
 };

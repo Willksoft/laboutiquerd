@@ -12,7 +12,7 @@ export const useBraidServices = () => {
       const stored = localStorage.getItem(BRAID_SERVICES_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
     } catch (e) {
-      console.error("Error reading braid services from localStorage", e);
+      /* ignore corrupt data */
     }
     return DEFAULT_BRAID_SERVICES;
   });
@@ -35,7 +35,7 @@ export const useBraidServices = () => {
           localStorage.setItem(BRAID_SERVICES_STORAGE_KEY, JSON.stringify(mapped));
         }
       })
-      .catch((err) => console.warn('Appwrite braid services fetch failed:', err.message))
+      .catch(() => { /* silently use cached data */ })
       .finally(() => setLoading(false));
   }, []);
 
@@ -53,7 +53,7 @@ export const useBraidServices = () => {
       try {
         const stored = localStorage.getItem(BRAID_SERVICES_STORAGE_KEY);
         if (stored) setServices(JSON.parse(stored));
-      } catch (e) { console.error(e); }
+      } catch (e) { /* ignore */ }
     };
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('braidServicesUpdated', handleStorageChange);
@@ -76,7 +76,7 @@ export const useBraidServices = () => {
     try {
       const { id, ...data } = service;
       await createBraidService(data as any);
-    } catch (e) { console.warn('API create braid service failed:', e); }
+    } catch (e) { /* API create failed */ }
     persistAndDispatch([service, ...services]);
   };
 
@@ -84,14 +84,14 @@ export const useBraidServices = () => {
     try {
       const { id, ...data } = updatedService;
       await updateBraidService(id, data as any);
-    } catch (e) { console.warn('API update braid service failed:', e); }
+    } catch (e) { /* API update failed */ }
     persistAndDispatch(services.map(s => s.id === updatedService.id ? updatedService : s));
   };
 
   const deleteService = async (id: string) => {
     try {
       await deleteBraidService(id);
-    } catch (e) { console.warn('API delete braid service failed:', e); }
+    } catch (e) { /* API delete failed */ }
     persistAndDispatch(services.filter(s => s.id !== id));
   };
 
