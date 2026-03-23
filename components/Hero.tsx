@@ -1,29 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRightIcon, MagnifyingGlassIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ArrowRightIcon, MagnifyingGlassIcon, ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useOffers } from '../hooks/useOffers';
 import { useSiteContent } from '../hooks/useSiteContent';
+import { useProducts } from '../hooks/useProducts';
+import { Product } from '../types';
 
 interface HeroProps {}
 
 const Hero: React.FC<HeroProps> = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const { offers: fetchOffersList, loading } = useOffers();
+  const { products } = useProducts();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { content } = useSiteContent();
-  
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Filter active and sort (useOffers already sorts by sortOrder)
   const offers = fetchOffersList.filter(o => o.isActive !== false);
 
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 200);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Compute live results
+  const searchResults: Product[] = debouncedQuery.trim().length >= 2
+    ? products
+        .filter(p => {
+          if (p.isVisible === false || p.isSoldOut) return false;
+          const lang = i18n.language;
+          const name = (lang.startsWith('en') && p.nameEn) ? p.nameEn
+                     : (lang.startsWith('fr') && p.nameFr) ? p.nameFr
+                     : p.name;
+          const q = debouncedQuery.toLowerCase();
+          return (
+            name.toLowerCase().includes(q) ||
+            (p.category || '').toLowerCase().includes(q) ||
+            (p.description || '').toLowerCase().includes(q)
+          );
+        })
+        .slice(0, 6)
+    : [];
+
+  // Show/hide dropdown
+  useEffect(() => {
+    setShowDropdown(searchResults.length > 0);
+    setSelectedIndex(-1);
+  }, [searchResults.length]);
+
+  // Close on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Keyboard nav
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showDropdown) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(i => Math.min(i + 1, searchResults.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(i => Math.max(i - 1, -1));
+    } else if (e.key === 'Enter' && selectedIndex >= 0) {
+      e.preventDefault();
+      goToResult(searchResults[selectedIndex]);
+    } else if (e.key === 'Escape') {
+      setShowDropdown(false);
+    }
+  };
+
+  const goToResult = (product: Product) => {
+    setShowDropdown(false);
+    navigate(`/products?q=${encodeURIComponent(product.name)}`);
+  };
+
   useEffect(() => {
     if (!loading && offers.length > 0) {
-      // Ensure currentSlide is within bounds
-      if (currentSlide >= offers.length) {
-         setCurrentSlide(0);
-      }
+      if (currentSlide >= offers.length) setCurrentSlide(0);
     }
   }, [offers.length, loading]);
 
@@ -39,9 +108,17 @@ const Hero: React.FC<HeroProps> = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowDropdown(false);
     if (searchQuery.trim()) {
-      navigate('/offers?q=' + encodeURIComponent(searchQuery));
+      navigate('/products?q=' + encodeURIComponent(searchQuery));
     }
+  };
+
+  const getProductName = (p: Product) => {
+    const lang = i18n.language;
+    return (lang.startsWith('en') && p.nameEn) ? p.nameEn
+         : (lang.startsWith('fr') && p.nameFr) ? p.nameFr
+         : p.name;
   };
 
   return (
@@ -75,25 +152,95 @@ const Hero: React.FC<HeroProps> = () => {
               {i18n.language.startsWith('en') && offer.subtitleEn ? offer.subtitleEn : i18n.language.startsWith('fr') && offer.subtitleFr ? offer.subtitleFr : t(offer.subtitle) || content.hero_subtitle}
             </p>
 
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="mb-8">
-              <div className="relative flex items-center">
-                <MagnifyingGlassIcon className="absolute left-4 w-5 h-5 text-brand-muted" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t('Buscar productos, servicios...')}
-                  className="w-full pl-12 pr-32 py-4 bg-white border border-gray-200 rounded-full text-sm text-brand-primary placeholder:text-brand-muted/60 focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 transition-all shadow-card"
-                />
-                <button 
-                  type="submit"
-                  className="absolute right-2 bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-accent hover:text-brand-primary transition-all duration-300"
-                >
-                  {t('Buscar')}
-                </button>
-              </div>
-            </form>
+            {/* Live Search Bar */}
+            <div className="mb-8" ref={containerRef}>
+              <form onSubmit={handleSearch}>
+                <div className="relative flex items-center">
+                  <MagnifyingGlassIcon className="absolute left-4 w-5 h-5 text-brand-muted z-10" />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
+                    placeholder={t('Buscar productos, servicios...')}
+                    className="w-full pl-12 pr-32 py-4 bg-white border border-gray-200 rounded-full text-sm text-brand-primary placeholder:text-brand-muted/60 focus:outline-none focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 transition-all shadow-card"
+                    autoComplete="off"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => { setSearchQuery(''); setShowDropdown(false); inputRef.current?.focus(); }}
+                      className="absolute right-24 text-gray-400 hover:text-gray-600 p-1"
+                    >
+                      <XMarkIcon className="w-4 h-4" />
+                    </button>
+                  )}
+                  <button 
+                    type="submit"
+                    className="absolute right-2 bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-accent hover:text-brand-primary transition-all duration-300"
+                  >
+                    {t('Buscar')}
+                  </button>
+                </div>
+              </form>
+
+              {/* Live Results Dropdown */}
+              {showDropdown && (
+                <div className="absolute z-50 w-full max-w-lg mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden animate-fade-in-up">
+                  <div className="px-4 py-2 bg-gray-50/70 border-b border-gray-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      {searchResults.length} {t('productos')}
+                    </span>
+                    <button onClick={() => setShowDropdown(false)} className="text-gray-400 hover:text-gray-600">
+                      <XMarkIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <ul className="max-h-72 overflow-y-auto custom-scrollbar divide-y divide-gray-50">
+                    {searchResults.map((product, idx) => (
+                      <li key={product.id}>
+                        <button
+                          type="button"
+                          onClick={() => goToResult(product)}
+                          className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
+                            selectedIndex === idx ? 'bg-brand-accent/10' : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          {/* Product image */}
+                          <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-100">
+                            {product.image ? (
+                              <img src={product.image} alt={getProductName(product)} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                <MagnifyingGlassIcon className="w-5 h-5" />
+                              </div>
+                            )}
+                          </div>
+                          {/* Product info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-gray-800 truncate">{getProductName(product)}</p>
+                            <p className="text-xs text-brand-muted truncate">{t(product.category || '')}</p>
+                          </div>
+                          {/* Price */}
+                          <span className="text-sm font-black text-brand-primary shrink-0">
+                            ${product.price.toFixed(2)}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  {/* View all button */}
+                  <button
+                    type="button"
+                    onClick={() => { setShowDropdown(false); navigate(`/products?q=${encodeURIComponent(searchQuery)}`); }}
+                    className="w-full py-3 text-center text-xs font-bold text-brand-accent hover:bg-brand-accent/5 transition-colors border-t border-gray-100 flex items-center justify-center gap-1"
+                  >
+                    {t('Ver Todos los Productos')} <ChevronRightIcon className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* CTA + Scroll indicator */}
             <div className="flex items-center gap-6 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
@@ -163,3 +310,4 @@ const Hero: React.FC<HeroProps> = () => {
 };
 
 export default Hero;
+
