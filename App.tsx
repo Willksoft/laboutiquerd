@@ -911,6 +911,26 @@ function App() {
         />
       )}
 
+      {/* Dynamic SEO — product modal overrides page meta */}
+      {viewingProduct && (
+        <SEO
+          type="product"
+          title={viewingProduct.nameEn || viewingProduct.name}
+          description={viewingProduct.descEn || viewingProduct.description || `${viewingProduct.name} — Disponible en Boutique Creattive, Punta Cana & Michès.`}
+          image={viewingProduct.image}
+          url={`/products?product=${encodeURIComponent(viewingProduct.id)}`}
+          product={{
+            name: viewingProduct.nameEn || viewingProduct.name,
+            price: viewingProduct.price,
+            currency: 'DOP',
+            availability: viewingProduct.isSoldOut ? 'OutOfStock' : 'InStock',
+            image: viewingProduct.image,
+            sku: viewingProduct.id,
+            category: viewingProduct.category,
+          }}
+        />
+      )}
+
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={
@@ -995,6 +1015,7 @@ function App() {
 
           <Route path="/boutiques" element={
             <div className="pt-8">
+              <SEO title="Boutiques" description="Descubre nuestras boutiques exclusivas en Club Med Punta Cana y Michès. Moda resort, joyería y artesanía dominicana." url="/boutiques" />
               {renderBoutiquePC()}
               {renderBoutiqueMiches()}
               {renderBoutiquePlaya()}
@@ -1011,8 +1032,26 @@ function App() {
             />
           } />
 
-          <Route path="/braids" element={renderBraidsSection()} />
-          <Route path="/bisuteria" element={renderBisuteriaSection()} />
+          <Route path="/braids" element={
+            <>
+              <SEO
+                title="Estudio de Trenzas Caribeñas"
+                description="Reserva tu cita en nuestro estudio de trenzas caleés y africanas en Club Med Punta Cana & Michès. Trenzas auténticas realizadas por artistas locales."
+                url="/braids"
+              />
+              {renderBraidsSection()}
+            </>
+          } />
+          <Route path="/bisuteria" element={
+            <>
+              <SEO
+                title="Bisuteriía & Accesorios Artesanales"
+                description="Colección exclusiva de bisuteriía caribeña artesanal. Piezas únicas con motivos dominicanos, realizadas a mano en Punta Cana."
+                url="/bisuteria"
+              />
+              {renderBisuteriaSection()}
+            </>
+          } />
           
           <Route path="/toys" element={
             <ProductPageLayout
@@ -1037,12 +1076,22 @@ function App() {
 
           <Route path="/gift-cards" element={
             <div className="pt-8">
+              <SEO
+                title="Gift Cards"
+                description="Regala una experiencia única en Boutique Creattive. Nuestras Gift Cards son perfectas para cualquier ocasión en Punta Cana y Michès."
+                url="/gift-cards"
+              />
                {renderGiftCardsBanner()}
             </div>
           } />
 
           <Route path="/custom" element={
             <div className="pt-8">
+               <SEO
+                 title="Personalización de Productos"
+                 description="Crea camisetas, gorras y accesorios personalizados al momento en nuestra boutique. Diseños únicos con impresión premium."
+                 url="/custom"
+               />
                <div className="container mx-auto px-4 mb-8">
                  <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">Personalizados</h1>
                  <p className="text-gray-600">Crea productos únicos. Elige un producto para comenzar.</p>

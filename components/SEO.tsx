@@ -21,8 +21,11 @@ interface SEOProps {
 }
 
 const SITE_NAME = 'Boutique Creattive';
-const SITE_URL = 'https://laboutiquerd.vercel.app';
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
+// Primary custom domain; Vercel is the deploy origin
+const SITE_URL = 'https://laboutiquerd.com';
+const SITE_URL_ALT = 'https://laboutiquerd.vercel.app';
+// OG image uploaded to Appwrite Storage bucket "media" with ID "og-image"
+const DEFAULT_IMAGE = 'https://nyc.cloud.appwrite.io/v1/storage/buckets/media/files/og-image/view?project=69c138dc003803eb6ca8';
 const TWITTER_HANDLE = '@LaBoutiqueRD';
 
 // Local Business JSON-LD schema
@@ -32,6 +35,10 @@ const localBusinessSchema = {
   name: SITE_NAME,
   description: 'Tu espacio para estilo personalizado, belleza y arte cultural en Punta Cana & Michès.',
   url: SITE_URL,
+  sameAs: [
+    SITE_URL_ALT,
+    'https://www.instagram.com/laboutiquerd',
+  ],
   logo: `${SITE_URL}/favicon.svg`,
   image: DEFAULT_IMAGE,
   priceRange: 'RD$$-$$$',
@@ -59,9 +66,7 @@ const localBusinessSchema = {
     opens: '09:00',
     closes: '20:00',
   },
-  sameAs: [
-    'https://www.instagram.com/laboutiquerd',
-  ],
+
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
     name: 'Catálogo Boutique Creattive',
@@ -122,6 +127,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="description" content={pageDesc} />
       {noindex && <meta name="robots" content="noindex,nofollow" />}
       <link rel="canonical" href={pageUrl} />
+      <link rel="alternate" href={pageUrl.replace(SITE_URL, SITE_URL_ALT)} />
 
       {/* Open Graph */}
       <meta property="og:type" content={type} />
@@ -129,8 +135,11 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={pageDesc} />
       <meta property="og:image" content={pageImage} />
+      <meta property="og:image:secure_url" content={pageImage} />
+      <meta property="og:image:type" content="image/png" />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={`${SITE_NAME} — Boutique en Punta Cana & Michès`} />
       <meta property="og:url" content={pageUrl} />
       <meta property="og:locale" content={lang === 'fr' ? 'fr_FR' : lang === 'en' ? 'en_US' : 'es_DO'} />
 
