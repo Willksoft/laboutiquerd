@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Plus, Search, Edit2, Trash2, X, Save, EyeOff, Palette, ShoppingBag, Tag, FolderPlus, Check } from 'lucide-react';
+import { Box, Plus, Search, Edit2, Trash2, X, Save, EyeOff, Palette, ShoppingBag, Tag, FolderPlus, Check, Images } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import { useBrands } from '../../hooks/useBrands';
 import { useCategories } from '../../hooks/useCategories';
@@ -354,6 +354,48 @@ const ProductsAdmin: React.FC = () => {
                            onImageChange={(url) => setEditingProduct({...editingProduct, image: url})} 
                          />
                      </div>
+
+                      {/* Gallery */}
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                          <Images size={15} className="text-brand-accent"/>
+                          {t('Galería de Fotos')}
+                          <span className="text-xs font-normal text-gray-400">({(editingProduct.gallery?.length || 0)}/8)</span>
+                        </label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {(editingProduct.gallery || []).map((url, idx) => (
+                            <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                              <img src={url} alt={`gallery-${idx}`} className="w-full h-full object-cover"/>
+                              <button type="button"
+                                onClick={() => {
+                                  const g = [...(editingProduct.gallery || [])];
+                                  g.splice(idx, 1);
+                                  setEditingProduct({...editingProduct, gallery: g});
+                                }}
+                                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                              >
+                                <X size={12}/>
+                              </button>
+                              <div className="absolute bottom-1 left-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">#{idx+1}</div>
+                            </div>
+                          ))}
+                          {(editingProduct.gallery?.length || 0) < 8 && (
+                            <div className="aspect-square">
+                              <ImageUploader
+                                currentUrl=""
+                                onImageChange={(url) => {
+                                  if (!url) return;
+                                  const g = [...(editingProduct.gallery || []), url];
+                                  setEditingProduct({...editingProduct, gallery: g});
+                                }}
+                                compact={true}
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-400 mt-2">{t('Añade hasta 8 fotos adicionales para la galería del producto.')}</p>
+                      </div>
+
 
                      <div>
                          <label className="block text-sm font-bold text-gray-700 mb-1">{t('Precio Real (RD$)')}</label>

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftIcon, TagIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, TagIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { Product } from '../types';
 
@@ -16,6 +16,11 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ products, onCusto
   const { t, i18n } = useTranslation();
 
   const product = products.find(p => p.id === id);
+
+  // Gallery state
+  const [activeImg, setActiveImg] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState(0);
 
   const getTranslatedText = (obj: any, field: string) => {
     if (i18n.language.startsWith('en')) {
@@ -44,6 +49,9 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ products, onCusto
     );
   }
 
+  // Build full image list (main + gallery)
+  const allImages: string[] = [product.image, ...(product.gallery || [])].filter(Boolean);
+
   const discountPct = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : null;
@@ -60,8 +68,90 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ products, onCusto
     'boutique-miches': 'Boutique Michès',
   };
 
+  const openLightbox = (idx: number) => {
+    setLightboxIdx(idx);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => setLightboxOpen(false);
+
+  const prevLightbox = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLightboxIdx(i => (i > 0 ? i - 1 : allImages.length - 1));
+  };
+
+  const nextLightbox = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLightboxIdx(i => (i < allImages.length - 1 ? i + 1 : 0));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pt-6 pb-20">
+
+      {/* Lightbox overlay */}
+      {lightboxOpen && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center"
+          onClick={closeLightbox}
+        >
+          {/* Close */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+
+          {/* Counter */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium bg-black/40 px-4 py-1.5 rounded-full">
+            {lightboxIdx + 1} / {allImages.length}
+          </div>
+
+          {/* Prev */}
+          {allImages.length > 1 && (
+            <button
+              onClick={prevLightbox}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all"
+            >
+              <ChevronLeftIcon className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Main lightbox image */}
+          <img
+            src={allImages[lightboxIdx]}
+            alt={`photo-${lightboxIdx}`}
+            className="max-w-[90vw] max-h-[85vh] object-contain rounded-xl shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
+
+          {/* Next */}
+          {allImages.length > 1 && (
+            <button
+              onClick={nextLightbox}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all"
+            >
+              <ChevronRightIcon className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Thumbnail strip */}
+          {allImages.length > 1 && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto">
+              {allImages.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={e => { e.stopPropagation(); setLightboxIdx(i); }}
+                  className={`w-12 h-12 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${i === lightboxIdx ? 'border-white scale-110' : 'border-white/30 opacity-60 hover:opacity-100'}`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="container mx-auto px-4 max-w-6xl">
 
         {/* Breadcrumb / Back */}
@@ -84,30 +174,58 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ products, onCusto
           <div className="flex flex-col lg:flex-row">
 
             {/* Image Column */}
-            <div className="relative lg:w-1/2 min-h-[320px] lg:min-h-[520px] bg-gray-100">
-              <img
-                src={product.image}
-                alt={getTranslatedText(product, 'name')}
-                className="w-full h-full object-cover absolute inset-0"
-                style={{ maxHeight: 600 }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+            <div className="lg:w-1/2 flex flex-col">
+              {/* Main image */}
+              <div
+                className="relative min-h-[320px] lg:min-h-[460px] bg-gray-100 cursor-zoom-in overflow-hidden flex-1"
+                onClick={() => openLightbox(activeImg)}
+              >
+                <img
+                  src={allImages[activeImg]}
+                  alt={getTranslatedText(product, 'name')}
+                  className="w-full h-full object-cover absolute inset-0 transition-all duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
 
-              {/* Badges */}
-              <div className="absolute top-5 left-5 flex flex-wrap gap-2">
-                {product.tags?.map(tag => (
-                  !tag.startsWith('RD$') && (
-                    <span key={tag} className="badge badge-gold backdrop-blur-sm text-xs px-3 py-1">
-                      {t(tag)}
+                {/* Badges */}
+                <div className="absolute top-5 left-5 flex flex-wrap gap-2">
+                  {product.tags?.map(tag => (
+                    !tag.startsWith('RD$') && (
+                      <span key={tag} className="badge badge-gold backdrop-blur-sm text-xs px-3 py-1">
+                        {t(tag)}
+                      </span>
+                    )
+                  ))}
+                  {discountPct && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                      -{discountPct}%
                     </span>
-                  )
-                ))}
-                {discountPct && (
-                  <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                    -{discountPct}%
-                  </span>
+                  )}
+                </div>
+
+                {/* Photo counter chip */}
+                {allImages.length > 1 && (
+                  <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm">
+                    <PhotoIcon className="w-3.5 h-3.5" />
+                    {activeImg + 1}/{allImages.length}
+                  </div>
                 )}
               </div>
+
+              {/* Thumbnail strip */}
+              {allImages.length > 1 && (
+                <div className="flex gap-2 p-3 bg-gray-50 overflow-x-auto">
+                  {allImages.map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveImg(i)}
+                      className={`w-16 h-16 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all duration-200 ${i === activeImg ? 'border-brand-primary ring-2 ring-brand-primary/20 scale-105' : 'border-transparent opacity-60 hover:opacity-100 hover:border-gray-300'}`}
+                    >
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Info Column */}
@@ -126,7 +244,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ products, onCusto
                 {getTranslatedText(product, 'name')}
               </h1>
 
-              {/* Fake Stars */}
+              {/* Stars */}
               <div className="flex items-center gap-1 mb-5">
                 {[1,2,3,4,5].map(s => (
                   <StarIcon key={s} className="w-4 h-4 text-amber-400" />
@@ -155,6 +273,17 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ products, onCusto
                   {getTranslatedText(product, 'description')}
                 </p>
               </div>
+
+              {/* Gallery count hint */}
+              {allImages.length > 1 && (
+                <button
+                  onClick={() => openLightbox(0)}
+                  className="flex items-center gap-2 text-sm text-brand-primary font-medium hover:underline mb-6"
+                >
+                  <PhotoIcon className="w-4 h-4" />
+                  {t('Ver galería de')} {allImages.length} {t('fotos')}
+                </button>
+              )}
 
               {/* CTA */}
               <div className="space-y-3">
@@ -186,7 +315,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ products, onCusto
           </div>
         </div>
 
-        {/* Related products (same category) */}
+        {/* Related products */}
         {(() => {
           const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
           if (related.length === 0) return null;
@@ -197,11 +326,17 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ products, onCusto
                 {related.map(rp => (
                   <div
                     key={rp.id}
-                    onClick={() => navigate(`/product/${rp.id}`)}
+                    onClick={() => { navigate(`/product/${rp.id}`); setActiveImg(0); }}
                     className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                   >
-                    <div className="h-40 bg-gray-100 overflow-hidden">
+                    <div className="h-40 bg-gray-100 overflow-hidden relative">
                       <img src={rp.image} alt={t(rp.name)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      {rp.gallery && rp.gallery.length > 0 && (
+                        <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded-full">
+                          <PhotoIcon className="w-2.5 h-2.5" />
+                          +{rp.gallery.length}
+                        </div>
+                      )}
                     </div>
                     <div className="p-3">
                       <p className="text-sm font-semibold text-gray-800 group-hover:text-brand-primary transition-colors line-clamp-2">{t(rp.name)}</p>

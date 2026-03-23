@@ -22,6 +22,7 @@ export interface Product {
   originalPrice?: number;
   category: Category;
   image: string;
+  gallery?: string[];   // Additional product photos
   description: string;
   brandId?: string;
   isNew?: boolean;
