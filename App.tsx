@@ -57,6 +57,7 @@ import AdminProducts from './components/admin/Products';
 import AdminSettings from './components/admin/Settings';
 import AdminReceiptPage from './components/admin/AdminReceiptPage';
 import BrandsAdmin from './components/admin/BrandsAdmin';
+import CategoriesAdmin from './components/admin/CategoriesAdmin';
 import SliderAdmin from './components/admin/SliderAdmin';
 import SiteContentAdmin from './components/admin/SiteContentAdmin';
 import AdminTracking from './components/admin/AdminTracking';
@@ -1131,6 +1132,7 @@ function App() {
             <Route path="braids" element={<BraidsAdmin />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="brands" element={<BrandsAdmin />} />
+            <Route path="categories" element={<CategoriesAdmin />} />
             <Route path="slider" element={<SliderAdmin />} />
             <Route path="site-content" element={<SiteContentAdmin />} />
             <Route path="tracking" element={<AdminTracking />} />

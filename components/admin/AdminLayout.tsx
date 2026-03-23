@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Scissors, Box, PackagePlus, Settings, LogOut, Menu, X, User, Palette, Search, Tag, Globe, ImageIcon } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Scissors, Box, PackagePlus, Settings, LogOut, Menu, X, User, Palette, Search, Tag, Globe, ImageIcon, FolderOpen } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 
@@ -19,6 +19,7 @@ const AdminLayout: React.FC = () => {
     { name: t('Estudio Trenzas'), icon: <Scissors size={20} />, path: '/admin/braids' },
     { name: t('Catálogo Boutique'), icon: <Box size={20} />, path: '/admin/products' },
     { name: t('Marcas'), icon: <Tag size={20} />, path: '/admin/brands' },
+    { name: t('Categorías'), icon: <FolderOpen size={20} />, path: '/admin/categories' },
     { name: t('Slider Público'), icon: <ImageIcon size={20} />, path: '/admin/slider' },
     { name: t('Contenido Web'), icon: <Globe size={20} />, path: '/admin/site-content' },
     { name: t('Rastreador'), icon: <Search size={20} />, path: '/admin/tracking' },

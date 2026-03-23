@@ -25,6 +25,7 @@ export const COLLECTIONS = {
   TSHIRT_PRESETS: import.meta.env.VITE_APPWRITE_TSHIRT_PRESETS_COLLECTION,
   BRANDS: import.meta.env.VITE_APPWRITE_BRANDS_COLLECTION,
   SITE_CONTENT: import.meta.env.VITE_APPWRITE_SITE_CONTENT_COLLECTION,
+  CATEGORIES: import.meta.env.VITE_APPWRITE_CATEGORIES_COLLECTION,
 } as const;
 
 // ─── Helper: Get file preview URL ───────────────────────────
@@ -303,3 +304,32 @@ export const upsertSiteContent = async (key: string, value: string) => {
   } catch { /* not found, create new */ }
   return databases.createDocument(DATABASE_ID, COLLECTIONS.SITE_CONTENT, ID.unique(), { key, value });
 };
+
+// ─── CATEGORIES ─────────────────────────────────────────────
+export const fetchCategories = async () => {
+
+  try {
+    const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.CATEGORIES, [
+      Query.limit(100),
+      Query.orderAsc('sortOrder'),
+    ]);
+    return response.documents;
+  } catch {
+    return [];
+  }
+};
+
+export const createCategory = async (data: Record<string, unknown>) => {
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.createDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, ID.unique(), cleanData);
+};
+
+export const updateCategory = async (id: string, data: Record<string, unknown>) => {
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.updateDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, id, cleanData);
+};
+
+export const deleteCategory = async (id: string) => {
+  return databases.deleteDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, id);
+};
+

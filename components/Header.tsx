@@ -3,6 +3,7 @@ import { Bars3Icon, XMarkIcon, ShoppingBagIcon, ChevronDownIcon, ChevronRightIco
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSiteContent } from '../hooks/useSiteContent';
+import { useCategories, type ProductCategory } from '../hooks/useCategories';
 
 // Trident SVG icon component
 const TridentIcon: React.FC<{ className?: string }> = ({ className = 'w-7 h-7' }) => (
@@ -11,32 +12,8 @@ const TridentIcon: React.FC<{ className?: string }> = ({ className = 'w-7 h-7' }
   </svg>
 );
 
-// Category definition type
-interface Category {
-  key: string;         // used in URL: /products?category=key
-  label: string;       // Spanish label (translated via t())
-  image: string;       // Unsplash image URL
-  emoji: string;
-}
-
-// All product categories with curated Unsplash images
-const CATEGORIES: Category[] = [
-  { key: 'Moda & Ropa',          label: 'Moda & Ropa',          emoji: '👗', image: 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Calzado',              label: 'Calzado',              emoji: '👟', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Accesorios',           label: 'Accesorios',           emoji: '👜', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Alta Joyería',         label: 'Alta Joyería',         emoji: '💎', image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Bisutería',            label: 'Bisutería',            emoji: '📿', image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Cuidado Personal',     label: 'Cuidado Personal',     emoji: '🧴', image: 'https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Perfumes',             label: 'Perfumes',             emoji: '🌸', image: 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Artesanía',            label: 'Artesanía',            emoji: '🏺', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Artículos del Hogar',  label: 'Artículos del Hogar',  emoji: '🏠', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Artículos Personales', label: 'Artículos Personales', emoji: '🎒', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Juguetes',             label: 'Juguetes',             emoji: '🧸', image: 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Tecnología',           label: 'Tecnología',           emoji: '📱', image: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Bolsos & Carteras',    label: 'Bolsos & Carteras',    emoji: '👛', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Ropa Interior',        label: 'Ropa Interior',        emoji: '🩱', image: 'https://images.unsplash.com/photo-1624206112918-f140f087f9b5?w=300&q=80&auto=format&fit=crop' },
-  { key: 'Deportes',             label: 'Deportes',             emoji: '⚽', image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=300&q=80&auto=format&fit=crop' },
-];
+// Category alias for Header (uses ProductCategory from hook)
+type Category = ProductCategory;
 
 interface HeaderProps {
   cartCount: number;
@@ -56,6 +33,8 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { content } = useSiteContent();
+  const { categories } = useCategories();
+  const activeCategories = categories.filter(c => c.isActive !== false);
 
   const changeLanguage = (lng: string) => { i18n.changeLanguage(lng); };
 
@@ -92,7 +71,12 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
     navigate(`/products?category=${encodeURIComponent(cat.key)}`);
   };
 
-  const getCategoryLabel = (cat: Category) => t(cat.label);
+  const getCategoryLabel = (cat: Category) => {
+    const lang = i18n.language;
+    return (lang.startsWith('en') && cat.nameEn) ? cat.nameEn
+         : (lang.startsWith('fr') && cat.nameFr) ? cat.nameFr
+         : t(cat.name);
+  };
 
   const navItems = [
     { label: t('Inicio'), path: '/' },
@@ -186,7 +170,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
 
                 {/* Categories Grid */}
                 <div className="grid grid-cols-5 gap-0 p-4">
-                  {CATEGORIES.map((cat) => (
+                  {activeCategories.map((cat) => (
                     <button
                       key={cat.key}
                       onClick={() => goToCategory(cat)}
@@ -380,7 +364,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
               </button>
               {mobileCatsOpen && (
                 <div className="mt-1 pl-2 grid grid-cols-2 gap-1">
-                  {CATEGORIES.map((cat) => (
+                  {activeCategories.map((cat) => (
                     <button
                       key={cat.key}
                       onClick={() => goToCategory(cat)}
