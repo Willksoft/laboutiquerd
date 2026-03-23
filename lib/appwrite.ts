@@ -340,8 +340,13 @@ export const deleteCategory = async (id: string) => {
 
 // ─── HEADER SERVICES ────────────────────────────────────────
 export const fetchServices = async () => {
+  const collId = import.meta.env.VITE_APPWRITE_SERVICES_COLLECTION as string;
+  if (!collId) {
+    console.warn('[fetchServices] VITE_APPWRITE_SERVICES_COLLECTION is not set');
+    return [];
+  }
   try {
-    const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.SERVICES, [
+    const response = await databases.listDocuments(DATABASE_ID, collId, [
       Query.limit(50),
       Query.orderAsc('sortOrder'),
     ]);
@@ -352,13 +357,17 @@ export const fetchServices = async () => {
 };
 
 export const createService = async (data: Record<string, unknown>) => {
+  const collId = import.meta.env.VITE_APPWRITE_SERVICES_COLLECTION as string;
+  if (!collId) throw new Error('VITE_APPWRITE_SERVICES_COLLECTION is not set in Vercel environment variables');
   const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
-  return databases.createDocument(DATABASE_ID, COLLECTIONS.SERVICES, ID.unique(), cleanData);
+  return databases.createDocument(DATABASE_ID, collId, ID.unique(), cleanData);
 };
 
 export const updateService = async (id: string, data: Record<string, unknown>) => {
+  const collId = import.meta.env.VITE_APPWRITE_SERVICES_COLLECTION as string;
+  if (!collId) throw new Error('VITE_APPWRITE_SERVICES_COLLECTION is not set in Vercel environment variables');
   const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
-  return databases.updateDocument(DATABASE_ID, COLLECTIONS.SERVICES, id, cleanData);
+  return databases.updateDocument(DATABASE_ID, collId, id, cleanData);
 };
 
 export const deleteService = async (id: string) => {

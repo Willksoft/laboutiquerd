@@ -29,15 +29,30 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ currentUrl, onImageChange
     setError('');
 
     try {
-      const response = await uploadFile(file);
-      const endpoint = import.meta.env.VITE_APPWRITE_ENDPOINT;
-      const projectId = import.meta.env.VITE_APPWRITE_PROJECT_ID;
       const bucketId = import.meta.env.VITE_APPWRITE_BUCKET_ID;
+      const projectId = import.meta.env.VITE_APPWRITE_PROJECT_ID;
+      const endpoint = import.meta.env.VITE_APPWRITE_ENDPOINT;
+
+      if (!bucketId) {
+        setError('Error de configuración: VITE_APPWRITE_BUCKET_ID no definido');
+        setUploading(false);
+        return;
+      }
+
+      const response = await uploadFile(file);
       const url = `${endpoint}/storage/buckets/${bucketId}/files/${response.$id}/view?project=${projectId}`;
       onImageChange(url);
     } catch (err: any) {
+      const bucketId = import.meta.env.VITE_APPWRITE_BUCKET_ID;
+      console.error('[ImageUploader] Upload error:', {
+        message: err.message,
+        code: err.code,
+        type: err.type,
+        bucketId: bucketId || '(undefined!)',
+        fileName: file.name,
+        fileSize: file.size,
+      });
       setError(err.message || 'Error al subir imagen');
-      console.error('Upload error:', err);
     } finally {
       setUploading(false);
     }
