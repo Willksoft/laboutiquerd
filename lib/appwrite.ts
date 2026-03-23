@@ -26,6 +26,7 @@ export const COLLECTIONS = {
   BRANDS: import.meta.env.VITE_APPWRITE_BRANDS_COLLECTION,
   SITE_CONTENT: import.meta.env.VITE_APPWRITE_SITE_CONTENT_COLLECTION,
   CATEGORIES: import.meta.env.VITE_APPWRITE_CATEGORIES_COLLECTION,
+  SERVICES: import.meta.env.VITE_APPWRITE_SERVICES_COLLECTION,
 } as const;
 
 // ─── Helper: Get file preview URL ───────────────────────────
@@ -333,3 +334,29 @@ export const deleteCategory = async (id: string) => {
   return databases.deleteDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, id);
 };
 
+// ─── HEADER SERVICES ────────────────────────────────────────
+export const fetchServices = async () => {
+  try {
+    const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.SERVICES, [
+      Query.limit(50),
+      Query.orderAsc('sortOrder'),
+    ]);
+    return response.documents;
+  } catch {
+    return [];
+  }
+};
+
+export const createService = async (data: Record<string, unknown>) => {
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.createDocument(DATABASE_ID, COLLECTIONS.SERVICES, ID.unique(), cleanData);
+};
+
+export const updateService = async (id: string, data: Record<string, unknown>) => {
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.updateDocument(DATABASE_ID, COLLECTIONS.SERVICES, id, cleanData);
+};
+
+export const deleteService = async (id: string) => {
+  return databases.deleteDocument(DATABASE_ID, COLLECTIONS.SERVICES, id);
+};

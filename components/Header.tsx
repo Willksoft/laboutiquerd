@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useCategories, type ProductCategory } from '../hooks/useCategories';
+import { useServices } from '../hooks/useServices';
 
 // Trident SVG icon component
 const TridentIcon: React.FC<{ className?: string }> = ({ className = 'w-7 h-7' }) => (
@@ -34,7 +35,23 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
   const { t, i18n } = useTranslation();
   const { content } = useSiteContent();
   const { categories } = useCategories();
+  const { services } = useServices();
   const activeCategories = categories.filter(c => c.isActive !== false);
+  const activeServices = services.filter(s => s.isActive !== false);
+
+  const getSvcLabel = (s: ReturnType<typeof useServices>['services'][0]) => {
+    const lang = i18n.language;
+    return (lang.startsWith('en') && s.nameEn) ? s.nameEn
+         : (lang.startsWith('fr') && s.nameFr) ? s.nameFr
+         : s.name;
+  };
+
+  const getSvcDesc = (s: ReturnType<typeof useServices>['services'][0]) => {
+    const lang = i18n.language;
+    return (lang.startsWith('en') && s.descriptionEn) ? s.descriptionEn
+         : (lang.startsWith('fr') && s.descriptionFr) ? s.descriptionFr
+         : s.description || '';
+  };
 
   const changeLanguage = (lng: string) => { i18n.changeLanguage(lng); };
 
@@ -325,19 +342,23 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
                     {/* Grid de servicios */}
                     <div className="flex-1 p-5">
                       <div className="grid grid-cols-3 gap-3">
-                        {serviceItems.map((svc) => (
+                        {activeServices.map((svc) => (
                           <button
-                            key={svc.path}
-                            onClick={() => { setServicesDropdownOpen(false); navigate(svc.path); }}
+                            key={svc.id}
+                            onClick={() => { setServicesDropdownOpen(false); navigate(svc.key); }}
                             className="group text-left rounded-xl overflow-hidden border border-gray-100 hover:border-brand-accent/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                           >
                             {/* Image */}
                             <div className="relative h-24 overflow-hidden bg-gray-100">
-                              <img
-                                src={svc.image}
-                                alt={t(svc.titleKey)}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                              />
+                              {svc.image ? (
+                                <img
+                                  src={svc.image}
+                                  alt={getSvcLabel(svc)}
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-3xl">{svc.emoji}</div>
+                              )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
                               <span className="absolute top-1.5 left-1.5 text-sm drop-shadow-sm">{svc.emoji}</span>
                               <div className="absolute bottom-1.5 right-1.5 w-5 h-5 bg-brand-accent rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
@@ -346,9 +367,9 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
                             </div>
                             {/* Content */}
                             <div className="p-2.5">
-                              <span className="text-[9px] font-bold uppercase tracking-widest text-brand-accent block mb-0.5">{t(svc.tagKey)}</span>
-                              <p className="text-[11px] font-bold text-gray-800 group-hover:text-brand-primary transition-colors leading-tight mb-1">{t(svc.titleKey)}</p>
-                              <p className="text-[10px] text-gray-400 leading-relaxed hidden group-hover:block">{t(svc.descKey)}</p>
+                              {svc.tag && <span className="text-[9px] font-bold uppercase tracking-widest text-brand-accent block mb-0.5">{svc.tag}</span>}
+                              <p className="text-[11px] font-bold text-gray-800 group-hover:text-brand-primary transition-colors leading-tight mb-1">{getSvcLabel(svc)}</p>
+                              <p className="text-[10px] text-gray-400 leading-relaxed hidden group-hover:block">{getSvcDesc(svc)}</p>
                             </div>
                           </button>
                         ))}

@@ -58,6 +58,7 @@ import AdminSettings from './components/admin/Settings';
 import AdminReceiptPage from './components/admin/AdminReceiptPage';
 import BrandsAdmin from './components/admin/BrandsAdmin';
 import CategoriesAdmin from './components/admin/CategoriesAdmin';
+import ServicesAdmin from './components/admin/ServicesAdmin';
 import SliderAdmin from './components/admin/SliderAdmin';
 import SiteContentAdmin from './components/admin/SiteContentAdmin';
 import AdminTracking from './components/admin/AdminTracking';
@@ -1188,6 +1189,7 @@ function App() {
             <Route path="products" element={<AdminProducts />} />
             <Route path="brands" element={<BrandsAdmin />} />
             <Route path="categories" element={<CategoriesAdmin />} />
+            <Route path="services" element={<ServicesAdmin />} />
             <Route path="slider" element={<SliderAdmin />} />
             <Route path="site-content" element={<SiteContentAdmin />} />
             <Route path="tracking" element={<AdminTracking />} />
