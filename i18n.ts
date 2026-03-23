@@ -27,6 +27,17 @@ const resources = {
       "Todas las Categor\u00edas": "Toutes les Cat\u00e9gories",
       "Ver todos los productos": "Voir tous les produits",
       "Cargando...": "Chargement...",
+      // Servicios mega menu (FR)
+      "Arte & Estilo Caribeño": "Art & Style Caribéen",
+      "Servicios exclusivos en Club Med Punta Cana & Michès.": "Services exclusifs au Club Med Punta Cana & Michès.",
+      "Reservar Cita": "Réserver un RDV",
+      "Trenzas caribeñas auténticas. Reserva tu cita online.": "Tresses caribéennes authentiques. Réservez en ligne.",
+      "Diseña tus camisetas, gorras y accesorios al momento.": "Créez vos t-shirts, casquettes et accessoires sur place.",
+      "Reservable": "Réservable",
+      "Ver todos los servicios": "Voir tous les services",
+      "Servicio presencial en Club Med Punta Cana & Michès": "Service en présentiel au Club Med Punta Cana & Michès",
+      "Las categorías son actualizadas en tiempo real desde el panel de administración.": "Les catégories sont mises à jour en temps réel.",
+
       // Product names
       "Taza Personalizada": "Tasse Personnalisée", "T-Shirt Cotton": "T-Shirt Coton",
       "Gorra Trucker": "Casquette Trucker", "Mochila Urbana": "Sac à Dos Urbain",
@@ -762,6 +773,17 @@ const resources = {
       "Joyería & Larimar": "Jewelry & Larimar",
       "Piezas exclusivas de Larimar, Ámbar y Plata 925. Disponibles en Boutique Principal y Miches.": "Exclusive Larimar, Amber, and 925 Silver pieces. Available at Main Boutique and Miches.",
       "Explorar": "Explore", "Cargando...": "Loading...",
+      // Servicios mega menu (EN)
+      "Arte & Estilo Caribeño": "Art & Caribbean Style",
+      "Servicios exclusivos en Club Med Punta Cana & Michès.": "Exclusive services at Club Med Punta Cana & Michès.",
+      "Reservar Cita": "Book Appointment",
+      "Trenzas caribeñas auténticas. Reserva tu cita online.": "Authentic Caribbean braids. Book your appointment online.",
+      "Diseña tus camisetas, gorras y accesorios al momento.": "Design your t-shirts, caps and accessories on the spot.",
+      "Reservable": "Bookable",
+      "Ver todos los servicios": "View All Services",
+      "Servicio presencial en Club Med Punta Cana & Michès": "In-person service at Club Med Punta Cana & Michès",
+      "Las categorías son actualizadas en tiempo real desde el panel de administración.": "Categories are updated in real time from the admin panel.",
+
       "Club Favorite": "Club Favorite",
       "Eco-Friendly": "Eco-Friendly",
       "Familiar": "Family",

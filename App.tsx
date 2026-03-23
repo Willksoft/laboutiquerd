@@ -62,6 +62,7 @@ import SliderAdmin from './components/admin/SliderAdmin';
 import SiteContentAdmin from './components/admin/SiteContentAdmin';
 import AdminTracking from './components/admin/AdminTracking';
 import NotFound from './components/NotFound';
+import SEO from './components/SEO';
 
 import { useProducts } from './hooks/useProducts';
 import { useSiteContent } from './hooks/useSiteContent';
@@ -914,6 +915,11 @@ function App() {
         <Routes>
           <Route path="/" element={
             <>
+              <SEO
+                title="Inicio"
+                description="Tu espacio para estilo personalizado, belleza y arte cultural en Punta Cana & Michès. Moda resort, trenzas caribeñas, joyería Larimar y artesanía dominicana."
+                url="/"
+              />
               <Hero />
               {renderQuickCategories()}
               <Brands />

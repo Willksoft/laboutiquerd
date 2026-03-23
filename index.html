@@ -1,15 +1,68 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Boutique — Punta Cana & Michès</title>
-    <meta name="description" content="Tu espacio para estilo personalizado, belleza y arte cultural. Diseñamos experiencias únicas para ti." />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Default SEO (overridden by react-helmet-async per page) -->
+    <title>Boutique Creattive — Punta Cana &amp; Michès</title>
+    <meta name="description" content="Tu espacio para estilo personalizado, belleza y arte cultural. Moda resort, trenzas caribeñas, joyería Larimar y artesanía dominicana en Club Med Punta Cana y Michès." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#0A0A0A" />
+    <link rel="canonical" href="https://laboutiquerd.vercel.app" />
+
+    <!-- Open Graph defaults -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Boutique Creattive" />
+    <meta property="og:title" content="Boutique Creattive — Punta Cana & Michès" />
+    <meta property="og:description" content="Moda resort, trenzas caribeñas, joyería Larimar y artesanía dominicana en Club Med." />
+    <meta property="og:image" content="https://laboutiquerd.vercel.app/og-image.jpg" />
+    <meta property="og:locale" content="es_DO" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="fr_FR" />
+
+    <!-- Twitter Card defaults -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@LaBoutiqueRD" />
+
+    <!-- Geo -->
+    <meta name="geo.region" content="DO-11" />
+    <meta name="geo.position" content="18.5601;-68.3725" />
+    <meta name="ICBM" content="18.5601, -68.3725" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap" rel="stylesheet" />
-    <!-- Dependencies resolved by Vite from node_modules -->
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX', {
+        page_title: document.title,
+        page_path: location.pathname,
+        send_page_view: true
+      });
+    </script>
+
+    <!-- Structured Data: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Boutique Creattive",
+      "url": "https://laboutiquerd.vercel.app",
+      "logo": "https://laboutiquerd.vercel.app/favicon.svg",
+      "sameAs": ["https://www.instagram.com/laboutiquerd"]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

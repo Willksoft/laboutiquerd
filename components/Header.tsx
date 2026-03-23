@@ -264,9 +264,11 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
             {t('Boutiques')}
           </Link>
 
-          {/* Servicios dropdown */}
+          {/* Servicios — mega menú premium */}
           <div className="relative" ref={servicesRef}>
             <button
+              onMouseEnter={() => { if (megaMenuTimeout.current) clearTimeout(megaMenuTimeout.current); setServicesDropdownOpen(true); }}
+              onMouseLeave={() => { megaMenuTimeout.current = setTimeout(() => setServicesDropdownOpen(false), 180); }}
               onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
               className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 ${
                 ['/braids', '/bisuteria', '/custom'].some(p => currentView === p.substring(1))
@@ -277,20 +279,103 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
               {t('Servicios')}
               <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform duration-200 ${servicesDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
+
             {servicesDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-2xl shadow-glass-lg py-2 animate-slide-down border border-gray-100">
-                {navItems[3].subItems!.map((sub) => (
-                  <Link
-                    key={sub.path}
-                    to={sub.path}
-                    onClick={() => setServicesDropdownOpen(false)}
-                    className={`block px-4 py-2.5 text-sm transition-colors ${
-                      currentView === sub.path.substring(1) ? 'text-white bg-black font-semibold' : 'text-brand-primary/70 hover:bg-black hover:text-white'
-                    }`}
-                  >
-                    {sub.label}
-                  </Link>
-                ))}
+              <div
+                className="absolute top-full left-0 mt-2 z-50 animate-slide-down"
+                onMouseEnter={() => { if (megaMenuTimeout.current) clearTimeout(megaMenuTimeout.current); setServicesDropdownOpen(true); }}
+                onMouseLeave={() => { megaMenuTimeout.current = setTimeout(() => setServicesDropdownOpen(false), 180); }}
+                style={{ width: '680px' }}
+              >
+                <div className="rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.18)] border border-gray-100/60 bg-white/95 backdrop-blur-xl">
+                  <div className="flex">
+                    {/* Sidebar oscura */}
+                    <div className="w-48 bg-gradient-to-b from-gray-950 to-gray-900 p-5 flex flex-col justify-between shrink-0">
+                      <div>
+                        <span className="text-brand-accent text-[10px] font-bold uppercase tracking-[0.18em] block mb-3">{t('Servicios')}</span>
+                        <h3 className="text-white font-serif text-lg leading-tight mb-3">{t('Arte & Estilo Caribeño')}</h3>
+                        <p className="text-gray-400 text-[11px] leading-relaxed">
+                          {t('Servicios exclusivos en Club Med Punta Cana & Michès.')}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => { setServicesDropdownOpen(false); navigate('/braids'); }}
+                        className="mt-4 w-full bg-brand-accent text-brand-primary text-[11px] font-bold py-2.5 px-3 rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-1.5"
+                      >
+                        {t('Reservar Cita')} <ChevronRightIcon className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                    {/* Grid de servicios */}
+                    <div className="flex-1 p-5">
+                      <div className="grid grid-cols-3 gap-3">
+                        {[
+                          {
+                            path: '/braids',
+                            emoji: '💆‍♀️',
+                            image: 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&q=80&w=300',
+                            titleKey: 'Estudio de Trenzas',
+                            descKey: 'Trenzas caribeñas auténticas. Reserva tu cita online.',
+                            tagKey: 'Reservable',
+                          },
+                          {
+                            path: '/bisuteria',
+                            emoji: '💎',
+                            image: 'https://images.unsplash.com/photo-1573408301185-9519f94dcdf4?auto=format&fit=crop&q=80&w=300',
+                            titleKey: 'Bisutería & Accesorios',
+                            descKey: 'Piezas únicas inspiradas en la naturaleza caribeña.',
+                            tagKey: 'Artesanal',
+                          },
+                          {
+                            path: '/custom',
+                            emoji: '✏️',
+                            image: 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&q=80&w=300',
+                            titleKey: 'Personalizados',
+                            descKey: 'Diseña tus camisetas, gorras y accesorios al momento.',
+                            tagKey: 'Exclusivo',
+                          },
+                        ].map((svc) => (
+                          <button
+                            key={svc.path}
+                            onClick={() => { setServicesDropdownOpen(false); navigate(svc.path); }}
+                            className="group text-left rounded-xl overflow-hidden border border-gray-100 hover:border-brand-accent/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                          >
+                            {/* Image */}
+                            <div className="relative h-24 overflow-hidden bg-gray-100">
+                              <img
+                                src={svc.image}
+                                alt={t(svc.titleKey)}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                              <span className="absolute top-1.5 left-1.5 text-sm drop-shadow-sm">{svc.emoji}</span>
+                              <div className="absolute bottom-1.5 right-1.5 w-5 h-5 bg-brand-accent rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
+                                <ChevronRightIcon className="w-2.5 h-2.5 text-brand-primary" />
+                              </div>
+                            </div>
+                            {/* Content */}
+                            <div className="p-2.5">
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-brand-accent block mb-0.5">{t(svc.tagKey)}</span>
+                              <p className="text-[11px] font-bold text-gray-800 group-hover:text-brand-primary transition-colors leading-tight mb-1">{t(svc.titleKey)}</p>
+                              <p className="text-[10px] text-gray-400 leading-relaxed hidden group-hover:block">{t(svc.descKey)}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom strip */}
+                  <div className="border-t border-gray-100 px-5 py-2 bg-gray-50/80 flex items-center justify-between">
+                    <p className="text-[11px] text-gray-400">{t('Servicio presencial en Club Med Punta Cana & Michès')}</p>
+                    <button
+                      onClick={() => { setServicesDropdownOpen(false); navigate('/braids'); }}
+                      className="text-xs font-bold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
+                    >
+                      {t('Ver todos los servicios')} <ChevronRightIcon className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
