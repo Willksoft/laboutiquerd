@@ -6,8 +6,8 @@ import { useConfirm } from '../../hooks/useConfirm';
 import ImageUploader from './ImageUploader';
 import { Layers } from 'lucide-react';
 import CustomSelect from '../ui/CustomSelect';
+import IconPicker, { renderIcon } from '../ui/IconPicker';
 
-const EMOJI_OPTIONS = ['💆‍♀️','💎','✏️','🌸','🧴','💄','🪡','💍','🎨','🪆','✂️','👗','👛','🏺','🎁','🌴','🤿','🏄','🏋️','🎭'];
 
 const PATH_OPTIONS = [
   { value: '/braids',   label: 'Estudio de Trenzas (/braids)' },
@@ -155,13 +155,13 @@ const ServicesAdmin: React.FC = () => {
                 {svc.image ? (
                   <img src={svc.image} alt={getSvcName(svc)} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-4xl">
-                    {svc.emoji || '🛍️'}
+                  <div className="w-full h-full flex items-center justify-center text-brand-primary/40">
+                    {renderIcon(svc.emoji, 40) || <Layers size={40} />}
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                 {svc.emoji && (
-                  <span className="absolute top-2 left-2 text-xl drop-shadow-md">{svc.emoji}</span>
+                  <span className="absolute top-2 left-2 text-white drop-shadow-md">{renderIcon(svc.emoji, 20)}</span>
                 )}
                 {svc.tag && (
                   <span className="absolute top-2 right-2 bg-brand-accent text-brand-primary text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
@@ -249,20 +249,14 @@ const ServicesAdmin: React.FC = () => {
                   className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" />
               </div>
 
-              {/* Emoji + Tag + Sort */}
+              {/* Icon + Tag + Sort */}
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">{t('Emoji')}</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl flex-shrink-0">{form.emoji}</span>
-                    <CustomSelect
-                      variant="input"
-                      value={form.emoji || ''}
-                      options={EMOJI_OPTIONS.map(em => ({ value: em, label: em }))}
-                      onChange={val => setField('emoji', val)}
-                      className="flex-1"
-                    />
-                  </div>
+                  <IconPicker
+                    value={form.emoji || ''}
+                    onChange={val => setField('emoji', val)}
+                    label={t('Ícono')}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">{t('Etiqueta')}</label>

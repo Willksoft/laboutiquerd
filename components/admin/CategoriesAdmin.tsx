@@ -5,8 +5,8 @@ import { useCategories, type ProductCategory } from '../../hooks/useCategories';
 import { useConfirm } from '../../hooks/useConfirm';
 import ImageUploader from './ImageUploader';
 import CustomSelect from '../ui/CustomSelect';
+import IconPicker, { renderIcon } from '../ui/IconPicker';
 
-const EMOJI_OPTIONS = ['👗','👟','👜','💎','📿','🧴','🌸','🏺','🏠','🎒','🧸','📱','👛','🩱','⚽','🛍️','🎁','🎨','🍫','💄','🧳','🔮','⌚','🎭','🏋️','🎮','🪆','🧶','🪡','🥿'];
 
 type FormMode = 'create' | 'edit';
 
@@ -167,17 +167,11 @@ const CategoriesAdmin: React.FC = () => {
             </div>
             {/* Emoji */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1.5">{t('Emoji')}</label>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">{form.emoji}</span>
-                <CustomSelect
-                  variant="input"
-                  value={form.emoji || ''}
-                  options={EMOJI_OPTIONS.map(em => ({ value: em, label: em }))}
-                  onChange={val => setForm(f => ({ ...f, emoji: val }))}
-                  className="flex-1"
-                />
-              </div>
+              <IconPicker
+                value={form.emoji || ''}
+                onChange={val => setForm(f => ({ ...f, emoji: val }))}
+                label={t('Ícono')}
+              />
             </div>
             {/* Image */}
             <div className="md:col-span-2">
@@ -262,14 +256,17 @@ const CategoriesAdmin: React.FC = () => {
 
               {/* Name + image */}
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-gray-100">
+                <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-gray-100 flex items-center justify-center">
                   {cat.image
                     ? <img src={cat.image} alt="" className="w-full h-full object-cover" />
-                    : <div className="w-full h-full flex items-center justify-center text-lg">{cat.emoji}</div>
+                    : <span className="text-brand-primary/60">{renderIcon(cat.emoji, 20) || <span className="text-lg">{cat.emoji}</span>}</span>
                   }
                 </div>
                 <div className="min-w-0">
-                  <p className="font-bold text-gray-800 text-sm truncate">{getCatName(cat)} {cat.emoji}</p>
+                  <p className="font-bold text-gray-800 text-sm truncate flex items-center gap-1.5">
+                    <span className="text-brand-primary/70">{renderIcon(cat.emoji, 14)}</span>
+                    {getCatName(cat)}
+                  </p>
                   <p className="text-[11px] text-gray-400 truncate">{cat.nameEn && `EN: ${cat.nameEn}`}{cat.nameFr && ` · FR: ${cat.nameFr}`}</p>
                 </div>
               </div>

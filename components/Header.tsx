@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useCategories, type ProductCategory } from '../hooks/useCategories';
 import { useServices } from '../hooks/useServices';
+import { renderIcon } from './ui/IconPicker';
 
 // Trident SVG icon component
 const TridentIcon: React.FC<{ className?: string }> = ({ className = 'w-7 h-7' }) => (
@@ -357,10 +358,14 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
                                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center text-3xl">{svc.emoji}</div>
+                                <div className="w-full h-full flex items-center justify-center text-brand-primary/40">
+                                  {renderIcon(svc.emoji, 32) || <span className="text-2xl">🛍️</span>}
+                                </div>
                               )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-                              <span className="absolute top-1.5 left-1.5 text-sm drop-shadow-sm">{svc.emoji}</span>
+                              <span className="absolute top-1.5 left-1.5 text-white drop-shadow-sm">
+                                {renderIcon(svc.emoji, 14)}
+                              </span>
                               <div className="absolute bottom-1.5 right-1.5 w-5 h-5 bg-brand-accent rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
                                 <ChevronRightIcon className="w-2.5 h-2.5 text-brand-primary" />
                               </div>
