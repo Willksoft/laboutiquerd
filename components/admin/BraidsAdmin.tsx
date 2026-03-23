@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Scissors, Calendar, List, Search, Plus, Filter, Edit2, Trash2, X, Save, EyeOff, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Scissors, Calendar, List, Search, Plus, Filter, Edit2, Trash2, X, Save, EyeOff, CheckCircle, XCircle, Clock, Ban } from 'lucide-react';
 import { useBraidStyles } from '../../hooks/useBraidStyles';
 import { useBraidServices } from '../../hooks/useBraidServices';
 import { useReservations } from '../../hooks/useReservations';
@@ -8,6 +8,7 @@ import BraidsCalendar from './BraidsCalendar';
 import ImageUploader from './ImageUploader';
 import { useConfirm } from '../../hooks/useConfirm';
 import { useSiteContent } from '../../hooks/useSiteContent';
+import { toast } from '../Toast';
 
 const BraidsAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('reservations');
@@ -38,6 +39,9 @@ const BraidsAdmin: React.FC = () => {
     }
   });
   const [newHoliday, setNewHoliday] = useState('');
+  // Blocked specific hours
+  const [blockedDateInput, setBlockedDateInput] = useState('');
+  const [blockedHourInput, setBlockedHourInput] = useState('10:00');
 
   const { showConfirm, ConfirmDialog } = useConfirm();
 
@@ -76,9 +80,69 @@ const BraidsAdmin: React.FC = () => {
   };
 
   const handleSaveSettings = async () => {
+      const confirmed = await showConfirm(
+        '¿Guardar los cambios de horario comercial? Esto afectará inmediatamente los horarios disponibles para nuevas reservas.',
+        { confirmLabel: 'Sí, guardar', title: 'Confirmar Cambios de Horario' }
+      );
+      if (!confirmed) return;
       await updateValue('business_hours', JSON.stringify(businessHours));
       await updateValue('holidays', JSON.stringify(holidays));
-      alert('Configuración guardada exitosamente.');
+      toast.success('Configuración guardada exitosamente.');
+  };
+
+  const handleAddHoliday = async () => {
+      if (!newHoliday) return;
+      if (holidays.includes(newHoliday)) {
+          toast.error('Este día ya está bloqueado.');
+          return;
+      }
+      const formatted = new Date(newHoliday + 'T12:00:00').toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const confirmed = await showConfirm(
+        `¿Bloquear el día ${formatted}? Los clientes no podrán reservar citas para esa fecha.`,
+        { confirmLabel: 'Sí, bloquear', title: 'Confirmar Bloqueo de Día', danger: true }
+      );
+      if (!confirmed) return;
+      setHolidays([...holidays, newHoliday]);
+      setNewHoliday('');
+      toast.success(`Día ${newHoliday} bloqueado. Recuerda guardar la configuración.`);
+  };
+
+  const handleRemoveHoliday = async (date: string) => {
+      const formatted = new Date(date + 'T12:00:00').toLocaleDateString('es-DO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const confirmed = await showConfirm(
+        `¿Desbloquear el día ${formatted}? Los clientes podrán reservar citas para esa fecha nuevamente.`,
+        { confirmLabel: 'Sí, desbloquear', title: 'Confirmar Desbloqueo de Día' }
+      );
+      if (!confirmed) return;
+      setHolidays(holidays.filter(h => h !== date));
+      toast.success(`Día ${date} desbloqueado. Recuerda guardar la configuración.`);
+  };
+
+  const handleAddBlockedHour = async () => {
+      if (!blockedDateInput || !blockedHourInput) {
+          toast.error('Selecciona una fecha y una hora para bloquear.');
+          return;
+      }
+      const formatted = new Date(blockedDateInput + 'T12:00:00').toLocaleDateString('es-DO', { weekday: 'long', month: 'long', day: 'numeric' });
+      const confirmed = await showConfirm(
+        `¿Bloquear la hora ${blockedHourInput} del ${formatted}? Ningún cliente podrá reservar esa hora específica.`,
+        { confirmLabel: 'Sí, bloquear hora', title: 'Confirmar Bloqueo de Hora', danger: true }
+      );
+      if (!confirmed) return;
+      addBlockedTime({ id: `bt-${Date.now()}`, type: 'time', date: blockedDateInput, time: blockedHourInput, reason: 'Bloqueado por admin' });
+      setBlockedDateInput('');
+      setBlockedHourInput('10:00');
+      toast.success(`Hora ${blockedHourInput} bloqueada para el ${blockedDateInput}.`);
+  };
+
+  const handleRemoveBlockedTime = async (bt: BlockedTime) => {
+      const confirmed = await showConfirm(
+        `¿Desbloquear la hora ${bt.time} del ${bt.date}? Los clientes podrán reservar nuevamente esa hora.`,
+        { confirmLabel: 'Sí, desbloquear', title: 'Confirmar Desbloqueo de Hora' }
+      );
+      if (!confirmed) return;
+      removeBlockedTime(bt.id);
+      toast.success(`Hora ${bt.time} del ${bt.date} desbloqueada.`);
   };
 
   const activeReservations = activeTab === 'reservations';
@@ -409,15 +473,10 @@ const BraidsAdmin: React.FC = () => {
                                <div className="flex gap-2 mb-4">
                                    <input type="date" value={newHoliday} onChange={e => setNewHoliday(e.target.value)} className="flex-1 border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"/>
                                    <button 
-                                      onClick={() => {
-                                        if(newHoliday && !holidays.includes(newHoliday)) {
-                                           setHolidays([...holidays, newHoliday]);
-                                           setNewHoliday('');
-                                        }
-                                      }}
-                                      className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-xl font-bold transition-colors"
+                                      onClick={handleAddHoliday}
+                                      className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2"
                                    >
-                                       Añadir Día
+                                       <Ban size={16}/> Bloquear Día
                                    </button>
                                </div>
                                <div className="flex flex-wrap gap-2">
@@ -425,11 +484,47 @@ const BraidsAdmin: React.FC = () => {
                                    {holidays.map(date => (
                                        <span key={date} className="bg-red-50 text-red-600 border border-red-100 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2">
                                            {date}
-                                           <button onClick={() => setHolidays(holidays.filter(h => h !== date))} className="hover:bg-red-200 p-0.5 rounded text-red-800 transition-colors"><X size={14} /></button>
+                                           <button onClick={() => handleRemoveHoliday(date)} className="hover:bg-red-200 p-0.5 rounded text-red-800 transition-colors" title="Desbloquear este día"><X size={14} /></button>
                                        </span>
                                    ))}
                                </div>
-                           </div>
+                            </div>
+
+                            {/* Bloqueo de Horas Específicas */}
+                            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mt-6">
+                                <h3 className="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">
+                                    <Clock size={20} className="text-orange-500" /> Bloquear Horas Específicas
+                                </h3>
+                                <p className="text-xs text-gray-500 mb-4">Bloquea una hora concreta en un día concreto (ej. las 2:00 PM del lunes por una reunión).</p>
+                                <div className="flex flex-col sm:flex-row gap-2 mb-4">
+                                    <input
+                                        type="date" value={blockedDateInput}
+                                        onChange={e => setBlockedDateInput(e.target.value)}
+                                        className="flex-1 border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none text-sm"
+                                    />
+                                    <input
+                                        type="time" value={blockedHourInput}
+                                        onChange={e => setBlockedHourInput(e.target.value)}
+                                        className="border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none text-sm"
+                                    />
+                                    <button
+                                        onClick={handleAddBlockedHour}
+                                        className="bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2 whitespace-nowrap"
+                                    >
+                                        <Ban size={16}/> Bloquear Hora
+                                    </button>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {blockedTimes.length === 0 && <span className="text-sm text-gray-400 italic">No hay horas bloqueadas específicas.</span>}
+                                    {blockedTimes.map(bt => (
+                                        <span key={bt.id} className="bg-orange-50 text-orange-700 border border-orange-100 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2">
+                                            <Clock size={12}/> {bt.date} @ {bt.time}
+                                            {bt.reason && <span className="text-orange-400 text-xs font-normal">({bt.reason})</span>}
+                                            <button onClick={() => handleRemoveBlockedTime(bt)} className="hover:bg-orange-200 p-0.5 rounded text-orange-900 transition-colors" title="Desbloquear"><X size={14} /></button>
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
 
                            <div className="mt-6 flex justify-end">
                                <button onClick={handleSaveSettings} className="bg-brand-primary text-white font-bold px-8 py-3 rounded-xl hover:bg-brand-accent hover:text-brand-primary transition-colors flex items-center gap-2 shadow-sm">
