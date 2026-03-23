@@ -1,4 +1,4 @@
-import { Client, Databases, Storage, Account, ID, Query } from 'appwrite';
+import { Client, Databases, Storage, Account, ID, Query, Permission, Role } from 'appwrite';
 
 // Initialize Appwrite Client
 const client = new Client()
@@ -326,7 +326,11 @@ export const fetchCategories = async () => {
 
 export const createCategory = async (data: Record<string, unknown>) => {
   const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
-  return databases.createDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, ID.unique(), cleanData);
+  return databases.createDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, ID.unique(), cleanData, [
+    Permission.read(Role.any()),
+    Permission.update(Role.any()),
+    Permission.delete(Role.any()),
+  ]);
 };
 
 export const updateCategory = async (id: string, data: Record<string, unknown>) => {
@@ -360,7 +364,11 @@ export const createService = async (data: Record<string, unknown>) => {
   const collId = import.meta.env.VITE_APPWRITE_SERVICES_COLLECTION as string;
   if (!collId) throw new Error('VITE_APPWRITE_SERVICES_COLLECTION is not set in Vercel environment variables');
   const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
-  return databases.createDocument(DATABASE_ID, collId, ID.unique(), cleanData);
+  return databases.createDocument(DATABASE_ID, collId, ID.unique(), cleanData, [
+    Permission.read(Role.any()),
+    Permission.update(Role.any()),
+    Permission.delete(Role.any()),
+  ]);
 };
 
 export const updateService = async (id: string, data: Record<string, unknown>) => {
