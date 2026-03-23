@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, Scissors, Box, PackagePlus, Settings, LogOut, Menu, X, User, Palette, Search, Tag, Globe, ImageIcon } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { i18n } = useTranslation();
+
+  const changeLang = (lang: 'es' | 'en' | 'fr') => i18n.changeLanguage(lang);
+  const currentLang = i18n.language as 'es' | 'en' | 'fr';
 
   const menuItems = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
@@ -101,7 +106,25 @@ const AdminLayout: React.FC = () => {
             <h1 className="font-serif font-bold text-xl text-gray-800 hidden sm:block">Panel de Control</h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+             {/* Language Switcher */}
+             <div className="flex bg-gray-100 rounded-xl p-1 gap-0.5">
+               {(['es','en','fr'] as const).map(lang => (
+                 <button
+                   key={lang}
+                   onClick={() => changeLang(lang)}
+                   title={lang === 'es' ? 'Español' : lang === 'en' ? 'English' : 'Français'}
+                   className={`px-2.5 py-1 rounded-lg text-sm font-black transition-all ${
+                     currentLang === lang
+                       ? 'bg-white shadow text-brand-primary'
+                       : 'text-gray-400 hover:text-gray-700'
+                   }`}
+                 >
+                   {lang === 'es' ? '🇪🇸' : lang === 'en' ? '🇺🇸' : '🇫🇷'}
+                 </button>
+               ))}
+             </div>
+
              <div className="bg-brand-accent/20 text-brand-primary px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
                {user?.role || 'Admin'}
              </div>
