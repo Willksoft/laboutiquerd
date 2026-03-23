@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BraidService } from '../types';
 import { BRAID_SERVICES as DEFAULT_BRAID_SERVICES } from '../constants';
 import { useTranslation } from 'react-i18next';
+import { fetchBraidServices, createBraidService, updateBraidService, deleteBraidService } from '../lib/appwrite';
 
 const BRAID_SERVICES_STORAGE_KEY = 'laboutiquerd_braid_services';
 
@@ -9,16 +10,34 @@ export const useBraidServices = () => {
   const [services, setServices] = useState<BraidService[]>(() => {
     try {
       const stored = localStorage.getItem(BRAID_SERVICES_STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
+      if (stored) return JSON.parse(stored);
     } catch (e) {
       console.error("Error reading braid services from localStorage", e);
     }
     return DEFAULT_BRAID_SERVICES;
   });
-
+  const [loading, setLoading] = useState(true);
   const { i18n } = useTranslation();
+
+  // Fetch from Appwrite on mount
+  useEffect(() => {
+    fetchBraidServices()
+      .then((docs) => {
+        const mapped: BraidService[] = docs.map((d: any) => ({
+          id: d.$id,
+          name: d.name,
+          price: d.price,
+          description: d.description || '',
+          isVisible: d.isVisible ?? true,
+        }));
+        if (mapped.length > 0) {
+          setServices(mapped);
+          localStorage.setItem(BRAID_SERVICES_STORAGE_KEY, JSON.stringify(mapped));
+        }
+      })
+      .catch((err) => console.warn('Appwrite braid services fetch failed:', err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
      services.forEach(s => {
@@ -33,17 +52,11 @@ export const useBraidServices = () => {
     const handleStorageChange = () => {
       try {
         const stored = localStorage.getItem(BRAID_SERVICES_STORAGE_KEY);
-        if (stored) {
-          setServices(JSON.parse(stored));
-        }
-      } catch (e) {
-         console.error(e);
-      }
+        if (stored) setServices(JSON.parse(stored));
+      } catch (e) { console.error(e); }
     };
-
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('braidServicesUpdated', handleStorageChange);
-    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('braidServicesUpdated', handleStorageChange);
@@ -56,23 +69,31 @@ export const useBraidServices = () => {
       window.dispatchEvent(new Event('braidServicesUpdated'));
   };
 
-  const addService = (service: BraidService) => {
+  const addService = async (service: BraidService) => {
     if(services.some(s => s.id === service.id)) {
         service.id = `${service.id}-${Date.now()}`;
     }
-    const newServices = [service, ...services];
-    persistAndDispatch(newServices);
+    try {
+      const { id, ...data } = service;
+      await createBraidService(data as any);
+    } catch (e) { console.warn('API create braid service failed:', e); }
+    persistAndDispatch([service, ...services]);
   };
 
-  const updateService = (updatedService: BraidService) => {
-    const newServices = services.map(s => s.id === updatedService.id ? updatedService : s);
-    persistAndDispatch(newServices);
+  const updateService = async (updatedService: BraidService) => {
+    try {
+      const { id, ...data } = updatedService;
+      await updateBraidService(id, data as any);
+    } catch (e) { console.warn('API update braid service failed:', e); }
+    persistAndDispatch(services.map(s => s.id === updatedService.id ? updatedService : s));
   };
 
-  const deleteService = (id: string) => {
-    const newServices = services.filter(s => s.id !== id);
-    persistAndDispatch(newServices);
+  const deleteService = async (id: string) => {
+    try {
+      await deleteBraidService(id);
+    } catch (e) { console.warn('API delete braid service failed:', e); }
+    persistAndDispatch(services.filter(s => s.id !== id));
   };
 
-  return { services, addService, updateService, deleteService, setServices };
+  return { services, addService, updateService, deleteService, setServices, loading };
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Reservation, ReservationStatus, BlockedTime } from '../types';
+import { fetchReservations, createReservation as apiCreateReservation, updateReservationStatus as apiUpdateStatus } from '../lib/appwrite';
 
 const RESERVATIONS_STORAGE_KEY = 'laboutiquerd_reservations';
 const BLOCKED_TIMES_STORAGE_KEY = 'laboutiquerd_blocked_times';
@@ -15,55 +16,21 @@ export const STANDARD_HOURS = [
   { val: "16:00", label: "04:00 PM" }
 ];
 
-const MOCK_RESERVATIONS: Reservation[] = [
-  {
-    id: 'BKG-5012',
-    clientName: 'María Clara',
-    room: '50A',
-    date: new Date().toISOString().split('T')[0],
-    time: '14:00',
-    modelId: 'm4',
-    modelName: 'Modelo 04',
-    servicesDetails: [
-        { id: 's2', name: 'Tresse avec cheveux (Con extensiones)', price: 350 }
-    ],
-    total: 350,
-    status: 'Confirmada'
-  },
-  {
-    id: 'BKG-5013',
-    clientName: 'Julie Beaumont',
-    room: '612C',
-    date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-    time: '10:00',
-    modelId: 'm7',
-    modelName: 'Modelo 07',
-    servicesDetails: [
-        { id: 's4', name: 'Tresse avec cheveux + perles', price: 450 }
-    ],
-    total: 450,
-    status: 'Confirmada'
-  }
-];
-
 export const useReservations = () => {
   const [reservations, setReservations] = useState<Reservation[]>(() => {
     try {
       const stored = localStorage.getItem(RESERVATIONS_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch (e) {
-      console.error(e);
-    }
-    return MOCK_RESERVATIONS;
+    } catch (e) { console.error(e); }
+    return [];
   });
+  const [loading, setLoading] = useState(true);
 
   const [blockedTimes, setBlockedTimes] = useState<BlockedTime[]>(() => {
     try {
       const stored = localStorage.getItem(BLOCKED_TIMES_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch(e) {
-      console.error(e);
-    }
+    } catch(e) { console.error(e); }
     return [];
   });
 
@@ -71,39 +38,54 @@ export const useReservations = () => {
     try {
       const stored = localStorage.getItem(BLOCKED_DAYS_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch(e) {
-      console.error(e);
-    }
-    return [1]; // Lunes disableByDefault
+    } catch(e) { console.error(e); }
+    return [1]; // Lunes disabled by default
   });
 
   const [blockedStandardHours, setBlockedStandardHours] = useState<string[]>(() => {
     try {
       const stored = localStorage.getItem(BLOCKED_HOURS_STORAGE_KEY);
       if (stored) return JSON.parse(stored);
-    } catch(e) {
-      console.error(e);
-    }
-    return []; // Ej: ["09:00"]
+    } catch(e) { console.error(e); }
+    return [];
   });
+
+  // Fetch from Appwrite on mount
+  useEffect(() => {
+    fetchReservations()
+      .then((docs) => {
+        const mapped: Reservation[] = docs.map((d: any) => ({
+          id: d.$id,
+          clientName: d.clientName,
+          room: d.room || '',
+          vendorId: d.vendorId || undefined,
+          date: d.date,
+          time: d.time,
+          modelId: d.modelId,
+          modelName: d.modelName,
+          servicesDetails: typeof d.servicesDetails === 'string' ? JSON.parse(d.servicesDetails) : d.servicesDetails || [],
+          total: d.total,
+          status: d.status as ReservationStatus,
+        }));
+        setReservations(mapped);
+        localStorage.setItem(RESERVATIONS_STORAGE_KEY, JSON.stringify(mapped));
+      })
+      .catch((err) => console.warn('Appwrite reservations fetch failed:', err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     const handleStorageChange = () => {
       try {
         const storedR = localStorage.getItem(RESERVATIONS_STORAGE_KEY);
         if (storedR) setReservations(JSON.parse(storedR));
-
         const storedB = localStorage.getItem(BLOCKED_TIMES_STORAGE_KEY);
         if (storedB) setBlockedTimes(JSON.parse(storedB));
-
         const storedD = localStorage.getItem(BLOCKED_DAYS_STORAGE_KEY);
         if (storedD) setBlockedDaysOfWeek(JSON.parse(storedD));
-
         const storedH = localStorage.getItem(BLOCKED_HOURS_STORAGE_KEY);
         if (storedH) setBlockedStandardHours(JSON.parse(storedH));
-      } catch (e) {
-         console.error(e);
-      }
+      } catch (e) { console.error(e); }
     };
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('bookingsUpdated', handleStorageChange);
@@ -137,24 +119,37 @@ export const useReservations = () => {
       window.dispatchEvent(new Event('bookingsUpdated'));
   };
 
-  const updateReservationStatus = (id: string, newStatus: ReservationStatus) => {
-      const newRes = reservations.map(r => r.id === id ? { ...r, status: newStatus } : r);
-      persistReservations(newRes);
+  const updateReservationStatus = async (id: string, newStatus: ReservationStatus) => {
+      try {
+        await apiUpdateStatus(id, newStatus);
+      } catch (e) { console.warn('API update reservation status failed:', e); }
+      persistReservations(reservations.map(r => r.id === id ? { ...r, status: newStatus } : r));
   };
 
-  const addReservation = (reservation: Reservation) => {
-      const newRes = [reservation, ...reservations];
-      persistReservations(newRes);
+  const addReservation = async (reservation: Reservation) => {
+      try {
+        await apiCreateReservation({
+          clientName: reservation.clientName,
+          room: reservation.room || '',
+          vendorId: reservation.vendorId || '',
+          date: reservation.date,
+          time: reservation.time,
+          modelId: reservation.modelId,
+          modelName: reservation.modelName,
+          servicesDetails: JSON.stringify(reservation.servicesDetails),
+          total: reservation.total,
+          status: reservation.status,
+        });
+      } catch (e) { console.warn('API create reservation failed:', e); }
+      persistReservations([reservation, ...reservations]);
   };
 
   const updateReservation = (reservation: Reservation) => {
-      const newRes = reservations.map(r => r.id === reservation.id ? reservation : r);
-      persistReservations(newRes);
+      persistReservations(reservations.map(r => r.id === reservation.id ? reservation : r));
   };
 
   const deleteReservation = (id: string) => {
-      const newRes = reservations.filter(r => r.id !== id);
-      persistReservations(newRes);
+      persistReservations(reservations.filter(r => r.id !== id));
   };
 
   const addBlockedTime = (block: BlockedTime) => {
@@ -193,6 +188,7 @@ export const useReservations = () => {
       blockedDaysOfWeek,
       toggleBlockedDayOfWeek,
       blockedStandardHours,
-      toggleBlockedStandardHour
+      toggleBlockedStandardHour,
+      loading
   };
 };

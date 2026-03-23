@@ -2,24 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRightIcon, MagnifyingGlassIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { OFFERS } from '../constants';
+import { OFFERS as DEFAULT_OFFERS } from '../constants';
+import { fetchOffers } from '../lib/appwrite';
+import { Offer } from '../types';
 
 interface HeroProps {}
 
 const Hero: React.FC<HeroProps> = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [offers, setOffers] = useState<Offer[]>(DEFAULT_OFFERS);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  // Fetch offers from Appwrite
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % OFFERS.length);
-    }, 6000);
-    return () => clearInterval(timer);
+    fetchOffers()
+      .then((docs) => {
+        const mapped: Offer[] = docs.map((d: any) => ({
+          id: d.$id,
+          title: d.title,
+          subtitle: d.subtitle || '',
+          image: d.image || '',
+          discount: d.discount || '',
+        }));
+        if (mapped.length > 0) setOffers(mapped);
+      })
+      .catch(() => {/* use defaults */});
   }, []);
 
-  const offer = OFFERS[currentSlide];
+  useEffect(() => {
+    if (offers.length === 0) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % offers.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [offers.length]);
+
+  const offer = offers[currentSlide];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +112,7 @@ const Hero: React.FC<HeroProps> = () => {
               
               {/* Slide indicators */}
               <div className="hidden md:flex items-center gap-3">
-                {OFFERS.map((_, idx) => (
+                {offers.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentSlide(idx)}
@@ -104,7 +124,7 @@ const Hero: React.FC<HeroProps> = () => {
                   />
                 ))}
                 <span className="text-brand-muted text-xs font-medium ml-2">
-                  {String(currentSlide + 1).padStart(2, '0')} / {String(OFFERS.length).padStart(2, '0')}
+                  {String(currentSlide + 1).padStart(2, '0')} / {String(offers.length).padStart(2, '0')}
                 </span>
               </div>
             </div>
@@ -113,7 +133,7 @@ const Hero: React.FC<HeroProps> = () => {
           {/* Right Image */}
           <div className="order-1 lg:order-2 relative">
             <div className="relative rounded-3xl overflow-hidden aspect-[4/3] md:aspect-[3/2] lg:aspect-[4/3] shadow-glass-lg">
-              {OFFERS.map((o, idx) => (
+              {offers.map((o, idx) => (
                 <div
                   key={idx}
                   className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${

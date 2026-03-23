@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Product } from '../types';
 import { PRODUCTS as DEFAULT_PRODUCTS } from '../constants';
 import { useTranslation } from 'react-i18next';
+import { fetchProducts, createProduct as apiCreate, updateProduct as apiUpdate, deleteProduct as apiDelete } from '../lib/appwrite';
 
 const PRODUCTS_STORAGE_KEY = 'laboutiquerd_products';
 
@@ -9,16 +10,43 @@ export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>(() => {
     try {
       const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
+      if (stored) return JSON.parse(stored);
     } catch (e) {
       console.error("Error reading products from localStorage", e);
     }
     return DEFAULT_PRODUCTS;
   });
-
+  const [loading, setLoading] = useState(true);
   const { i18n } = useTranslation();
+
+  // Fetch from Appwrite on mount
+  useEffect(() => {
+    fetchProducts()
+      .then((docs) => {
+        const mapped: Product[] = docs.map((d: any) => ({
+          id: d.$id,
+          name: d.name,
+          price: d.price,
+          originalPrice: d.originalPrice || undefined,
+          category: d.category,
+          image: d.image || '',
+          description: d.description || '',
+          tags: d.tags || undefined,
+          isVisible: d.isVisible ?? true,
+          isSoldOut: d.isSoldOut ?? false,
+          nameEn: d.nameEn || undefined,
+          descEn: d.descEn || undefined,
+          nameFr: d.nameFr || undefined,
+          descFr: d.descFr || undefined,
+        }));
+        setProducts(mapped);
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(mapped));
+      })
+      .catch((err) => {
+        console.warn('Appwrite fetch failed, using local data:', err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   // Inject dynamic translations
   useEffect(() => {
@@ -32,17 +60,11 @@ export const useProducts = () => {
     const handleStorageChange = () => {
       try {
         const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-        if (stored) {
-          setProducts(JSON.parse(stored));
-        }
-      } catch (e) {
-         console.error(e);
-      }
+        if (stored) setProducts(JSON.parse(stored));
+      } catch (e) { console.error(e); }
     };
-
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('productsUpdated', handleStorageChange);
-    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('productsUpdated', handleStorageChange);
@@ -55,23 +77,34 @@ export const useProducts = () => {
       window.dispatchEvent(new Event('productsUpdated'));
   };
 
-  const addProduct = (product: Product) => {
+  const addProduct = async (product: Product) => {
     if(products.some(p => p.id === product.id)) {
         product.id = `${product.id}-${Date.now()}`;
     }
+    try {
+      const { id, ...data } = product;
+      await apiCreate(data as any);
+    } catch (e) { console.warn('API create failed:', e); }
     const newProducts = [product, ...products];
     persistAndDispatch(newProducts);
   };
 
-  const updateProduct = (updatedProduct: Product) => {
+  const updateProduct = async (updatedProduct: Product) => {
+    try {
+      const { id, ...data } = updatedProduct;
+      await apiUpdate(id, data as any);
+    } catch (e) { console.warn('API update failed:', e); }
     const newProducts = products.map(p => p.id === updatedProduct.id ? updatedProduct : p);
     persistAndDispatch(newProducts);
   };
 
-  const deleteProduct = (id: string) => {
+  const deleteProduct = async (id: string) => {
+    try {
+      await apiDelete(id);
+    } catch (e) { console.warn('API delete failed:', e); }
     const newProducts = products.filter(p => p.id !== id);
     persistAndDispatch(newProducts);
   };
 
-  return { products, addProduct, updateProduct, deleteProduct, setProducts };
+  return { products, addProduct, updateProduct, deleteProduct, setProducts, loading };
 };
