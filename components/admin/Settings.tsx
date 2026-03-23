@@ -1,8 +1,27 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, Save, Bell, Globe, Shield, CreditCard, Mail } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Bell, Globe, Shield, CreditCard, Mail, Users, Plus, Trash2, Edit2, X, Check } from 'lucide-react';
+import { useVendors } from '../../hooks/useVendors';
+import { Vendor } from '../../types';
 
 const Settings: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useState('vendors');
+  const { vendors, addVendor, deleteVendor, updateVendor } = useVendors();
+  const [newVendorName, setNewVendorName] = useState('');
+  const [newVendorRole, setNewVendorRole] = useState<'Vendedor' | 'Gerente' | 'Admin'>('Vendedor');
+  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
+
+  const handleAddVendor = () => {
+    if (!newVendorName.trim()) return;
+    addVendor({ name: newVendorName.trim(), role: newVendorRole });
+    setNewVendorName('');
+    setNewVendorRole('Vendedor');
+  };
+
+  const handleUpdateVendor = () => {
+    if (!editingVendor || !editingVendor.name.trim()) return;
+    updateVendor(editingVendor);
+    setEditingVendor(null);
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full min-h-[600px] overflow-hidden md:flex-row">
@@ -13,6 +32,7 @@ const Settings: React.FC = () => {
            </h3>
 
            {[
+              { id: 'vendors', label: 'Vendedores', icon: <Users size={18}/> },
               { id: 'general', label: 'General', icon: <SettingsIcon size={18}/> },
               { id: 'notifications', label: 'Notificaciones', icon: <Bell size={18}/> },
               { id: 'localization', label: 'Idiomas y Textos', icon: <Globe size={18}/> },
@@ -35,8 +55,137 @@ const Settings: React.FC = () => {
        </div>
 
        {/* Settings Content Area */}
-       <div className="flex-1 p-8 bg-white flex flex-col">
-           <div className="flex-1 max-w-2xl">
+       <div className="flex-1 p-8 bg-white flex flex-col overflow-y-auto custom-scrollbar">
+           <div className="flex-1 max-w-3xl">
+               {/* ═══════ VENDOR MANAGEMENT ═══════ */}
+               {activeTab === 'vendors' && (
+                   <div className="space-y-6 animate-fade-in">
+                        <div>
+                            <h4 className="text-xl font-bold text-gray-800 border-b border-gray-100 pb-2 mb-2">Gestión de Vendedores</h4>
+                            <p className="text-sm text-gray-500 mb-6">Agrega vendedores por nombre. Se usarán para identificar quién realizó cada venta o reserva.</p>
+                        </div>
+
+                        {/* Add New Vendor */}
+                        <div className="bg-gray-50/70 p-5 rounded-2xl border border-gray-100">
+                            <h5 className="text-sm font-bold text-gray-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                              <Plus size={16} className="text-brand-accent" /> Agregar Vendedor
+                            </h5>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <input
+                                  type="text"
+                                  value={newVendorName}
+                                  onChange={e => setNewVendorName(e.target.value)}
+                                  onKeyDown={e => e.key === 'Enter' && handleAddVendor()}
+                                  placeholder="Nombre del vendedor..."
+                                  className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-accent focus:outline-none text-sm"
+                                />
+                                <select
+                                  value={newVendorRole}
+                                  onChange={e => setNewVendorRole(e.target.value as any)}
+                                  className="border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-accent focus:outline-none text-sm bg-white font-bold w-full sm:w-40"
+                                >
+                                  <option value="Vendedor">Vendedor</option>
+                                  <option value="Gerente">Gerente</option>
+                                  <option value="Admin">Admin</option>
+                                </select>
+                                <button
+                                  onClick={handleAddVendor}
+                                  disabled={!newVendorName.trim()}
+                                  className="bg-brand-primary text-brand-accent font-bold px-5 py-2.5 rounded-xl hover:opacity-90 transition-all disabled:opacity-40 flex items-center gap-2 whitespace-nowrap"
+                                >
+                                  <Plus size={16} /> Agregar
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Vendor List */}
+                        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    <tr>
+                                        <th className="p-4">Nombre</th>
+                                        <th className="p-4">Rol</th>
+                                        <th className="p-4 text-center w-32">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 text-sm">
+                                    {vendors.map(vendor => (
+                                        <tr key={vendor.id} className="hover:bg-gray-50/50 transition-colors group">
+                                            <td className="p-4">
+                                              {editingVendor?.id === vendor.id ? (
+                                                <input
+                                                  type="text"
+                                                  value={editingVendor.name}
+                                                  onChange={e => setEditingVendor({...editingVendor, name: e.target.value})}
+                                                  onKeyDown={e => e.key === 'Enter' && handleUpdateVendor()}
+                                                  className="border border-brand-accent rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-brand-accent focus:outline-none text-sm w-full"
+                                                  autoFocus
+                                                />
+                                              ) : (
+                                                <div className="flex items-center gap-3">
+                                                  <div className="w-9 h-9 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-sm">
+                                                    {vendor.name[0]?.toUpperCase()}
+                                                  </div>
+                                                  <span className="font-bold text-gray-800">{vendor.name}</span>
+                                                </div>
+                                              )}
+                                            </td>
+                                            <td className="p-4">
+                                              {editingVendor?.id === vendor.id ? (
+                                                <select
+                                                  value={editingVendor.role}
+                                                  onChange={e => setEditingVendor({...editingVendor, role: e.target.value as any})}
+                                                  className="border border-brand-accent rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-brand-accent focus:outline-none text-sm bg-white"
+                                                >
+                                                  <option value="Vendedor">Vendedor</option>
+                                                  <option value="Gerente">Gerente</option>
+                                                  <option value="Admin">Admin</option>
+                                                </select>
+                                              ) : (
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                                                  vendor.role === 'Admin' ? 'bg-purple-100 text-purple-700' :
+                                                  vendor.role === 'Gerente' ? 'bg-amber-100 text-amber-700' :
+                                                  'bg-brand-accent/20 text-brand-primary'
+                                                }`}>
+                                                  {vendor.role}
+                                                </span>
+                                              )}
+                                            </td>
+                                            <td className="p-4 text-center">
+                                              {editingVendor?.id === vendor.id ? (
+                                                <div className="flex justify-center gap-1">
+                                                  <button onClick={handleUpdateVendor} className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"><Check size={16}/></button>
+                                                  <button onClick={() => setEditingVendor(null)} className="p-2 text-gray-400 hover:bg-gray-100 rounded-lg transition-colors"><X size={16}/></button>
+                                                </div>
+                                              ) : (
+                                                <div className="flex justify-center gap-1">
+                                                  <button onClick={() => setEditingVendor({...vendor})} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={15}/></button>
+                                                  <button onClick={() => { if (confirm(`¿Eliminar a ${vendor.name}?`)) deleteVendor(vendor.id); }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={15}/></button>
+                                                </div>
+                                              )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {vendors.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="p-8 text-center text-gray-400">
+                                              <Users size={32} className="mx-auto mb-2 opacity-30" />
+                                              <p className="font-bold">No hay vendedores registrados</p>
+                                              <p className="text-xs mt-1">Agrega vendedores arriba para asignarlos a ventas y reservas.</p>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-700">
+                          <strong>Nota:</strong> Los vendedores aparecerán como opciones en el checkout de ventas, reservas de trenzas y personalizados. El campo vendedor es opcional (se puede dejar sin asignar).
+                        </div>
+                   </div>
+               )}
+
+               {/* ═══════ GENERAL SETTINGS ═══════ */}
                {activeTab === 'general' && (
                    <div className="space-y-8 animate-fade-in">
                         <div>
@@ -77,7 +226,7 @@ const Settings: React.FC = () => {
                    </div>
                )}
 
-               {activeTab !== 'general' && (
+               {activeTab !== 'general' && activeTab !== 'vendors' && (
                    <div className="h-full flex flex-col items-center justify-center text-gray-400 animate-fade-in p-12">
                        <SettingsIcon size={48} className="mb-4 opacity-20" />
                        <h4 className="font-bold text-lg text-gray-600 mb-2">Módulo en Construcción</h4>
@@ -86,11 +235,13 @@ const Settings: React.FC = () => {
                )}
            </div>
 
-           <div className="mt-auto pt-8 flex justify-end">
-               <button className="bg-brand-primary text-brand-accent px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-brand-accent hover:text-brand-primary transition-all">
-                   <Save size={20} /> Guardar Cambios
-               </button>
-           </div>
+           {activeTab === 'general' && (
+             <div className="mt-auto pt-8 flex justify-end">
+                 <button className="bg-brand-primary text-brand-accent px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-brand-accent hover:text-brand-primary transition-all">
+                     <Save size={20} /> Guardar Cambios
+                 </button>
+             </div>
+           )}
        </div>
     </div>
   );

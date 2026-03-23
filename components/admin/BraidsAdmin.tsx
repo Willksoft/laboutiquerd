@@ -5,6 +5,7 @@ import { useBraidServices } from '../../hooks/useBraidServices';
 import { useReservations } from '../../hooks/useReservations';
 import { BraidModel, BraidService, ReservationStatus, BlockedTime } from '../../types';
 import BraidsCalendar from './BraidsCalendar';
+import ImageUploader from './ImageUploader';
 
 const BraidsAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('reservations');
@@ -22,7 +23,7 @@ const BraidsAdmin: React.FC = () => {
           setEditingStyle({
               id: `m${Date.now()}`,
               name: 'Nuevo Estilo',
-              image: 'https://images.unsplash.com/photo-1595907409228-db6bbef26685?auto=format&fit=crop&q=80&w=400',
+              image: '',
               isVisible: true,
               isSoldOut: false
           });

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Box, Plus, Search, Edit2, Trash2, X, Save, EyeOff, Palette, ShoppingBag } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import { Product } from '../../types';
+import ImageUploader from './ImageUploader';
 
 const CUSTOM_CATEGORIES = ['custom'];
 
@@ -23,7 +24,7 @@ const ProductsAdmin: React.FC = () => {
         name: 'Nuevo Producto',
         price: 0,
         category: productTab === 'custom' ? 'custom' : 'boutique-pc',
-        image: 'https://images.unsplash.com/photo-1595907409228-db6bbef26685?auto=format&fit=crop&q=80&w=400',
+        image: '',
         description: '',
         isVisible: true,
         isSoldOut: false
@@ -203,8 +204,11 @@ const ProductsAdmin: React.FC = () => {
                          </select>
                      </div>
                      <div className="md:col-span-2">
-                         <label className="block text-sm font-bold text-gray-700 mb-1">URL Imagen</label>
-                         <input type="text" value={editingProduct.image} onChange={e => setEditingProduct({...editingProduct, image: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm text-gray-500"/>
+                         <label className="block text-sm font-bold text-gray-700 mb-2">Imagen del Producto</label>
+                         <ImageUploader 
+                           currentUrl={editingProduct.image} 
+                           onImageChange={(url) => setEditingProduct({...editingProduct, image: url})} 
+                         />
                      </div>
 
                      <div>

@@ -147,7 +147,7 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
           toast.error("Debes elegir un modelo de trenza como base.");
           return;
       }
-      if (!clientName.trim() || !room.trim() || !vendorId.trim()) {
+      if (!clientName.trim() || !room.trim()) {
           toast.error('Por favor, ingresa tu Nombre, Habitación y selecciona un Vendedor.');
           return;
       }
@@ -531,7 +531,7 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
 
                     <button 
                         onClick={handleGenerateTicket}
-                        disabled={reservationCart.length === 0 || !clientName.trim() || !room.trim() || !vendorId.trim() || !selectedDate || !selectedTime}
+                        disabled={reservationCart.length === 0 || !clientName.trim() || !room.trim() || !selectedDate || !selectedTime}
                         className="w-full bg-brand-accent text-brand-primary py-4 rounded-2xl font-black hover:bg-yellow-400 transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_10px_20px_-10px_rgba(251,191,36,0.6)] text-sm md:text-base uppercase tracking-wider relative overflow-hidden group"
                     >
                         <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>

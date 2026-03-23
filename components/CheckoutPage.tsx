@@ -336,7 +336,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onRemoveItem, onEditI
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1 tracking-wide">
-                    {t('Vendedor/a')} <span className="text-red-500">*</span>
+                    {t('Vendedor/a')}
                   </label>
                   <CustomSelect 
                     value={vendorId}
@@ -421,7 +421,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onRemoveItem, onEditI
                   }
                 });
               }}
-              disabled={!clientName.trim() || !vendorId.trim()}
+              disabled={!clientName.trim()}
               className={`w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-3 transition-all shadow-lg ${
                 clientName.trim() && vendorId.trim() 
                   ? 'bg-brand-primary hover:bg-brand-primary/90 text-white shadow-brand-primary/20' 
@@ -433,9 +433,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onRemoveItem, onEditI
             </button>
 
 
-            {(!clientName.trim() || !vendorId.trim()) && (
+            {!clientName.trim() && (
               <p className="text-[11px] text-red-500 text-center font-medium">
-                * {t('Ingresa tu nombre y selecciona un vendedor')}
+                * {t('Ingresa el nombre del cliente')}
               </p>
             )}
           </div>
