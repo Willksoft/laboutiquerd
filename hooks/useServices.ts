@@ -22,9 +22,10 @@ export interface ServiceItem {
   isActive?: boolean;
 }
 
+// Default services shown when DB is empty (fallback only, never used as real IDs)
 const DEFAULT_SERVICES: ServiceItem[] = [
   {
-    id: 'svc-braids',
+    id: '__default_braids',
     key: '/braids',
     name: 'Estudio de Trenzas',
     nameEn: 'Braid Studio',
@@ -32,14 +33,14 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     description: 'Trenzas caribeñas auténticas. Reserva tu cita online.',
     descriptionEn: 'Authentic Caribbean braids. Book your appointment online.',
     descriptionFr: 'Tresses caribéennes authentiques. Réservez votre rendez-vous en ligne.',
-    emoji: '💆‍♀️',
+    emoji: 'Scissors',
     tag: 'Reservable',
     image: 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&q=80&w=300',
     sortOrder: 1,
     isActive: true,
   },
   {
-    id: 'svc-bisuteria',
+    id: '__default_bisuteria',
     key: '/bisuteria',
     name: 'Bisutería & Accesorios',
     nameEn: 'Jewelry & Accessories',
@@ -47,14 +48,14 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     description: 'Piezas únicas inspiradas en la naturaleza caribeña.',
     descriptionEn: 'Unique pieces inspired by Caribbean nature.',
     descriptionFr: 'Pièces uniques inspirées de la nature caribéenne.',
-    emoji: '💎',
+    emoji: 'Gem',
     tag: 'Artesanal',
     image: 'https://images.unsplash.com/photo-1573408301185-9519f94dcdf4?auto=format&fit=crop&q=80&w=300',
     sortOrder: 2,
     isActive: true,
   },
   {
-    id: 'svc-custom',
+    id: '__default_custom',
     key: '/custom',
     name: 'Personalizados',
     nameEn: 'Custom Products',
@@ -62,13 +63,16 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     description: 'Diseña tus camisetas, gorras y accesorios al momento.',
     descriptionEn: 'Design your shirts, caps, and accessories on the spot.',
     descriptionFr: 'Concevez vos vêtements, casquettes et accessoires sur le moment.',
-    emoji: '✏️',
+    emoji: 'PenLine',
     tag: 'Exclusivo',
     image: 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&q=80&w=300',
     sortOrder: 3,
     isActive: true,
   },
 ];
+
+// IDs that are local defaults and don't exist in Appwrite
+const isDefaultId = (id: string) => id.startsWith('__default_');
 
 const mapDoc = (doc: Record<string, unknown>): ServiceItem => ({
   id: doc.$id as string,
@@ -97,8 +101,9 @@ export const useServices = () => {
           const mapped = docs.map(mapDoc).sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99));
           setServices(mapped);
         }
+        // else keep defaults for display, but don't seed — user creates via admin
       })
-      .catch(() => { /* use defaults */ })
+      .catch(() => { /* keep defaults */ })
       .finally(() => setLoading(false));
   }, []);
 
@@ -110,6 +115,19 @@ export const useServices = () => {
   };
 
   const updateServiceItem = async (id: string, data: Partial<ServiceItem>) => {
+    if (isDefaultId(id)) {
+      // This is a local default — create it in Appwrite for the first time
+      const existing = services.find(s => s.id === id);
+      if (!existing) return;
+      const merged = { ...existing, ...data } as Omit<ServiceItem, 'id'>;
+      const doc = await apiCreate(merged as Record<string, unknown>);
+      const created = mapDoc(doc as Record<string, unknown>);
+      setServices(prev =>
+        prev.map(s => s.id === id ? created : s)
+            .sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99))
+      );
+      return;
+    }
     await apiUpdate(id, data as Record<string, unknown>);
     setServices(prev =>
       prev.map(s => s.id === id ? { ...s, ...data } : s)
@@ -118,6 +136,11 @@ export const useServices = () => {
   };
 
   const deleteServiceItem = async (id: string) => {
+    if (isDefaultId(id)) {
+      // Default services don't exist in DB — just remove from local state
+      setServices(prev => prev.filter(s => s.id !== id));
+      return;
+    }
     await apiDelete(id);
     setServices(prev => prev.filter(s => s.id !== id));
   };
