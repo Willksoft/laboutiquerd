@@ -150,50 +150,106 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
               <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform duration-200 ${megaMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Mega Menu Panel */}
+            {/* Mega Menu Panel — Premium Redesign */}
             {megaMenuOpen && (
               <div
-                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[780px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-slide-down z-50"
+                className="fixed left-0 right-0 top-[72px] z-[60]"
+                style={{ pointerEvents: 'auto' }}
                 onMouseEnter={handleMegaEnter}
                 onMouseLeave={handleMegaLeave}
               >
-                {/* Header strip */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50/60">
-                  <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{t('Todas las Categorías')}</span>
-                  <button
-                    onClick={() => { setMegaMenuOpen(false); navigate('/products'); }}
-                    className="text-xs font-bold text-brand-accent hover:underline flex items-center gap-1"
-                  >
-                    {t('Ver todos los productos')} <ChevronRightIcon className="w-3 h-3" />
-                  </button>
-                </div>
+                {/* Backdrop blur overlay */}
+                <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setMegaMenuOpen(false)} />
 
-                {/* Categories Grid */}
-                <div className="grid grid-cols-5 gap-0 p-4">
-                  {activeCategories.map((cat) => (
-                    <button
-                      key={cat.key}
-                      onClick={() => goToCategory(cat)}
-                      className="group flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition-all duration-200 text-center"
-                    >
-                      {/* Category image */}
-                      <div className="w-full aspect-square rounded-xl overflow-hidden bg-gray-100 relative">
-                        <img
-                          src={cat.image}
-                          alt={getCategoryLabel(cat)}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 rounded-xl" />
+                <div className="relative mx-auto max-w-[1400px] px-6">
+                  <div className="relative bg-white/97 backdrop-blur-xl rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.18)] border border-white/50 overflow-hidden animate-slide-down">
+
+                    {/* Top accent bar */}
+                    <div className="h-0.5 w-full bg-gradient-to-r from-brand-primary via-brand-accent to-brand-primary" />
+
+                    <div className="flex">
+                      {/* Left sidebar — dark feature panel */}
+                      <div className="w-56 bg-brand-primary shrink-0 flex flex-col justify-between p-6">
+                        <div>
+                          <p className="text-brand-accent text-[10px] font-black uppercase tracking-[0.2em] mb-1">{t('Catálogo')}</p>
+                          <h3 className="text-white text-xl font-serif font-bold leading-tight mb-4">{t('Explora nuestras categorías')}</h3>
+                          <p className="text-white/50 text-xs leading-relaxed">{t('Encuentra los mejores productos artesanales y de boutique.')}</p>
+                        </div>
+                        <div className="space-y-2 mt-6">
+                          <button
+                            onClick={() => { setMegaMenuOpen(false); navigate('/products'); }}
+                            className="w-full bg-brand-accent text-brand-primary px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-brand-accent/90 transition-all flex items-center justify-between group"
+                          >
+                            <span>{t('Ver todo')}</span>
+                            <ChevronRightIcon className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
+                          <p className="text-white/30 text-[10px] text-center">{activeCategories.length} {t('categorías')}</p>
+                        </div>
                       </div>
-                      <span className="text-[11px] font-bold text-gray-700 group-hover:text-brand-primary leading-tight">
-                        {getCategoryLabel(cat)}
-                      </span>
-                    </button>
-                  ))}
+
+                      {/* Right — categories grid */}
+                      <div className="flex-1 p-5 overflow-y-auto" style={{ maxHeight: '480px' }}>
+                        <div className="grid grid-cols-5 gap-3">
+                          {activeCategories.map((cat) => (
+                            <button
+                              key={cat.key}
+                              onClick={() => goToCategory(cat)}
+                              className="group relative flex flex-col rounded-xl overflow-hidden bg-gray-50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-left"
+                            >
+                              {/* Image */}
+                              <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-200">
+                                {cat.image ? (
+                                  <img
+                                    src={cat.image}
+                                    alt={getCategoryLabel(cat)}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-3xl bg-gray-100">
+                                    {cat.emoji || '🛍️'}
+                                  </div>
+                                )}
+                                {/* Gradient overlay — always visible at bottom */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                                {/* Emoji badge */}
+                                {cat.emoji && (
+                                  <span className="absolute top-2 left-2 text-base leading-none drop-shadow-md">{cat.emoji}</span>
+                                )}
+                                {/* Arrow on hover */}
+                                <div className="absolute bottom-2 right-2 w-6 h-6 bg-brand-accent rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
+                                  <ChevronRightIcon className="w-3 h-3 text-brand-primary" />
+                                </div>
+                              </div>
+
+                              {/* Label */}
+                              <div className="px-2.5 py-2">
+                                <p className="text-[11px] font-bold text-gray-800 group-hover:text-brand-primary transition-colors leading-tight">
+                                  {getCategoryLabel(cat)}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom strip */}
+                    <div className="border-t border-gray-100 px-6 py-2.5 bg-gray-50/80 flex items-center justify-between">
+                      <p className="text-[11px] text-gray-400">{t('Las categorías son actualizadas en tiempo real desde el panel de administración.')}</p>
+                      <button
+                        onClick={() => { setMegaMenuOpen(false); navigate('/products'); }}
+                        className="text-xs font-bold text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1"
+                      >
+                        {t('Ver todos los productos')} <ChevronRightIcon className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                  </div>
                 </div>
               </div>
             )}
+
           </div>
 
           {/* Boutiques */}

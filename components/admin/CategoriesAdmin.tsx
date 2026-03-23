@@ -3,6 +3,7 @@ import { PlusIcon, PencilIcon, TrashIcon, ChevronUpIcon, ChevronDownIcon, EyeIco
 import { useTranslation } from 'react-i18next';
 import { useCategories, type ProductCategory } from '../../hooks/useCategories';
 import { useConfirm } from '../../hooks/useConfirm';
+import ImageUploader from './ImageUploader';
 
 const EMOJI_OPTIONS = ['👗','👟','👜','💎','📿','🧴','🌸','🏺','🏠','🎒','🧸','📱','👛','🩱','⚽','🛍️','🎁','🎨','🍫','💄','🧳','🔮','⌚','🎭','🏋️','🎮','🪆','🧶','🪡','🥿'];
 
@@ -179,21 +180,22 @@ const CategoriesAdmin: React.FC = () => {
                 </select>
               </div>
             </div>
-            {/* Image URL */}
+            {/* Image */}
             <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-gray-500 mb-1.5">{t('URL de Imagen')}</label>
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={form.image}
-                  onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
-                  placeholder="https://..."
-                  className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10"
-                />
-                {form.image && (
-                  <img src={form.image} alt="" className="w-10 h-10 rounded-lg object-cover border border-gray-200" />
-                )}
-              </div>
+              <label className="block text-xs font-bold text-gray-500 mb-1.5">{t('Imagen de Categoría')}</label>
+              <ImageUploader
+                currentUrl={form.image}
+                onImageChange={url => setForm(f => ({ ...f, image: url }))}
+                compact={false}
+              />
+              <p className="text-[10px] text-gray-400 mt-1">{t('También puedes pegar una URL directamente:')}</p>
+              <input
+                type="url"
+                value={form.image}
+                onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
+                placeholder="https://..."
+                className="mt-1 w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10"
+              />
             </div>
           </div>
 
