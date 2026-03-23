@@ -7,6 +7,7 @@ import { BraidModel, BraidService, ReservationStatus, BlockedTime } from '../../
 import BraidsCalendar from './BraidsCalendar';
 import ImageUploader from './ImageUploader';
 import { useConfirm } from '../../hooks/useConfirm';
+import { useSiteContent } from '../../hooks/useSiteContent';
 
 const BraidsAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('reservations');
@@ -15,9 +16,29 @@ const BraidsAdmin: React.FC = () => {
   const { styles, addStyle, updateStyle, deleteStyle } = useBraidStyles();
   const { services, addService, updateService, deleteService } = useBraidServices();
   const { reservations, updateReservationStatus, blockedTimes, addBlockedTime, removeBlockedTime } = useReservations();
+  const { getValue, updateValue } = useSiteContent();
 
   const [editingStyle, setEditingStyle] = useState<BraidModel | null>(null);
   const [editingService, setEditingService] = useState<BraidService | null>(null);
+  
+  // Settings State
+  const [businessHours, setBusinessHours] = useState(() => {
+    try {
+      return JSON.parse(getValue('business_hours')) || { start: '09:00', end: '18:00' };
+    } catch {
+      return { start: '09:00', end: '18:00' };
+    }
+  });
+  
+  const [holidays, setHolidays] = useState<string[]>(() => {
+    try {
+      return JSON.parse(getValue('holidays')) || [];
+    } catch {
+      return [];
+    }
+  });
+  const [newHoliday, setNewHoliday] = useState('');
+
   const { showConfirm, ConfirmDialog } = useConfirm();
 
   const handleCreateNew = () => {
@@ -54,6 +75,14 @@ const BraidsAdmin: React.FC = () => {
       setEditingService(null);
   };
 
+  const handleSaveSettings = async () => {
+      await updateValue('business_hours', JSON.stringify(businessHours));
+      await updateValue('holidays', JSON.stringify(holidays));
+      alert('Configuración guardada exitosamente.');
+  };
+
+  const activeReservations = activeTab === 'reservations';
+
   return (
     <>
     <ConfirmDialog />
@@ -68,6 +97,7 @@ const BraidsAdmin: React.FC = () => {
               { id: 'reservations', label: 'Calendario y Citas', icon: <Calendar size={18}/> },
               { id: 'styles', label: 'Estilos (Imágenes)', icon: <List size={18}/> },
               { id: 'services', label: 'Servicios y Precios', icon: <Scissors size={18}/> },
+              { id: 'settings', label: 'Horarios y Agenda', icon: <Clock size={18}/> },
            ].map(tab => (
                <button 
                   key={tab.id}
@@ -238,7 +268,7 @@ const BraidsAdmin: React.FC = () => {
                <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
                      <h2 className="text-2xl font-black text-gray-800 flex items-center gap-2">
-                        {activeTab === 'reservations' ? 'Citas Activas' : activeTab === 'styles' ? 'Galería de Trenzas' : 'Catálogo de Servicios'}
+                        {activeTab === 'reservations' ? 'Citas Activas' : activeTab === 'styles' ? 'Galería de Trenzas' : activeTab === 'services' ? 'Catálogo de Servicios' : 'Configuración de Agenda'}
                      </h2>
                      <p className="text-sm text-gray-500 font-medium">Todo el flujo de trabajo del Estudio de Trenzas.</p>
                   </div>
@@ -254,7 +284,7 @@ const BraidsAdmin: React.FC = () => {
                            onChange={(e) => setSearchTerm(e.target.value)}
                          />
                      </div>
-                     {activeTab !== 'reservations' && (
+                     {activeTab !== 'reservations' && activeTab !== 'settings' && (
                          <button onClick={handleCreateNew} className="bg-brand-primary text-white font-bold px-4 py-2 rounded-xl text-sm whitespace-nowrap border-2 border-transparent hover:border-brand-primary hover:bg-brand-cream hover:text-brand-primary transition-all">
                             + Agregar
                          </button>
@@ -354,6 +384,58 @@ const BraidsAdmin: React.FC = () => {
                                    ))}
                                </tbody>
                            </table>
+                       </div>
+                   )}
+
+                   {activeTab === 'settings' && (
+                       <div className="max-w-2xl">
+                           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mb-6">
+                               <h3 className="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2"><Clock size={20} className="text-brand-accent" /> Horario Comercial</h3>
+                               <div className="grid grid-cols-2 gap-4">
+                                   <div>
+                                       <label className="block text-sm font-bold text-gray-700 mb-1">Hora de Apertura</label>
+                                       <input type="time" value={businessHours.start} onChange={e => setBusinessHours({...businessHours, start: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"/>
+                                   </div>
+                                   <div>
+                                       <label className="block text-sm font-bold text-gray-700 mb-1">Hora de Cierre</label>
+                                       <input type="time" value={businessHours.end} onChange={e => setBusinessHours({...businessHours, end: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"/>
+                                   </div>
+                               </div>
+                               <p className="text-xs text-gray-500 mt-3 font-medium">Las horas disponibles para reservar se generarán automáticamente dentro de este rango.</p>
+                           </div>
+
+                           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                               <h3 className="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2"><Calendar size={20} className="text-brand-accent" /> Días Feriados / No Laborables</h3>
+                               <div className="flex gap-2 mb-4">
+                                   <input type="date" value={newHoliday} onChange={e => setNewHoliday(e.target.value)} className="flex-1 border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"/>
+                                   <button 
+                                      onClick={() => {
+                                        if(newHoliday && !holidays.includes(newHoliday)) {
+                                           setHolidays([...holidays, newHoliday]);
+                                           setNewHoliday('');
+                                        }
+                                      }}
+                                      className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-xl font-bold transition-colors"
+                                   >
+                                       Añadir Día
+                                   </button>
+                               </div>
+                               <div className="flex flex-wrap gap-2">
+                                   {holidays.length === 0 && <span className="text-sm text-gray-400 italic">No hay días bloqueados.</span>}
+                                   {holidays.map(date => (
+                                       <span key={date} className="bg-red-50 text-red-600 border border-red-100 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2">
+                                           {date}
+                                           <button onClick={() => setHolidays(holidays.filter(h => h !== date))} className="hover:bg-red-200 p-0.5 rounded text-red-800 transition-colors"><X size={14} /></button>
+                                       </span>
+                                   ))}
+                               </div>
+                           </div>
+
+                           <div className="mt-6 flex justify-end">
+                               <button onClick={handleSaveSettings} className="bg-brand-primary text-white font-bold px-8 py-3 rounded-xl hover:bg-brand-accent hover:text-brand-primary transition-colors flex items-center gap-2 shadow-sm">
+                                   <Save size={18} /> Guardar Configuración
+                               </button>
+                           </div>
                        </div>
                    )}
                </div>

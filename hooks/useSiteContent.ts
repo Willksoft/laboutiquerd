@@ -31,6 +31,8 @@ const DEFAULT_CONTENT: Record<string, string> = {
     { id: 'jewelry', label: 'Joyería Fina', icon: 'GemIcon' },
     { id: 'gift-cards', label: 'Gift Cards', icon: 'GiftIcon' }
   ]),
+  business_hours: JSON.stringify({ start: '09:00', end: '18:00' }),
+  holidays: JSON.stringify([]),
 };
 
 export const useSiteContent = () => {

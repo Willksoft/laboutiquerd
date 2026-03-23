@@ -8,6 +8,7 @@ import { useBraidStyles } from '../hooks/useBraidStyles';
 import { useBraidServices } from '../hooks/useBraidServices';
 import { useReservations, STANDARD_HOURS } from '../hooks/useReservations';
 import { useVendors } from '../hooks/useVendors';
+import { useSiteContent } from '../hooks/useSiteContent';
 import CustomSelect from './ui/CustomSelect';
 
 interface BraidsBookingProps {
@@ -101,6 +102,36 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
   const { discountPercent, hairQuantity } = getDiscountData();
 
   const { reservations, blockedDaysOfWeek, blockedStandardHours } = useReservations();
+  const { getValue } = useSiteContent();
+  
+  const holidays = useMemo(() => {
+     try { return JSON.parse(getValue('holidays')) || []; } catch { return []; }
+  }, [getValue]);
+
+  const businessHours = useMemo(() => {
+     try { return JSON.parse(getValue('business_hours')) || { start: '09:00', end: '18:00' }; } catch { return { start: '09:00', end: '18:00' }; }
+  }, [getValue]);
+
+  // Generate available hours bounded by business_hours
+  const availableHours = useMemo(() => {
+      const startH = parseInt(businessHours.start.split(':')[0]);
+      const startM = parseInt(businessHours.start.split(':')[1]);
+      const endH = parseInt(businessHours.end.split(':')[0]);
+      const endM = parseInt(businessHours.end.split(':')[1]);
+      
+      const startMinutes = startH * 60 + startM;
+      const endMinutes = endH * 60 + endM;
+
+      return STANDARD_HOURS.filter(time => {
+          // '09:00 AM' -> 9 * 60 = 540 | '02:30 PM' -> 14.5 * 60
+          const [timePart, period] = time.val.split(' ');
+          let [h, m] = timePart.split(':').map(Number);
+          if (period === 'PM' && h !== 12) h += 12;
+          if (period === 'AM' && h === 12) h = 0;
+          const currentMinutes = h * 60 + m;
+          return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+      });
+  }, [businessHours]);
 
   // Hours already reserved for the selected date
   const reservedHoursForDate = useMemo(() => {
@@ -117,13 +148,17 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
       const cur = new Date();
       // Generar próximos 21 días saltando los días bloqueados
       while (dates.length < 21) {
-         if (!blockedDaysOfWeek.includes(cur.getDay())) { 
+         // format local properly without TZ offset issues
+         const localCur = new Date(cur.getTime() - cur.getTimezoneOffset() * 60000);
+         const dateString = localCur.toISOString().split('T')[0];
+         
+         if (!blockedDaysOfWeek.includes(cur.getDay()) && !holidays.includes(dateString)) { 
             dates.push(new Date(cur));
          }
          cur.setDate(cur.getDate() + 1);
       }
       return dates;
-  }, [blockedDaysOfWeek]);
+  }, [blockedDaysOfWeek, holidays]);
 
   const formatDateLabel = (d: Date) => {
       const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -303,7 +338,7 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-2 flex items-center gap-1.5"><Clock size={14} className="text-brand-accent"/> {t('arrivalTime', 'Hora de Llegada')}</label>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                      {STANDARD_HOURS.map((time) => {
+                      {availableHours.map((time) => {
                           const isBlocked = blockedStandardHours.includes(time.val);
                           const isReserved = reservedHoursForDate.has(time.val);
                           const isUnavailable = isBlocked || isReserved;
