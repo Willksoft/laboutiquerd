@@ -23,31 +23,34 @@ export const useBraidStyles = () => {
   useEffect(() => {
     fetchBraidModels()
       .then(async (docs) => {
-        if (docs.length === 0) {
-            const mapped: BraidModel[] = [];
-            for (const item of DEFAULT_BRAID_STYLES) {
+        const existingNames = docs.map((d: any) => d.name);
+        const mapped: BraidModel[] = docs.map((d: any) => ({
+          id: d.$id,
+          name: d.name,
+          image: d.image || '',
+          description: d.description || '',
+          category: d.category || 'Damas',
+          isVisible: d.isVisible ?? true,
+        }));
+        
+        const missingStyles = DEFAULT_BRAID_STYLES.filter(p => !existingNames.includes(p.name));
+        
+        if (missingStyles.length > 0) {
+            console.log(`Seeding ${missingStyles.length} missing braid styles...`);
+            for (const style of missingStyles) {
                 try {
-                    const { id, ...data } = item;
+                    const { id, ...data } = style;
                     const result = await createBraidModel(data as any);
-                    mapped.push({ ...item, id: result.$id });
+                    mapped.push({ ...style, id: result.$id });
                 } catch (e) {
-                    mapped.push(item);
+                    console.error('Failed to seed braid style:', style.name, e);
+                    mapped.push(style);
                 }
             }
-            setStyles(mapped);
-            localStorage.setItem(BRAID_STYLES_STORAGE_KEY, JSON.stringify(mapped));
-        } else {
-            const mapped: BraidModel[] = docs.map((d: any) => ({
-              id: d.$id,
-              name: d.name,
-              image: d.image || '',
-              description: d.description || '',
-              category: d.category || 'Damas',
-              isVisible: d.isVisible ?? true,
-            }));
-            setStyles(mapped);
-            localStorage.setItem(BRAID_STYLES_STORAGE_KEY, JSON.stringify(mapped));
         }
+        
+        setStyles(mapped);
+        localStorage.setItem(BRAID_STYLES_STORAGE_KEY, JSON.stringify(mapped));
       })
       .catch(() => { /* silently use cached data */ })
       .finally(() => setLoading(false));

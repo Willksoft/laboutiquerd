@@ -156,6 +156,9 @@ export interface Offer {
   subtitle: string;
   image: string;
   discount?: string;
+  link?: string;
+  isActive?: boolean;
+  sortOrder?: number;
 }
 
 export interface SiteContent {

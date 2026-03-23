@@ -74,11 +74,13 @@ export const fetchOffers = async () => {
 };
 
 export const createOffer = async (data: Record<string, unknown>) => {
-  return databases.createDocument(DATABASE_ID, COLLECTIONS.OFFERS, ID.unique(), data);
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.createDocument(DATABASE_ID, COLLECTIONS.OFFERS, ID.unique(), cleanData);
 };
 
 export const updateOffer = async (id: string, data: Record<string, unknown>) => {
-  return databases.updateDocument(DATABASE_ID, COLLECTIONS.OFFERS, id, data);
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.updateDocument(DATABASE_ID, COLLECTIONS.OFFERS, id, cleanData);
 };
 
 export const deleteOffer = async (id: string) => {
@@ -164,11 +166,13 @@ export const fetchBraidModels = async () => {
 };
 
 export const createBraidModel = async (data: Record<string, unknown>) => {
-  return databases.createDocument(DATABASE_ID, COLLECTIONS.BRAID_MODELS, ID.unique(), data);
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.createDocument(DATABASE_ID, COLLECTIONS.BRAID_MODELS, ID.unique(), cleanData);
 };
 
 export const updateBraidModel = async (id: string, data: Record<string, unknown>) => {
-  return databases.updateDocument(DATABASE_ID, COLLECTIONS.BRAID_MODELS, id, data);
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.updateDocument(DATABASE_ID, COLLECTIONS.BRAID_MODELS, id, cleanData);
 };
 
 export const deleteBraidModel = async (id: string) => {
@@ -184,11 +188,13 @@ export const fetchBraidServices = async () => {
 };
 
 export const createBraidService = async (data: Record<string, unknown>) => {
-  return databases.createDocument(DATABASE_ID, COLLECTIONS.BRAID_SERVICES, ID.unique(), data);
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.createDocument(DATABASE_ID, COLLECTIONS.BRAID_SERVICES, ID.unique(), cleanData);
 };
 
 export const updateBraidService = async (id: string, data: Record<string, unknown>) => {
-  return databases.updateDocument(DATABASE_ID, COLLECTIONS.BRAID_SERVICES, id, data);
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.updateDocument(DATABASE_ID, COLLECTIONS.BRAID_SERVICES, id, cleanData);
 };
 
 export const deleteBraidService = async (id: string) => {
@@ -206,17 +212,19 @@ export const fetchVendors = async () => {
 // ─── T-SHIRT PRESETS ────────────────────────────────────────
 export const fetchTShirtPresets = async () => {
   const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.TSHIRT_PRESETS, [
-    Query.limit(50),
+    Query.limit(100),
   ]);
   return response.documents;
 };
 
 export const createTShirtPreset = async (data: Record<string, unknown>) => {
-  return databases.createDocument(DATABASE_ID, COLLECTIONS.TSHIRT_PRESETS, ID.unique(), data);
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.createDocument(DATABASE_ID, COLLECTIONS.TSHIRT_PRESETS, ID.unique(), cleanData);
 };
 
 export const updateTShirtPreset = async (id: string, data: Record<string, unknown>) => {
-  return databases.updateDocument(DATABASE_ID, COLLECTIONS.TSHIRT_PRESETS, id, data);
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  return databases.updateDocument(DATABASE_ID, COLLECTIONS.TSHIRT_PRESETS, id, cleanData);
 };
 
 export const deleteTShirtPreset = async (id: string) => {

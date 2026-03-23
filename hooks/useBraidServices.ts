@@ -41,6 +41,7 @@ export const useBraidServices = () => {
                    const result = await createBraidService(data as any);
                    mapped.push({ ...defaultSrv, id: result.$id });
                } catch (e) {
+                   console.error('Failed to seed braid service:', defaultSrv.name, e);
                    mapped.push(defaultSrv);
                }
            }

@@ -46,6 +46,7 @@ export const usePresets = () => {
                     const result = await createTShirtPreset(data as any);
                     mapped.push({ ...preset, id: result.$id });
                 } catch (e) {
+                    console.error('Failed to create TShirtPreset:', preset.name, e);
                     mapped.push(preset);
                 }
             }

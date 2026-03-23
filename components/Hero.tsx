@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRightIcon, MagnifyingGlassIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { OFFERS as DEFAULT_OFFERS } from '../constants';
-import { fetchOffers } from '../lib/appwrite';
-import { Offer } from '../types';
+import { useOffers } from '../hooks/useOffers';
 import { useSiteContent } from '../hooks/useSiteContent';
 
 interface HeroProps {}
@@ -12,26 +10,22 @@ interface HeroProps {}
 const Hero: React.FC<HeroProps> = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const [offers, setOffers] = useState<Offer[]>(DEFAULT_OFFERS);
+  const { offers: fetchOffersList, loading } = useOffers();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { content } = useSiteContent();
+  
+  // Filter active and sort (useOffers already sorts by sortOrder)
+  const offers = fetchOffersList.filter(o => o.isActive !== false);
 
-  // Fetch offers from Appwrite
   useEffect(() => {
-    fetchOffers()
-      .then((docs) => {
-        const mapped: Offer[] = docs.map((d: any) => ({
-          id: d.$id,
-          title: d.title,
-          subtitle: d.subtitle || '',
-          image: d.image || '',
-          discount: d.discount || '',
-        }));
-        if (mapped.length > 0) setOffers(mapped);
-      })
-      .catch(() => {/* use defaults */});
-  }, []);
+    if (!loading && offers.length > 0) {
+      // Ensure currentSlide is within bounds
+      if (currentSlide >= offers.length) {
+         setCurrentSlide(0);
+      }
+    }
+  }, [offers.length, loading]);
 
   useEffect(() => {
     if (offers.length === 0) return;
@@ -41,7 +35,7 @@ const Hero: React.FC<HeroProps> = () => {
     return () => clearInterval(timer);
   }, [offers.length]);
 
-  const offer = offers[currentSlide];
+  const offer = offers[currentSlide] || { title: 'Cargando...', subtitle: '', image: '', link: '/offers' };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,12 +59,11 @@ const Hero: React.FC<HeroProps> = () => {
               <span className="font-bold text-brand-primary">{t('Ofertas')}</span>
             </div>
 
-            {/* Title */}
             <h1 
               key={currentSlide + '-title'}
               className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-brand-primary mb-5 leading-[1.1] tracking-tight animate-fade-in-up"
             >
-              {content.hero_title || t(offer.title)}
+              {t(offer.title) || content.hero_title}
             </h1>
 
             {/* Subtitle */}
@@ -79,7 +72,7 @@ const Hero: React.FC<HeroProps> = () => {
               className="text-base md:text-lg text-brand-muted mb-6 leading-relaxed max-w-md animate-fade-in-up"
               style={{ animationDelay: '100ms' }}
             >
-              {content.hero_subtitle || t(offer.subtitle)}
+              {t(offer.subtitle) || content.hero_subtitle}
             </p>
 
             {/* Search Bar */}
@@ -105,10 +98,10 @@ const Hero: React.FC<HeroProps> = () => {
             {/* CTA + Scroll indicator */}
             <div className="flex items-center gap-6 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
               <button 
-                onClick={() => navigate('/offers')}
+                onClick={() => navigate(offer.link || '/offers')}
                 className="inline-flex items-center gap-2 bg-black text-white px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-brand-accent hover:text-brand-primary transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
-                {content.hero_cta || t('Ver Ofertas')}
+                {content.hero_cta || t('Explorar')}
                 <ArrowRightIcon className="w-4 h-4" />
               </button>
               
@@ -152,7 +145,7 @@ const Hero: React.FC<HeroProps> = () => {
                     <div className="flex items-end justify-between">
                       <span className="text-white font-serif text-xl font-bold">{t(o.title)}</span>
                       <button 
-                        onClick={() => navigate('/offers')}
+                        onClick={() => navigate(o.link || '/offers')}
                         className="w-12 h-12 rounded-full border-2 border-white/40 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all duration-300"
                       >
                         <ChevronRightIcon className="w-5 h-5" />
