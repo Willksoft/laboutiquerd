@@ -7,6 +7,18 @@ import { sanitizeText, sanitizeDescription, sanitizeNumber, sanitizeUrl } from '
 
 const PRODUCTS_STORAGE_KEY = 'laboutiquerd_products';
 
+const autoTranslate = async (text: string, targetLang: 'en' | 'fr'): Promise<string> => {
+   if (!text) return '';
+   try {
+       const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
+       const data = await res.json();
+       // Google Translate API returns [[["translated_text", "original_text"]], null, 'es']
+       return data[0].map((item: any) => item[0]).join('');
+   } catch {
+       return text;
+   }
+};
+
 const sanitizeProduct = (product: Product): Product => ({
   ...product,
   name: sanitizeText(product.name, 200),
@@ -118,7 +130,19 @@ export const useProducts = () => {
   };
 
   const addProduct = async (product: Product) => {
-    const safe = sanitizeProduct(product);
+    let safe = sanitizeProduct(product);
+    
+    // Auto-translate if empty
+    try {
+        if (!safe.nameEn) safe.nameEn = await autoTranslate(safe.name, 'en');
+        if (!safe.descEn && safe.description) safe.descEn = await autoTranslate(safe.description, 'en');
+        
+        if (!safe.nameFr) safe.nameFr = await autoTranslate(safe.name, 'fr');
+        if (!safe.descFr && safe.description) safe.descFr = await autoTranslate(safe.description, 'fr');
+    } catch (err) {
+        console.error('Translation failed', err);
+    }
+
     if(products.some(p => p.id === safe.id)) {
         safe.id = `${safe.id}-${Date.now()}`;
     }
@@ -131,7 +155,18 @@ export const useProducts = () => {
   };
 
   const updateProduct = async (updatedProduct: Product) => {
-    const safe = sanitizeProduct(updatedProduct);
+    let safe = sanitizeProduct(updatedProduct);
+    
+    try {
+        if (!safe.nameEn) safe.nameEn = await autoTranslate(safe.name, 'en');
+        if (!safe.descEn && safe.description) safe.descEn = await autoTranslate(safe.description, 'en');
+        
+        if (!safe.nameFr) safe.nameFr = await autoTranslate(safe.name, 'fr');
+        if (!safe.descFr && safe.description) safe.descFr = await autoTranslate(safe.description, 'fr');
+    } catch (err) {
+        console.error('Translation failed', err);
+    }
+
     try {
       const { id, ...data } = safe;
       await apiUpdate(id, data as any);

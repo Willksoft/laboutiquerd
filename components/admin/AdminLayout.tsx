@@ -3,11 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, Scissors, Box, PackagePlus, Settings, LogOut, Menu, X, User, Palette, Search, Tag, Globe, ImageIcon } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
-interface AdminLayoutProps {
-  onOpenTracking?: () => void;
-}
-
-const AdminLayout: React.FC<AdminLayoutProps> = ({ onOpenTracking }) => {
+const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -20,6 +16,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ onOpenTracking }) => {
     { name: 'Marcas', icon: <Tag size={20} />, path: '/admin/brands' },
     { name: 'Slider Público', icon: <ImageIcon size={20} />, path: '/admin/slider' },
     { name: 'Contenido Web', icon: <Globe size={20} />, path: '/admin/site-content' },
+    { name: 'Rastreador', icon: <Search size={20} />, path: '/admin/tracking' },
     { name: 'Configuración', icon: <Settings size={20} />, path: '/admin/settings' },
   ];
 
@@ -105,15 +102,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ onOpenTracking }) => {
           </div>
 
           <div className="flex items-center gap-4">
-             {onOpenTracking && (
-               <button 
-                 onClick={onOpenTracking}
-                 className="p-2 text-gray-400 hover:text-brand-primary hover:bg-gray-100 rounded-full transition-colors hidden sm:block"
-                 title="Rastrear Orden / Cita"
-               >
-                 <Search size={20} />
-               </button>
-             )}
              <div className="bg-brand-accent/20 text-brand-primary px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">
                {user?.role || 'Admin'}
              </div>

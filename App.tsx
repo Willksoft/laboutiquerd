@@ -59,6 +59,7 @@ import AdminReceiptPage from './components/admin/AdminReceiptPage';
 import BrandsAdmin from './components/admin/BrandsAdmin';
 import SliderAdmin from './components/admin/SliderAdmin';
 import SiteContentAdmin from './components/admin/SiteContentAdmin';
+import AdminTracking from './components/admin/AdminTracking';
 import NotFound from './components/NotFound';
 
 import { useProducts } from './hooks/useProducts';
@@ -1121,7 +1122,7 @@ function App() {
           <Route path="/login" element={<AdminLogin />} />
           <Route path="/admin" element={
             <AdminGuard>
-              <AdminLayout onOpenTracking={() => setIsTrackingOpen(true)} />
+              <AdminLayout />
             </AdminGuard>
           }>
             <Route index element={<Navigate to="dashboard" replace />} />
@@ -1132,6 +1133,7 @@ function App() {
             <Route path="brands" element={<BrandsAdmin />} />
             <Route path="slider" element={<SliderAdmin />} />
             <Route path="site-content" element={<SiteContentAdmin />} />
+            <Route path="tracking" element={<AdminTracking />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="receipt" element={<AdminReceiptPage />} />
           </Route>
