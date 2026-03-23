@@ -5,6 +5,7 @@ import { useServices, type ServiceItem } from '../../hooks/useServices';
 import { useConfirm } from '../../hooks/useConfirm';
 import ImageUploader from './ImageUploader';
 import { Layers } from 'lucide-react';
+import CustomSelect from '../ui/CustomSelect';
 
 const EMOJI_OPTIONS = ['💆‍♀️','💎','✏️','🌸','🧴','💄','🪡','💍','🎨','🪆','✂️','👗','👛','🏺','🎁','🌴','🤿','🏄','🏋️','🎭'];
 
@@ -220,15 +221,12 @@ const ServicesAdmin: React.FC = () => {
               {/* Route */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">{t('Página de destino')}</label>
-                <select
+                <CustomSelect
+                  variant="input"
                   value={form.key}
-                  onChange={e => setField('key', e.target.value)}
-                  className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"
-                >
-                  {PATH_OPTIONS.map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
+                  options={PATH_OPTIONS}
+                  onChange={val => setField('key', val)}
+                />
               </div>
 
               {/* Name ES */}
@@ -255,10 +253,16 @@ const ServicesAdmin: React.FC = () => {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">{t('Emoji')}</label>
-                  <select value={form.emoji || ''} onChange={e => setField('emoji', e.target.value)}
-                    className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm">
-                    {EMOJI_OPTIONS.map(em => <option key={em} value={em}>{em}</option>)}
-                  </select>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl flex-shrink-0">{form.emoji}</span>
+                    <CustomSelect
+                      variant="input"
+                      value={form.emoji || ''}
+                      options={EMOJI_OPTIONS.map(em => ({ value: em, label: em }))}
+                      onChange={val => setField('emoji', val)}
+                      className="flex-1"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">{t('Etiqueta')}</label>
@@ -274,12 +278,17 @@ const ServicesAdmin: React.FC = () => {
                 </div>
               </div>
 
-              {/* Active */}
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={form.isActive !== false} onChange={e => setField('isActive', e.target.checked)}
-                  className="w-4 h-4 accent-brand-primary rounded" />
-                <span className="text-sm font-bold text-gray-700">{t('Visible en el mega menú')}</span>
-              </label>
+              {/* Active toggle */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setField('isActive', !form.isActive)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${form.isActive ? 'bg-brand-primary' : 'bg-gray-200'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow ${form.isActive ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+                <span className="text-sm font-bold text-gray-700">{form.isActive ? t('Visible en el mega menú') : t('Oculto del menú')}</span>
+              </div>
             </div>
 
             {/* Right column */}

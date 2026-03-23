@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCategories, type ProductCategory } from '../../hooks/useCategories';
 import { useConfirm } from '../../hooks/useConfirm';
 import ImageUploader from './ImageUploader';
+import CustomSelect from '../ui/CustomSelect';
 
 const EMOJI_OPTIONS = ['👗','👟','👜','💎','📿','🧴','🌸','🏺','🏠','🎒','🧸','📱','👛','🩱','⚽','🛍️','🎁','🎨','🍫','💄','🧳','🔮','⌚','🎭','🏋️','🎮','🪆','🧶','🪡','🥿'];
 
@@ -169,15 +170,13 @@ const CategoriesAdmin: React.FC = () => {
               <label className="block text-xs font-bold text-gray-500 mb-1.5">{t('Emoji')}</label>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{form.emoji}</span>
-                <select
-                  value={form.emoji}
-                  onChange={e => setForm(f => ({ ...f, emoji: e.target.value }))}
-                  className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10"
-                >
-                  {EMOJI_OPTIONS.map(em => (
-                    <option key={em} value={em}>{em}</option>
-                  ))}
-                </select>
+                <CustomSelect
+                  variant="input"
+                  value={form.emoji || ''}
+                  options={EMOJI_OPTIONS.map(em => ({ value: em, label: em }))}
+                  onChange={val => setForm(f => ({ ...f, emoji: val }))}
+                  className="flex-1"
+                />
               </div>
             </div>
             {/* Image */}
