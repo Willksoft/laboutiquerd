@@ -34,6 +34,7 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import Footer from './components/Footer';
 import ProductCard from './components/ProductCard';
+import ScrollToTop from './components/ScrollToTop';
 import ProductDetailPage from './components/ProductDetailPage';
 import Customizer from './components/Customizer';
 import UniversalCustomizer from './components/UniversalCustomizer';
@@ -914,6 +915,7 @@ function App() {
 
 
 
+      <ScrollToTop />
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={
