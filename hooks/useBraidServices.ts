@@ -19,14 +19,23 @@ export const useBraidServices = () => {
   const [loading, setLoading] = useState(true);
   const { i18n } = useTranslation();
 
-  // Fetch from Appwrite on mount
-  useEffect(() => {
+    useEffect(() => {
     fetchBraidServices()
       .then(async (docs) => {
-        if (docs.length === 0) {
-           // Database is empty, let's seed the defaults
-           const mapped: BraidService[] = [];
-           for (const defaultSrv of DEFAULT_BRAID_SERVICES) {
+        const existingNames = docs.map((d: any) => d.name);
+        const mapped: BraidService[] = docs.map((d: any) => ({
+             id: d.$id,
+             name: d.name,
+             price: d.price,
+             description: d.description || '',
+             isVisible: d.isVisible ?? true,
+        }));
+        
+        const missingServices = DEFAULT_BRAID_SERVICES.filter(s => !existingNames.includes(s.name));
+        
+        if (missingServices.length > 0) {
+           console.log(`Seeding ${missingServices.length} missing braid services...`);
+           for (const defaultSrv of missingServices) {
                try {
                    const { id, ...data } = defaultSrv;
                    const result = await createBraidService(data as any);
@@ -35,19 +44,10 @@ export const useBraidServices = () => {
                    mapped.push(defaultSrv);
                }
            }
-           setServices(mapped);
-           localStorage.setItem(BRAID_SERVICES_STORAGE_KEY, JSON.stringify(mapped));
-        } else {
-           const mapped: BraidService[] = docs.map((d: any) => ({
-             id: d.$id,
-             name: d.name,
-             price: d.price,
-             description: d.description || '',
-             isVisible: d.isVisible ?? true,
-           }));
-           setServices(mapped);
-           localStorage.setItem(BRAID_SERVICES_STORAGE_KEY, JSON.stringify(mapped));
         }
+        
+        setServices(mapped);
+        localStorage.setItem(BRAID_SERVICES_STORAGE_KEY, JSON.stringify(mapped));
       })
       .catch(() => { /* silently use cached data */ })
       .finally(() => setLoading(false));
