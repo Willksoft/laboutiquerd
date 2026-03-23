@@ -280,18 +280,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
 
           </div>
 
-          {/* Boutiques */}
-          <Link
-            to="/boutiques"
-            className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-              currentView === 'boutiques'
-                ? 'bg-black text-white font-semibold'
-                : 'text-brand-primary/70 hover:bg-black hover:text-white'
-            }`}
-          >
-            {t('Boutiques')}
-          </Link>
-
           {/* Servicios — mega menú premium */}
           <div className="relative" ref={servicesRef}>
             <button
