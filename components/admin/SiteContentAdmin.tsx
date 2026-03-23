@@ -60,6 +60,16 @@ const SECTIONS: SectionConfig[] = [
     ]
   },
   {
+    id: 'services_menu',
+    title: 'Imágenes Mega Menú Servicios',
+    icon: <ImageIcon size={18} />,
+    fields: [
+      { key: 'service_img_braids',    label: 'Imagen — Estudio de Trenzas',       type: 'image' },
+      { key: 'service_img_bisuteria', label: 'Imagen — Bisutería & Accesorios',   type: 'image' },
+      { key: 'service_img_custom',    label: 'Imagen — Personalizados',            type: 'image' },
+    ]
+  },
+  {
     id: 'whatsapp',
     title: 'WhatsApp y Contacto',
     icon: <MessageCircle size={18} />,

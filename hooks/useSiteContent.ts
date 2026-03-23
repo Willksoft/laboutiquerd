@@ -33,6 +33,10 @@ const DEFAULT_CONTENT: Record<string, string> = {
   ]),
   business_hours: JSON.stringify({ start: '09:00', end: '18:00' }),
   holidays: JSON.stringify([]),
+  // Service images for the Servicios mega menu in Header
+  service_img_braids: '',
+  service_img_bisuteria: '',
+  service_img_custom: '',
 };
 
 export const useSiteContent = () => {

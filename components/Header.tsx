@@ -81,7 +81,6 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
   const navItems = [
     { label: t('Inicio'), path: '/' },
     { label: t('Ofertas'), path: '/offers' },
-    { label: t('Boutiques'), path: '/boutiques' },
     {
       label: t('Servicios'),
       path: '#',
@@ -92,6 +91,35 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
       ]
     },
     { label: t('Gift Cards'), path: '/gift-cards' },
+    { label: t('Boutiques'), path: '/boutiques' },
+  ];
+
+  // Service images from admin (siteContent keys) with Unsplash fallbacks
+  const serviceItems = [
+    {
+      path: '/braids',
+      emoji: '💆‍♀️',
+      image: content.service_img_braids || 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&q=80&w=300',
+      titleKey: 'Estudio de Trenzas',
+      descKey: 'Trenzas caribeñas auténticas. Reserva tu cita online.',
+      tagKey: 'Reservable',
+    },
+    {
+      path: '/bisuteria',
+      emoji: '💎',
+      image: content.service_img_bisuteria || 'https://images.unsplash.com/photo-1573408301185-9519f94dcdf4?auto=format&fit=crop&q=80&w=300',
+      titleKey: 'Bisutería & Accesorios',
+      descKey: 'Piezas únicas inspiradas en la naturaleza caribeña.',
+      tagKey: 'Artesanal',
+    },
+    {
+      path: '/custom',
+      emoji: '✏️',
+      image: content.service_img_custom || 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&q=80&w=300',
+      titleKey: 'Personalizados',
+      descKey: 'Diseña tus camisetas, gorras y accesorios al momento.',
+      tagKey: 'Exclusivo',
+    },
   ];
 
   return (
@@ -115,7 +143,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
           )}
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav — NEW ORDER: Inicio > Ofertas > Productos > Servicios > Gift Cards > Boutiques */}
         <nav className="hidden xl:flex gap-0.5 text-[13px] font-medium items-center">
           {/* Inicio, Ofertas */}
           {navItems.slice(0, 2).map((item) => (
@@ -309,32 +337,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
                     {/* Grid de servicios */}
                     <div className="flex-1 p-5">
                       <div className="grid grid-cols-3 gap-3">
-                        {[
-                          {
-                            path: '/braids',
-                            emoji: '💆‍♀️',
-                            image: 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&q=80&w=300',
-                            titleKey: 'Estudio de Trenzas',
-                            descKey: 'Trenzas caribeñas auténticas. Reserva tu cita online.',
-                            tagKey: 'Reservable',
-                          },
-                          {
-                            path: '/bisuteria',
-                            emoji: '💎',
-                            image: 'https://images.unsplash.com/photo-1573408301185-9519f94dcdf4?auto=format&fit=crop&q=80&w=300',
-                            titleKey: 'Bisutería & Accesorios',
-                            descKey: 'Piezas únicas inspiradas en la naturaleza caribeña.',
-                            tagKey: 'Artesanal',
-                          },
-                          {
-                            path: '/custom',
-                            emoji: '✏️',
-                            image: 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&q=80&w=300',
-                            titleKey: 'Personalizados',
-                            descKey: 'Diseña tus camisetas, gorras y accesorios al momento.',
-                            tagKey: 'Exclusivo',
-                          },
-                        ].map((svc) => (
+                        {serviceItems.map((svc) => (
                           <button
                             key={svc.path}
                             onClick={() => { setServicesDropdownOpen(false); navigate(svc.path); }}
@@ -390,6 +393,18 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
             }`}
           >
             {t('Gift Cards')}
+          </Link>
+
+          {/* Boutiques — LAST in nav */}
+          <Link
+            to="/boutiques"
+            className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+              currentView === 'boutiques'
+                ? 'bg-black text-white font-semibold'
+                : 'text-brand-primary/70 hover:bg-black hover:text-white'
+            }`}
+          >
+            {t('Boutiques')}
           </Link>
         </nav>
 
