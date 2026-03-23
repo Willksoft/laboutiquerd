@@ -45,6 +45,29 @@ const BraidsAdmin: React.FC = () => {
 
   const { showConfirm, ConfirmDialog } = useConfirm();
 
+  // ─── 12h helpers ─────────────────────────────────────────────────────
+  const to12h = (time: string) => {
+    if (!time) return '';
+    const [hStr, mStr] = time.split(':');
+    let h = parseInt(hStr, 10);
+    const m = mStr || '00';
+    const period = h >= 12 ? 'PM' : 'AM';
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+    return `${h}:${m} ${period}`;
+  };
+
+  // Generate a list of HH:MM values every 30 min from 7 AM to 9 PM for the selects
+  const HOUR_OPTIONS: { label: string; value: string }[] = [];
+  for (let h = 7; h <= 21; h++) {
+    for (const m of [0, 30]) {
+      const hh = String(h).padStart(2, '0');
+      const mm = String(m).padStart(2, '0');
+      const value = `${hh}:${mm}`;
+      HOUR_OPTIONS.push({ value, label: to12h(value) });
+    }
+  }
+
   const handleCreateNew = () => {
       if (activeTab === 'styles') {
           setEditingStyle({
@@ -125,24 +148,24 @@ const BraidsAdmin: React.FC = () => {
       }
       const formatted = new Date(blockedDateInput + 'T12:00:00').toLocaleDateString('es-DO', { weekday: 'long', month: 'long', day: 'numeric' });
       const confirmed = await showConfirm(
-        `¿Bloquear la hora ${blockedHourInput} del ${formatted}? Ningún cliente podrá reservar esa hora específica.`,
+        `¿Bloquear ${to12h(blockedHourInput)} del ${formatted}? Ningún cliente podrá reservar esa hora específica.`,
         { confirmLabel: 'Sí, bloquear hora', title: 'Confirmar Bloqueo de Hora', danger: true }
       );
       if (!confirmed) return;
       addBlockedTime({ id: `bt-${Date.now()}`, type: 'time', date: blockedDateInput, time: blockedHourInput, reason: 'Bloqueado por admin' });
       setBlockedDateInput('');
       setBlockedHourInput('10:00');
-      toast.success(`Hora ${blockedHourInput} bloqueada para el ${blockedDateInput}.`);
+      toast.success(`Hora ${to12h(blockedHourInput)} bloqueada para el ${blockedDateInput}.`);
   };
 
   const handleRemoveBlockedTime = async (bt: BlockedTime) => {
       const confirmed = await showConfirm(
-        `¿Desbloquear la hora ${bt.time} del ${bt.date}? Los clientes podrán reservar nuevamente esa hora.`,
+        `¿Desbloquear ${to12h(bt.time || '')} del ${bt.date}? Los clientes podrán reservar nuevamente esa hora.`,
         { confirmLabel: 'Sí, desbloquear', title: 'Confirmar Desbloqueo de Hora' }
       );
       if (!confirmed) return;
       removeBlockedTime(bt.id);
-      toast.success(`Hora ${bt.time} del ${bt.date} desbloqueada.`);
+      toast.success(`Hora ${to12h(bt.time || '')} del ${bt.date} desbloqueada.`);
   };
 
   const activeReservations = activeTab === 'reservations';
@@ -458,11 +481,15 @@ const BraidsAdmin: React.FC = () => {
                                <div className="grid grid-cols-2 gap-4">
                                    <div>
                                        <label className="block text-sm font-bold text-gray-700 mb-1">Hora de Apertura</label>
-                                       <input type="time" value={businessHours.start} onChange={e => setBusinessHours({...businessHours, start: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"/>
+                                       <select value={businessHours.start} onChange={e => setBusinessHours({...businessHours, start: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none bg-white">
+                                           {HOUR_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                       </select>
                                    </div>
                                    <div>
                                        <label className="block text-sm font-bold text-gray-700 mb-1">Hora de Cierre</label>
-                                       <input type="time" value={businessHours.end} onChange={e => setBusinessHours({...businessHours, end: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none"/>
+                                       <select value={businessHours.end} onChange={e => setBusinessHours({...businessHours, end: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none bg-white">
+                                           {HOUR_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                       </select>
                                    </div>
                                </div>
                                <p className="text-xs text-gray-500 mt-3 font-medium">Las horas disponibles para reservar se generarán automáticamente dentro de este rango.</p>
@@ -502,11 +529,13 @@ const BraidsAdmin: React.FC = () => {
                                         onChange={e => setBlockedDateInput(e.target.value)}
                                         className="flex-1 border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none text-sm"
                                     />
-                                    <input
-                                        type="time" value={blockedHourInput}
+                                    <select
+                                        value={blockedHourInput}
                                         onChange={e => setBlockedHourInput(e.target.value)}
-                                        className="border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none text-sm"
-                                    />
+                                        className="border border-gray-200 p-2 rounded-xl focus:ring-2 focus:ring-brand-accent outline-none text-sm bg-white"
+                                    >
+                                        {HOUR_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                                    </select>
                                     <button
                                         onClick={handleAddBlockedHour}
                                         className="bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2 whitespace-nowrap"
@@ -518,7 +547,7 @@ const BraidsAdmin: React.FC = () => {
                                     {blockedTimes.length === 0 && <span className="text-sm text-gray-400 italic">No hay horas bloqueadas específicas.</span>}
                                     {blockedTimes.map(bt => (
                                         <span key={bt.id} className="bg-orange-50 text-orange-700 border border-orange-100 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2">
-                                            <Clock size={12}/> {bt.date} @ {bt.time}
+                                            <Clock size={12}/> {bt.date} @ {to12h(bt.time || '')}
                                             {bt.reason && <span className="text-orange-400 text-xs font-normal">({bt.reason})</span>}
                                             <button onClick={() => handleRemoveBlockedTime(bt)} className="hover:bg-orange-200 p-0.5 rounded text-orange-900 transition-colors" title="Desbloquear"><X size={14} /></button>
                                         </span>
