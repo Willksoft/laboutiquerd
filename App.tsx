@@ -56,9 +56,12 @@ import BraidsAdmin from './components/admin/BraidsAdmin';
 import AdminProducts from './components/admin/Products';
 import AdminSettings from './components/admin/Settings';
 import AdminReceiptPage from './components/admin/AdminReceiptPage';
+import BrandsAdmin from './components/admin/BrandsAdmin';
+import SiteContentAdmin from './components/admin/SiteContentAdmin';
 import NotFound from './components/NotFound';
 
 import { useProducts } from './hooks/useProducts';
+import { useSiteContent } from './hooks/useSiteContent';
 import { Product, CartItem, Category, LogoStyle, TShirtPreset } from './types';
 
 function App() {
@@ -69,6 +72,7 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  const { content } = useSiteContent();
   const currentView = location.pathname.substring(1) || 'home';
 
 
@@ -261,7 +265,7 @@ function App() {
                 <span className="badge badge-gold px-4 py-1.5 mb-3 inline-block">
                    {t('Servicio Exclusivo')}
                 </span>
-                <h1 className="text-4xl md:text-5xl font-serif font-bold mb-3 text-brand-primary tracking-tight">{t('Estudio de Trenzas')}</h1>
+                <h1 className="text-4xl md:text-5xl font-serif font-bold mb-3 text-brand-primary tracking-tight">{t(content.braids_title || 'Estudio de Trenzas')}</h1>
                 <p className="max-w-xl mx-auto text-lg text-gray-600">{t('Expertas en estilos caribeños y protección capilar. Elige tu estilo y reserva hoy mismo.')}</p>
              </div>
           </div>
@@ -300,7 +304,7 @@ function App() {
                    </div>
                 </div>
                 <div 
-                   onClick={() => window.open('https://wa.me/18095550123', '_blank')}
+                   onClick={() => window.open(`https://wa.me/${content.whatsapp_number || '18091234567'}`, '_blank')}
                    className="flex gap-3 p-4 bg-black text-white rounded-xl shadow-sm border border-gray-100 items-center cursor-pointer hover:bg-black/80 transition-colors"
                 >
                    <div className="text-brand-accent bg-brand-accent/20 p-2 rounded-full"><HeartIcon className="w-5 h-5" /></div>
@@ -917,12 +921,12 @@ function App() {
                       <div className="relative rounded-2xl overflow-hidden shadow-2xl h-96 group cursor-pointer" onClick={() => navigate('/braids')}>
                           <img src="https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&q=80&w=800" alt="Braids" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                              <h3 className="text-4xl font-serif font-bold text-white border-b-2 border-brand-accent pb-2">Estudio de Trenzas</h3>
+                              <h3 className="text-4xl font-serif font-bold text-white border-b-2 border-brand-accent pb-2">{t(content.braids_title || 'Estudio de Trenzas')}</h3>
                           </div>
                       </div>
                       <div>
                           <span className="text-brand-accent font-bold uppercase tracking-widest text-xs mb-2 block">{t('Servicio Profesional')}</span>
-                          <h2 className="text-4xl font-serif font-bold text-brand-primary mb-4">{t('Arte en tu Cabello')}</h2>
+                          <h2 className="text-4xl font-serif font-bold text-brand-primary mb-4">{t(content.braids_subtitle || 'Arte en tu Cabello')}</h2>
                           <p className="text-gray-600 mb-6">
                               Nuestras estilistas expertas te esperan para transformar tu look con trenzas caribeñas auténticas. Reserva tu cita online.
                           </p>
@@ -949,10 +953,10 @@ function App() {
                 <div className="container mx-auto px-4 relative z-10">
                   <div className="max-w-3xl mx-auto text-center">
                     <h2 className="text-4xl md:text-6xl font-serif font-bold text-brand-primary tracking-tight mb-6 leading-tight">
-                      {t('Personaliza tu Estilo')}
+                      {t(content.custom_title || 'Personaliza tu Estilo')}
                     </h2>
                     <p className="text-brand-primary/70 text-lg md:text-xl mb-10 max-w-xl mx-auto leading-relaxed">
-                      {t('Diseña tus propias piezas. T-shirts, gorras, mochilas y más con tu toque personal.')}
+                      {t(content.custom_subtitle || 'Diseña tus propias piezas. T-shirts, gorras, mochilas y más con tu toque personal.')}
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                       <button 
@@ -1122,6 +1126,8 @@ function App() {
             <Route path="customizer" element={<CustomizerAdmin />} />
             <Route path="braids" element={<BraidsAdmin />} />
             <Route path="products" element={<AdminProducts />} />
+            <Route path="brands" element={<BrandsAdmin />} />
+            <Route path="site-content" element={<SiteContentAdmin />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="receipt" element={<AdminReceiptPage />} />
           </Route>

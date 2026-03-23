@@ -23,6 +23,8 @@ export const COLLECTIONS = {
   BRAID_SERVICES: import.meta.env.VITE_APPWRITE_BRAID_SERVICES_COLLECTION,
   VENDORS: import.meta.env.VITE_APPWRITE_VENDORS_COLLECTION,
   TSHIRT_PRESETS: import.meta.env.VITE_APPWRITE_TSHIRT_PRESETS_COLLECTION,
+  BRANDS: import.meta.env.VITE_APPWRITE_BRANDS_COLLECTION,
+  SITE_CONTENT: import.meta.env.VITE_APPWRITE_SITE_CONTENT_COLLECTION,
 } as const;
 
 // ─── Helper: Get file preview URL ───────────────────────────
@@ -250,3 +252,46 @@ export const deleteFile = async (fileId: string) => {
 // Re-export for convenience
 export { ID, Query };
 export default client;
+
+// ─── BRANDS ─────────────────────────────────────────────────
+export const fetchBrands = async () => {
+  const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.BRANDS, [
+    Query.limit(100),
+    Query.orderAsc('name'),
+  ]);
+  return response.documents;
+};
+
+export const createBrand = async (data: Record<string, unknown>) => {
+  return databases.createDocument(DATABASE_ID, COLLECTIONS.BRANDS, ID.unique(), data);
+};
+
+export const updateBrand = async (id: string, data: Record<string, unknown>) => {
+  return databases.updateDocument(DATABASE_ID, COLLECTIONS.BRANDS, id, data);
+};
+
+export const deleteBrand = async (id: string) => {
+  return databases.deleteDocument(DATABASE_ID, COLLECTIONS.BRANDS, id);
+};
+
+// ─── SITE CONTENT ───────────────────────────────────────────
+export const fetchSiteContent = async () => {
+  const response = await databases.listDocuments(DATABASE_ID, COLLECTIONS.SITE_CONTENT, [
+    Query.limit(100),
+  ]);
+  return response.documents;
+};
+
+export const upsertSiteContent = async (key: string, value: string) => {
+  try {
+    // Try to find existing document with this key
+    const existing = await databases.listDocuments(DATABASE_ID, COLLECTIONS.SITE_CONTENT, [
+      Query.equal('key', key),
+      Query.limit(1),
+    ]);
+    if (existing.documents.length > 0) {
+      return databases.updateDocument(DATABASE_ID, COLLECTIONS.SITE_CONTENT, existing.documents[0].$id, { value });
+    }
+  } catch { /* not found, create new */ }
+  return databases.createDocument(DATABASE_ID, COLLECTIONS.SITE_CONTENT, ID.unique(), { key, value });
+};

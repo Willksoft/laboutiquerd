@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { OFFERS as DEFAULT_OFFERS } from '../constants';
 import { fetchOffers } from '../lib/appwrite';
 import { Offer } from '../types';
+import { useSiteContent } from '../hooks/useSiteContent';
 
 interface HeroProps {}
 
@@ -14,6 +15,7 @@ const Hero: React.FC<HeroProps> = () => {
   const [offers, setOffers] = useState<Offer[]>(DEFAULT_OFFERS);
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { content } = useSiteContent();
 
   // Fetch offers from Appwrite
   useEffect(() => {
@@ -57,7 +59,7 @@ const Hero: React.FC<HeroProps> = () => {
           <div className="order-2 lg:order-1 max-w-xl">
             {/* Breadcrumb style label */}
             <div className="flex items-center gap-2 text-xs font-medium text-brand-muted mb-6">
-              <span className="font-bold text-sm" style={{ fontFamily: "'HappinessBeta', Georgia, serif" }}>Boutique</span>
+              <span className="font-bold text-sm" style={{ fontFamily: "'HappinessBeta', Georgia, serif" }}>{content.store_name || 'Boutique'}</span>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" className="w-4 h-4 text-black" fill="currentColor"><path d="m19.96 18.88-2.05 2.05 2.04 2.05L22 20.93l-2.04-2.05Zm1.41-15.15c-.15-.59-1.47.23-4.3 2.79 1.12 1.25 1.69.53 2.6.2.72 1.38 1 7.6-3.72 9.46a1255.68 1255.68 0 0 0 .17-13.06.22.22 0 0 0-.26-.11c-1.31.17-3.63 2.47-5.41 4.4.98 1.61 2.22.17 3.21-.24 0 .27-.24 4.89-.13 9.59-4.88.36-4.1-9.57-3.81-10.85.12-1.01-3.14 1.24-4.76 2.74.51.92 1.23.73 2.12.39-.32 4.46 2.82 8.5 6.48 8.42.12 4.59.6 9.05 1.94 9.36.17.05.32-4.65.42-9.87 8.8-2.72 5.44-13.22 5.44-13.22"/></svg>
               <span>•</span>
               <span className="font-bold text-brand-primary">{t('Ofertas')}</span>
@@ -68,7 +70,7 @@ const Hero: React.FC<HeroProps> = () => {
               key={currentSlide + '-title'}
               className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-brand-primary mb-5 leading-[1.1] tracking-tight animate-fade-in-up"
             >
-              {t(offer.title)}
+              {content.hero_title || t(offer.title)}
             </h1>
 
             {/* Subtitle */}
@@ -77,7 +79,7 @@ const Hero: React.FC<HeroProps> = () => {
               className="text-base md:text-lg text-brand-muted mb-6 leading-relaxed max-w-md animate-fade-in-up"
               style={{ animationDelay: '100ms' }}
             >
-              {t(offer.subtitle)}
+              {content.hero_subtitle || t(offer.subtitle)}
             </p>
 
             {/* Search Bar */}
@@ -106,7 +108,7 @@ const Hero: React.FC<HeroProps> = () => {
                 onClick={() => navigate('/offers')}
                 className="inline-flex items-center gap-2 bg-black text-white px-7 py-3.5 rounded-full font-semibold text-sm hover:bg-brand-accent hover:text-brand-primary transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
-                {t('Ver Ofertas')}
+                {content.hero_cta || t('Ver Ofertas')}
                 <ArrowRightIcon className="w-4 h-4" />
               </button>
               

@@ -8,6 +8,7 @@ import TShirtMockup2D from '../TShirtMockup2D';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { toast } from '../Toast';
+import { useSiteContent } from '../../hooks/useSiteContent';
 
 type PrintFormat = 'ticket' | 'letter';
 
@@ -23,6 +24,7 @@ const AdminReceiptPage: React.FC = () => {
   const navigate = useNavigate();
   const { vendors } = useVendors();
   const { styles: braidStyles } = useBraidStyles();
+  const { content } = useSiteContent();
   const ticketRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [format, setFormat] = useState<PrintFormat>('letter');
@@ -118,7 +120,7 @@ const AdminReceiptPage: React.FC = () => {
       <div className={`${format === 'ticket' ? 'pt-4 pb-3 px-4' : 'pb-6 border-b-2 border-gray-200 mb-6'} ${format === 'letter' ? 'flex justify-between items-start' : 'text-center'}`}>
         <div className={format === 'letter' ? '' : 'mb-2'}>
           <div className="flex items-center gap-0.5 justify-center lg:justify-start">
-            <span className="text-2xl font-bold text-brand-primary tracking-tight" style={{ fontFamily: "'HappinessBeta', Georgia, serif" }}>Boutique</span>
+            <span className="text-2xl font-bold text-brand-primary tracking-tight" style={{ fontFamily: "'HappinessBeta', Georgia, serif" }}>{content.store_name || 'Boutique'}</span>
             <TridentIcon className="w-6 h-6 text-brand-primary" />
           </div>
         </div>
@@ -274,7 +276,7 @@ const AdminReceiptPage: React.FC = () => {
         <div className="text-center mt-6">
           <div className="bg-white p-2 inline-block border border-gray-200 rounded-xl mb-3 shadow-sm">
             <img 
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=000&bgcolor=fff&data=https://wa.me/18095550123?text=Orden%20${orderId}`}
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=000&bgcolor=fff&data=https://wa.me/${content.whatsapp_number || '18091234567'}?text=Orden%20${orderId}`}
               alt="QR" 
               className={format === 'letter' ? 'w-[100px] h-[100px]' : 'w-[80px] h-[80px]'} 
             />
@@ -284,7 +286,7 @@ const AdminReceiptPage: React.FC = () => {
 
         <div className="mt-4 text-gray-400 space-y-1">
           <p className="text-[10px] font-bold">¡Gracias por tu compra!</p>
-          <p className="text-[10px]">www.boutiquecreative.com</p>
+          <p className="text-[10px]">{content.contact_address || 'Punta Cana, RD'}</p>
         </div>
       </div>
     </div>

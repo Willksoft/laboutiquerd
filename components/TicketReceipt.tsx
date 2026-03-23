@@ -8,6 +8,7 @@ import { toast } from './Toast';
 import { useVendors } from '../hooks/useVendors';
 import TShirtMockup2D from './TShirtMockup2D';
 import { useBraidStyles } from '../hooks/useBraidStyles';
+import { useSiteContent } from '../hooks/useSiteContent';
 
 interface TicketReceiptProps {
   cart: CartItem[];
@@ -32,6 +33,7 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
   const [format, setFormat] = useState<PrintFormat>('ticket');
   const { vendors } = useVendors();
   const { styles: braidStyles } = useBraidStyles();
+  const { content } = useSiteContent();
 
   const handleClose = () => {
       if (onClose) {
@@ -185,7 +187,8 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
       const image = canvas.toDataURL('image/jpeg', 0.95);
       const link = document.createElement('a');
       link.href = image;
-      link.download = `Recibo-Boutique-${Date.now()}.jpg`;
+      const safeStoreName = (content.store_name || 'Boutique').replace(/\s+/g, '');
+      link.download = `Recibo-${safeStoreName}-${Date.now()}.jpg`;
       link.click();
       toast.success('Imagen descargada correctamente.');
     } catch (err) {
@@ -231,7 +234,7 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
             {/* Ticket Header */}
             <div className={`text-center mb-6 md:mb-8 border-b-2 border-dashed border-gray-200 pb-4 md:pb-6 ${format === 'letter' ? 'flex justify-between items-center text-left border-b-4 border-double' : ''}`}>
                <div className={format === 'letter' ? 'flex items-center gap-0.5' : 'flex justify-center mb-3 text-brand-primary items-center gap-0'}>
-                    <span className={`font-bold tracking-tight ${format === 'ticket' ? 'text-2xl' : 'text-4xl'}`} style={{ fontFamily: "'HappinessBeta', Georgia, serif" }}>Boutique</span>
+                    <span className={`font-bold tracking-tight ${format === 'ticket' ? 'text-2xl' : 'text-4xl'}`} style={{ fontFamily: "'HappinessBeta', Georgia, serif" }}>{content.store_name || 'Boutique'}</span>
                     <TridentIcon className={format === 'ticket' ? 'w-8 h-8' : 'w-10 h-10'} />
                </div>
 
@@ -421,7 +424,7 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
               <div className="text-center">
                   <div className="bg-white p-2 inline-block border border-gray-200 rounded-xl mb-3 shadow-sm">
                      <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=000&bgcolor=fff&data=https://wa.me/18095550123?text=Hola,%20adjunto%20mi%20ticket%20de%20orden%20#${orderId}`}
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=000&bgcolor=fff&data=https://wa.me/${content.whatsapp_number || '18091234567'}?text=Hola,%20adjunto%20mi%20ticket%20de%20orden%20#${orderId}`}
                         alt="QR Ticket Code" 
                         className={format === 'letter' ? 'w-[120px] h-[120px]' : 'w-[90px] h-[90px]'} 
                      />
@@ -431,7 +434,7 @@ const TicketReceipt: React.FC<TicketReceiptProps> = ({ cart, total, onClose, inl
               
               <div className={`${format === 'letter' ? 'text-left' : 'mt-6'} text-gray-400 space-y-1`}>
                   <p className="text-[10px] font-bold">¡Gracias por tu compra!</p>
-                  <p className="text-[10px]">www.boutiquecreative.com</p>
+                  <p className="text-[10px]">{content.contact_address || 'Punta Cana, RD'}</p>
                   {format === 'letter' && (
                       <div className="mt-4 text-[9px] max-w-sm">
                           Condiciones: No se aceptan devoluciones en artículos personalizados. 

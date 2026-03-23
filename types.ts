@@ -1,6 +1,14 @@
 
 export type Category = 'custom' | 'braids' | 'jewelry' | 'bisuteria' | 'crafts' | 'fashion' | 'boutique-pc' | 'boutique-miches' | 'boutique-beach' | 'personal-care' | 'gift-card' | 'toys';
 
+export interface Brand {
+  id: string;
+  name: string;
+  logo?: string;
+  description?: string;
+  isVisible?: boolean;
+}
+
 export interface Vendor {
   id: string;
   name: string;
@@ -15,6 +23,7 @@ export interface Product {
   category: Category;
   image: string;
   description: string;
+  brandId?: string;
   isNew?: boolean;
   tags?: string[];
   isVisible?: boolean;
@@ -147,4 +156,10 @@ export interface Offer {
   subtitle: string;
   image: string;
   discount?: string;
+}
+
+export interface SiteContent {
+  id: string;
+  key: string;
+  value: string;
 }

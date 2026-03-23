@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Bars3Icon, XMarkIcon, ShoppingBagIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSiteContent } from '../hooks/useSiteContent';
 
 // Trident SVG icon component
 const TridentIcon: React.FC<{ className?: string }> = ({ className = 'w-7 h-7' }) => (
@@ -24,6 +25,7 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { content } = useSiteContent();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -74,10 +76,16 @@ const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onOpenTracking, 
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Brand Name with Trident */}
         <Link to="/" className="flex items-center gap-0.5 cursor-pointer group">
-          <span className="text-2xl font-bold text-brand-primary tracking-tight" style={{ fontFamily: "'HappinessBeta', Georgia, serif" }}>
-            Boutique
-          </span>
-          <TridentIcon className="w-7 h-7 text-black" />
+          {content.store_logo ? (
+            <img src={content.store_logo} alt={content.store_name || 'Boutique'} className="h-10 object-contain" />
+          ) : (
+            <>
+              <span className="text-2xl font-bold text-brand-primary tracking-tight" style={{ fontFamily: "'HappinessBeta', Georgia, serif" }}>
+                {content.store_name || 'Boutique'}
+              </span>
+              <TridentIcon className="w-7 h-7 text-black" />
+            </>
+          )}
         </Link>
 
         {/* Desktop Nav */}

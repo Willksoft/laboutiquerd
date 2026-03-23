@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Scissors, Box, PackagePlus, Settings, LogOut, Menu, X, User, Palette, Search } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Scissors, Box, PackagePlus, Settings, LogOut, Menu, X, User, Palette, Search, Tag, Globe } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 interface AdminLayoutProps {
@@ -17,6 +17,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ onOpenTracking }) => {
     { name: 'Customizer', icon: <Palette size={20} />, path: '/admin/customizer' },
     { name: 'Estudio Trenzas', icon: <Scissors size={20} />, path: '/admin/braids' },
     { name: 'Catálogo Boutique', icon: <Box size={20} />, path: '/admin/products' },
+    { name: 'Marcas', icon: <Tag size={20} />, path: '/admin/brands' },
+    { name: 'Contenido Web', icon: <Globe size={20} />, path: '/admin/site-content' },
     { name: 'Configuración', icon: <Settings size={20} />, path: '/admin/settings' },
   ];
 

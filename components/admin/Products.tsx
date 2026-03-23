@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Plus, Search, Edit2, Trash2, X, Save, EyeOff, Palette, ShoppingBag } from 'lucide-react';
+import { Box, Plus, Search, Edit2, Trash2, X, Save, EyeOff, Palette, ShoppingBag, Tag } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
+import { useBrands } from '../../hooks/useBrands';
 import { Product } from '../../types';
 import ImageUploader from './ImageUploader';
 
@@ -9,14 +10,25 @@ const CUSTOM_CATEGORIES = ['custom'];
 const ProductsAdmin: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { brands } = useBrands();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productTab, setProductTab] = useState<'custom' | 'boutique'>('boutique');
+  const [brandFilter, setBrandFilter] = useState('');
 
   const customProducts = useMemo(() => products.filter(p => CUSTOM_CATEGORIES.includes(p.category)), [products]);
   const boutiqueProducts = useMemo(() => products.filter(p => !CUSTOM_CATEGORIES.includes(p.category)), [products]);
 
   const activeProducts = productTab === 'custom' ? customProducts : boutiqueProducts;
-  const filteredProducts = activeProducts.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredProducts = activeProducts.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesBrand = !brandFilter || p.brandId === brandFilter;
+    return matchesSearch && matchesBrand;
+  });
+
+  const getBrandName = (brandId?: string) => {
+    if (!brandId) return null;
+    return brands.find(b => b.id === brandId)?.name || null;
+  };
 
   const handleCreateNew = () => {
     setEditingProduct({
@@ -27,7 +39,8 @@ const ProductsAdmin: React.FC = () => {
         image: '',
         description: '',
         isVisible: true,
-        isSoldOut: false
+        isSoldOut: false,
+        brandId: '',
     });
   };
 
@@ -43,12 +56,13 @@ const ProductsAdmin: React.FC = () => {
 
   const renderTable = (items: Product[]) => (
     <div className="flex-1 overflow-x-auto border border-gray-100 rounded-xl relative">
-       <table className="w-full text-left border-collapse min-w-[800px]">
+       <table className="w-full text-left border-collapse min-w-[900px]">
           <thead className="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-widest sticky top-0 z-10">
              <tr>
                <th className="p-4 w-16">Estado</th>
                <th className="p-4">Imagen</th>
-               <th className="p-4 w-1/3">Nombre / Descripción</th>
+               <th className="p-4 w-1/4">Nombre / Descripción</th>
+               <th className="p-4">Marca</th>
                <th className="p-4">Categoría</th>
                <th className="p-4">Precio (RD$)</th>
                <th className="p-4 text-center">Acciones</th>
@@ -72,6 +86,15 @@ const ProductsAdmin: React.FC = () => {
                       {product.nameEn && <p className="text-[10px] text-brand-accent font-bold mt-1">EN: {product.nameEn}</p>}
                    </td>
                    <td className="p-4">
+                      {getBrandName(product.brandId) ? (
+                        <span className="bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 w-fit">
+                          <Tag size={10} /> {getBrandName(product.brandId)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-300">—</span>
+                      )}
+                   </td>
+                   <td className="p-4">
                       <span className="bg-brand-accent/20 text-brand-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{product.category}</span>
                    </td>
                    <td className="p-4 font-black">
@@ -80,13 +103,13 @@ const ProductsAdmin: React.FC = () => {
                    </td>
                    <td className="p-4 text-center space-x-2 whitespace-nowrap">
                       <button onClick={() => setEditingProduct(product)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={16} /></button>
-                      <button onClick={() => deleteProduct(product.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                      <button onClick={() => { if (confirm(`¿Eliminar "${product.name}"?`)) deleteProduct(product.id); }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
                    </td>
                 </tr>
              ))}
              {items.length === 0 && (
                  <tr>
-                     <td colSpan={6} className="p-8 text-center text-gray-400 font-bold">No se encontraron productos.</td>
+                     <td colSpan={7} className="p-8 text-center text-gray-400 font-bold">No se encontraron productos.</td>
                  </tr>
              )}
           </tbody>
@@ -124,20 +147,36 @@ const ProductsAdmin: React.FC = () => {
             </div>
           </div>
 
-          {/* Product Type Tabs */}
-          <div className="flex bg-gray-100 p-1 rounded-xl mb-6 w-fit">
+          {/* Tabs + Brand Filter */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
               <button 
-                onClick={() => { setProductTab('boutique'); setSearchTerm(''); }}
+                onClick={() => { setProductTab('boutique'); setSearchTerm(''); setBrandFilter(''); }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-colors ${productTab === 'boutique' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-500 hover:text-gray-700'}`}
               >
                   <ShoppingBag size={16}/> Boutique ({boutiqueProducts.length})
               </button>
               <button 
-                onClick={() => { setProductTab('custom'); setSearchTerm(''); }}
+                onClick={() => { setProductTab('custom'); setSearchTerm(''); setBrandFilter(''); }}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-colors ${productTab === 'custom' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-500 hover:text-gray-700'}`}
               >
                   <Palette size={16}/> Personalizables ({customProducts.length})
               </button>
+            </div>
+
+            {/* Brand filter */}
+            {brands.length > 0 && (
+              <select
+                value={brandFilter}
+                onChange={e => setBrandFilter(e.target.value)}
+                className="border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold bg-white focus:ring-2 focus:ring-brand-accent focus:outline-none"
+              >
+                <option value="">Todas las marcas</option>
+                {brands.filter(b => b.isVisible !== false).map(brand => (
+                  <option key={brand.id} value={brand.id}>{brand.name}</option>
+                ))}
+              </select>
+            )}
           </div>
 
           {renderTable(filteredProducts)}
@@ -163,6 +202,11 @@ const ProductsAdmin: React.FC = () => {
                                 {editingProduct.category}
                              </div>
                          )}
+                         {getBrandName(editingProduct.brandId) && (
+                             <div className="absolute top-2 right-2 bg-purple-500/90 backdrop-blur-sm text-white px-2 py-1 rounded font-bold text-[10px] flex items-center gap-1">
+                                <Tag size={8} /> {getBrandName(editingProduct.brandId)}
+                             </div>
+                         )}
 
                          {editingProduct.isSoldOut && (
                              <div className="absolute inset-0 bg-white/50 flex flex-col items-center justify-center pointer-events-none">
@@ -185,7 +229,7 @@ const ProductsAdmin: React.FC = () => {
                  <div className="flex-1 bg-white p-6 rounded-2xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6 shadow-sm h-fit">
                      <div>
                          <label className="block text-sm font-bold text-gray-700 mb-1">Nombre</label>
-                         <input type="text" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent"/>
+                         <input type="text" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent" maxLength={200}/>
                      </div>
                      <div>
                          <label className="block text-sm font-bold text-gray-700 mb-1">Categoría</label>
@@ -203,6 +247,27 @@ const ProductsAdmin: React.FC = () => {
                              <option value="toys">Juguetes</option>
                          </select>
                      </div>
+
+                     {/* BRAND SELECTOR */}
+                     <div>
+                         <label className="block text-sm font-bold text-gray-700 mb-1 flex items-center gap-1">
+                           <Tag size={14} className="text-purple-500" /> Marca
+                         </label>
+                         <select
+                           value={editingProduct.brandId || ''}
+                           onChange={e => setEditingProduct({...editingProduct, brandId: e.target.value || undefined})}
+                           className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent bg-white"
+                         >
+                           <option value="">Sin marca</option>
+                           {brands.filter(b => b.isVisible !== false).map(brand => (
+                             <option key={brand.id} value={brand.id}>{brand.name}</option>
+                           ))}
+                         </select>
+                         {brands.length === 0 && (
+                           <p className="text-[10px] text-gray-400 mt-1">No hay marcas creadas. Créalas en la sección "Marcas" del menú.</p>
+                         )}
+                     </div>
+
                      <div className="md:col-span-2">
                          <label className="block text-sm font-bold text-gray-700 mb-2">Imagen del Producto</label>
                          <ImageUploader 
@@ -220,10 +285,9 @@ const ProductsAdmin: React.FC = () => {
                          <input type="number" value={editingProduct.originalPrice || ''} onChange={e => setEditingProduct({...editingProduct, originalPrice: e.target.value ? Number(e.target.value) : undefined})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-gray-400"/>
                      </div>
 
-
                      <div className="md:col-span-2">
                          <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
-                         <textarea value={editingProduct.description || ''} onChange={e => setEditingProduct({...editingProduct, description: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent h-20"></textarea>
+                         <textarea value={editingProduct.description || ''} onChange={e => setEditingProduct({...editingProduct, description: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent h-20" maxLength={1000}></textarea>
                      </div>
 
                      <div className="md:col-span-2 bg-gray-50/50 p-4 rounded-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
@@ -242,16 +306,17 @@ const ProductsAdmin: React.FC = () => {
                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                              <div>
                                  <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Inglés)</label>
-                                 <input type="text" value={editingProduct.nameEn || ''} onChange={e => setEditingProduct({...editingProduct, nameEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
+                                 <input type="text" value={editingProduct.nameEn || ''} onChange={e => setEditingProduct({...editingProduct, nameEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" maxLength={200}/>
                              </div>
                              <div>
                                  <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Inglés)</label>
-                                 <input type="text" value={editingProduct.descEn || ''} onChange={e => setEditingProduct({...editingProduct, descEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
+                                 <input type="text" value={editingProduct.descEn || ''} onChange={e => setEditingProduct({...editingProduct, descEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" maxLength={500}/>
                              </div>
                          </div>
                      </div>
 
                      <div className="md:col-span-2 pt-4 flex justify-end gap-3 border-t border-gray-100 mt-4">
+                         <button onClick={() => setEditingProduct(null)} className="px-5 py-2 rounded-xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors">Cancelar</button>
                          <button onClick={handleSaveProduct} className="bg-brand-primary text-white font-bold px-6 py-2 rounded-xl hover:bg-brand-accent hover:text-brand-primary transition-colors flex items-center gap-2"><Save size={18} /> Guardar Cambios</button>
                      </div>
                  </div>
