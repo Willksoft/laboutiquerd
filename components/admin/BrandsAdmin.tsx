@@ -78,20 +78,20 @@ const BrandsAdmin: React.FC = () => {
               {filteredBrands.map(brand => (
                 <div
                   key={brand.id}
-                  className={`bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4 group hover:border-brand-accent/50 hover:shadow-sm transition-all duration-200 ${brand.isVisible === false ? 'opacity-60 bg-gray-50' : ''}`}
+                  className={`bg-white rounded-xl border border-gray-100 p-3 flex items-center gap-3 group hover:border-brand-accent/50 hover:shadow-sm transition-all duration-200 ${brand.isVisible === false ? 'opacity-60 bg-gray-50' : ''}`}
                 >
                   {/* Avatar / Logo Thumb */}
-                  <div className="w-16 h-16 rounded-lg bg-gray-50 flex-shrink-0 flex items-center justify-center border border-gray-100 overflow-hidden relative">
+                  <div className="w-12 h-12 rounded-lg bg-gray-50 flex-shrink-0 flex items-center justify-center border border-gray-100 overflow-hidden relative">
                     {brand.logo ? (
-                      <img src={brand.logo} alt={brand.name} className="w-full h-full object-contain p-2" />
+                      <img src={brand.logo} alt={brand.name} className="w-full h-full object-contain p-1.5" />
                     ) : (
                       <div className="text-gray-300">
-                        <ImageIcon size={24} />
+                        <ImageIcon size={20} />
                       </div>
                     )}
                     {brand.isVisible === false && (
                       <div className="absolute top-1 right-1 bg-black/70 text-white p-0.5 rounded shadow-sm">
-                        <EyeOff size={10} />
+                        <EyeOff size={8} />
                       </div>
                     )}
                   </div>

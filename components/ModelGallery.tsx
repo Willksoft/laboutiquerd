@@ -17,11 +17,14 @@ const GalleryCard: React.FC<{ preset: TShirtPreset; onSelect: (p: TShirtPreset) 
   const [isHovered, setIsHovered] = useState(false);
 
   const getTranslatedText = (obj: any, field: string) => {
-      if (i18n.language === 'en') {
+      if (i18n.language.startsWith('en')) {
          const enField = field === 'name' ? 'nameEn' : 'descEn';
          if (obj[enField]) return obj[enField];
+      } else if (i18n.language.startsWith('fr')) {
+         const frField = field === 'name' ? 'nameFr' : 'descFr';
+         if (obj[frField]) return obj[frField];
       }
-      return obj[field];
+      return t(obj[field] || '');
   };
 
   // Determinar color de fondo para la camiseta: si es blanca, usar fondo oscuro

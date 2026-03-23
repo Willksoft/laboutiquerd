@@ -5,16 +5,15 @@ import { sanitizeText, sanitizeDescription, sanitizeUrl } from '../lib/sanitize'
 
 const SITE_CONTENT_STORAGE_KEY = 'laboutiquerd_site_content';
 
-// Default values for all editable site sections
 const DEFAULT_CONTENT: Record<string, string> = {
   hero_title: 'LA BOUTIQUE',
   hero_subtitle: 'Tu Tienda de Regalos y Souvenirs Premium en Punta Cana',
   hero_cta: 'Explorar Tienda',
   about_title: 'Tu Tienda de Confianza',
   about_text: 'Somos una boutique de souvenirs premium y personalización ubicada en los hoteles de Punta Cana. Ofrecemos productos únicos, artesanías locales, y camisetas personalizadas con calidad profesional.',
-  footer_text: '© La Boutique RD — Todos los derechos reservados.',
+  footer_text: '© Boutique — Todos los derechos reservados.',
   whatsapp_number: '18091234567',
-  whatsapp_message: 'Hola, me interesa un producto de La Boutique RD',
+  whatsapp_message: 'Hola, me interesa un producto de la boutique',
   contact_email: 'info@laboutiquerd.com',
   contact_phone: '+1 (809) 123-4567',
   contact_address: 'Punta Cana, República Dominicana',
@@ -22,8 +21,16 @@ const DEFAULT_CONTENT: Record<string, string> = {
   braids_subtitle: 'Reserva tu cita con nuestras trenzadoras',
   custom_title: 'Personaliza tu Camiseta',
   custom_subtitle: 'Diseña tu propia camiseta con estilo dominicano',
-  store_name: 'La Boutique RD',
+  store_name: 'Boutique',
   store_logo: '',
+  home_quick_categories: JSON.stringify([
+    { id: 'custom', label: 'Personalizados', icon: 'SwatchIcon' },
+    { id: 'braids', label: 'Estudio de Trenzas', icon: 'ScissorsIcon' },
+    { id: 'toys', label: 'Juguetes', icon: 'HeartIcon' },
+    { id: 'boutiques', label: 'Boutiques', icon: 'BuildingStorefrontIcon' },
+    { id: 'jewelry', label: 'Joyería Fina', icon: 'GemIcon' },
+    { id: 'gift-cards', label: 'Gift Cards', icon: 'GiftIcon' }
+  ]),
 };
 
 export const useSiteContent = () => {
@@ -93,6 +100,8 @@ export const useSiteContent = () => {
       safeValue = sanitizeUrl(value);
     } else if (key.includes('text') || key.includes('subtitle') || key.includes('about')) {
       safeValue = sanitizeDescription(value);
+    } else if (key === 'home_quick_categories') {
+      safeValue = value; // JSON string, keep as is
     } else {
       safeValue = sanitizeText(value, 500);
     }

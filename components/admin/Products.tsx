@@ -312,7 +312,7 @@ const ProductsAdmin: React.FC = () => {
                      </div>
 
                      <div className="md:col-span-2 border-t border-gray-100 pt-4 mt-2">
-                         <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traducción Global a Inglés (Opcional)</h4>
+                         <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traductor Global (Opcional)</h4>
                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                              <div>
                                  <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Inglés)</label>
@@ -321,6 +321,14 @@ const ProductsAdmin: React.FC = () => {
                              <div>
                                  <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Inglés)</label>
                                  <input type="text" value={editingProduct.descEn || ''} onChange={e => setEditingProduct({...editingProduct, descEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" maxLength={500}/>
+                             </div>
+                             <div>
+                                 <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Francés)</label>
+                                 <input type="text" value={editingProduct.nameFr || ''} onChange={e => setEditingProduct({...editingProduct, nameFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" maxLength={200}/>
+                             </div>
+                             <div>
+                                 <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Francés)</label>
+                                 <input type="text" value={editingProduct.descFr || ''} onChange={e => setEditingProduct({...editingProduct, descFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm" maxLength={500}/>
                              </div>
                          </div>
                      </div>

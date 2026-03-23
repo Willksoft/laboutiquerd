@@ -32,11 +32,14 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
   const { vendors } = useVendors();
 
   const getTranslatedText = (obj: any, field: string) => {
-      if (i18n.language === 'en') {
+      if (i18n.language.startsWith('en')) {
          const enField = field === 'name' ? 'nameEn' : 'descEn';
          if (obj[enField]) return obj[enField];
+      } else if (i18n.language.startsWith('fr')) {
+         const frField = field === 'name' ? 'nameFr' : 'descFr';
+         if (obj[frField]) return obj[frField];
       }
-      return obj[field];
+      return t(obj[field] || '');
   };
 
   const visibleModels = useMemo(() => allModels.filter(m => m.isVisible !== false), [allModels]);

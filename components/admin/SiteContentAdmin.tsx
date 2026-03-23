@@ -25,17 +25,10 @@ const SECTIONS: SectionConfig[] = [
     icon: <Layout size={18} />,
     fields: [
       { key: 'hero_title', label: 'Título Principal', type: 'text', placeholder: 'LA BOUTIQUE', maxLength: 100 },
-      { key: 'hero_subtitle', label: 'Subtítulo', type: 'text', placeholder: 'Tu Tienda de Regalos...', maxLength: 200 },
-      { key: 'hero_cta', label: 'Texto del Botón', type: 'text', placeholder: 'Explorar Tienda', maxLength: 50 },
-    ]
-  },
-  {
-    id: 'store',
-    title: 'Nombre y Logo de la Tienda',
-    icon: <ImageIcon size={18} />,
-    fields: [
-      { key: 'store_name', label: 'Nombre de la Tienda', type: 'text', placeholder: 'La Boutique RD', maxLength: 100 },
-      { key: 'store_logo', label: 'Logo Principal', type: 'image' },
+      { key: 'hero_subtitle', label: 'Subtítulo Principal', type: 'text', placeholder: 'Tu Tienda de Regalos...', maxLength: 200 },
+      { key: 'hero_cta', label: 'Texto Botón Principal', type: 'text', placeholder: 'Explorar Tienda', maxLength: 50 },
+      { key: 'store_name', label: 'Nombre de la Tienda', type: 'text', placeholder: 'Boutique', maxLength: 100 },
+      { key: 'store_logo', label: 'URL Logo Tienda', type: 'url', placeholder: 'https://...', maxLength: 500 },
     ]
   },
   {
@@ -67,29 +60,15 @@ const SECTIONS: SectionConfig[] = [
   },
   {
     id: 'whatsapp',
-    title: 'WhatsApp',
+    title: 'WhatsApp y Contacto',
     icon: <MessageCircle size={18} />,
     fields: [
-      { key: 'whatsapp_number', label: 'Número (sin +, sin espacios)', type: 'text', placeholder: '18091234567', maxLength: 20 },
-      { key: 'whatsapp_message', label: 'Mensaje predeterminado', type: 'text', placeholder: 'Hola, me interesa...', maxLength: 200 },
-    ]
-  },
-  {
-    id: 'contact',
-    title: 'Información de Contacto',
-    icon: <Phone size={18} />,
-    fields: [
-      { key: 'contact_email', label: 'Email', type: 'text', placeholder: 'info@laboutiquerd.com', maxLength: 100 },
-      { key: 'contact_phone', label: 'Teléfono', type: 'text', placeholder: '+1 (809) 123-4567', maxLength: 30 },
-      { key: 'contact_address', label: 'Dirección', type: 'text', placeholder: 'Punta Cana, RD', maxLength: 200 },
-    ]
-  },
-  {
-    id: 'footer',
-    title: 'Pie de Página (Footer)',
-    icon: <Globe size={18} />,
-    fields: [
-      { key: 'footer_text', label: 'Texto del footer', type: 'text', placeholder: '© La Boutique RD...', maxLength: 200 },
+      { key: 'whatsapp_number', label: 'Número de WhatsApp', type: 'text', placeholder: '18091234567', maxLength: 20 },
+      { key: 'whatsapp_message', label: 'Mensaje Predefinido (WhatsApp)', type: 'text', placeholder: 'Hola, me interesa...', maxLength: 200 },
+      { key: 'contact_email', label: 'Correo Electrónico', type: 'text', placeholder: 'info@laboutiquerd.com', maxLength: 100 },
+      { key: 'contact_phone', label: 'Teléfono de Contacto', type: 'text', placeholder: '+1 (809) 123-4567', maxLength: 30 },
+      { key: 'contact_address', label: 'Dirección Física', type: 'text', placeholder: 'Punta Cana...', maxLength: 200 },
+      { key: 'footer_text', label: 'Texto del footer', type: 'text', placeholder: '© Boutique...', maxLength: 200 },
     ]
   },
 ];

@@ -24,7 +24,11 @@ export const useOffers = () => {
         let mapped: Offer[] = docs.map((d: any) => ({
              id: d.$id,
              title: d.title,
+             titleEn: d.titleEn || '',
+             titleFr: d.titleFr || '',
              subtitle: d.subtitle || '',
+             subtitleEn: d.subtitleEn || '',
+             subtitleFr: d.subtitleFr || '',
              image: d.image || '',
              discount: d.discount || '',
              link: d.link || '',

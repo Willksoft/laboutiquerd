@@ -1,71 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-
-const BRANDS = [
-  { 
-    name: '45', 
-    fontClass: 'font-bold tracking-widest text-[#4A3D2A]'
-  },
-  { 
-    name: 'Collection Club Med', 
-    fontClass: 'font-serif font-bold tracking-widest text-brand-primary'
-  },
-  { 
-    name: 'Quiksilver', 
-    fontClass: 'font-sans font-black tracking-tighter text-red-600'
-  },
-  { 
-    name: 'Billabong', 
-    fontClass: 'font-sans font-bold italic tracking-wide text-gray-800'
-  },
-  { 
-    name: 'Vilebrequin', 
-    fontClass: 'font-sans font-black uppercase tracking-wide text-blue-900'
-  },
-  { 
-    name: 'Sundek', 
-    fontClass: 'font-sans font-bold text-orange-500 uppercase'
-  },
-  { 
-    name: 'Banana Moon', 
-    fontClass: 'font-cursive text-2xl md:text-3xl text-pink-500'
-  },
-  { 
-    name: 'Havaianas', 
-    fontClass: 'font-sans font-black text-yellow-500 tracking-wider'
-  },
-  { 
-    name: 'Livia', 
-    fontClass: 'font-serif italic font-bold text-gray-700'
-  },
-  { 
-    name: 'Carbon', 
-    fontClass: 'font-mono font-bold uppercase tracking-tighter text-gray-900'
-  },
-  { 
-    name: 'Happy & So', 
-    fontClass: 'font-handwriting text-xl font-bold text-purple-900'
-  },
-  { 
-    name: 'Gold & Silver', 
-    fontClass: 'font-serif font-bold text-yellow-600'
-  },
-  { 
-    name: 'Kreoli Bijoux', 
-    fontClass: 'font-sans font-light tracking-[0.2em] uppercase text-gray-800'
-  },
-  { 
-    name: 'Cacatoès', 
-    fontClass: 'font-sans font-black uppercase text-green-600'
-  },
-  { 
-    name: 'Hipanema', 
-    fontClass: 'font-serif font-bold text-red-500 tracking-wider'
-  }
-];
+import { useBrands } from '../hooks/useBrands';
 
 const Brands: React.FC = () => {
   const { t } = useTranslation();
+  const { brands } = useBrands();
+  
+  const visibleBrands = brands.filter(b => b.isVisible !== false);
+
+  if (visibleBrands.length === 0) return null;
+
   return (
     <section className="py-16 bg-white border-y border-gray-100 mt-12 mb-8 overflow-hidden">
       {/* Estilos para la animación de scroll infinito */}
@@ -97,22 +41,30 @@ const Brands: React.FC = () => {
           <div className="animate-marquee">
               {/* Conjunto Original */}
               <div className="flex items-center gap-16 px-8 shrink-0">
-                  {BRANDS.map((brand, idx) => (
+                  {visibleBrands.map((brand, idx) => (
                     <div key={`${brand.name}-1-${idx}`} className="flex items-center justify-center transition-all duration-300 cursor-pointer min-w-[100px]">
-                        <span className={`text-xl md:text-2xl whitespace-nowrap opacity-60 hover:opacity-100 transition-opacity ${brand.fontClass}`}>
-                          {brand.name}
-                        </span>
+                        {brand.logo && (brand.logo.startsWith('http') || brand.logo.startsWith('/')) ? (
+                            <img src={brand.logo} alt={brand.name} className="h-12 object-contain opacity-60 hover:opacity-100 transition-opacity" />
+                        ) : (
+                            <span className={`text-xl md:text-2xl whitespace-nowrap opacity-60 hover:opacity-100 transition-opacity ${brand.logo || 'font-bold text-gray-800'}`}>
+                              {brand.name}
+                            </span>
+                        )}
                     </div>
                   ))}
               </div>
               
               {/* Conjunto Duplicado para el bucle infinito */}
               <div className="flex items-center gap-16 px-8 shrink-0">
-                  {BRANDS.map((brand, idx) => (
+                  {visibleBrands.map((brand, idx) => (
                     <div key={`${brand.name}-2-${idx}`} className="flex items-center justify-center transition-all duration-300 cursor-pointer min-w-[100px]">
-                        <span className={`text-xl md:text-2xl whitespace-nowrap opacity-60 hover:opacity-100 transition-opacity ${brand.fontClass}`}>
-                          {brand.name}
-                        </span>
+                        {brand.logo && (brand.logo.startsWith('http') || brand.logo.startsWith('/')) ? (
+                            <img src={brand.logo} alt={brand.name} className="h-12 object-contain opacity-60 hover:opacity-100 transition-opacity" />
+                        ) : (
+                            <span className={`text-xl md:text-2xl whitespace-nowrap opacity-60 hover:opacity-100 transition-opacity ${brand.logo || 'font-bold text-gray-800'}`}>
+                              {brand.name}
+                            </span>
+                        )}
                     </div>
                   ))}
               </div>

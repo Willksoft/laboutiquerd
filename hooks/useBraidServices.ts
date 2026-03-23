@@ -26,8 +26,12 @@ export const useBraidServices = () => {
         const mapped: BraidService[] = docs.map((d: any) => ({
              id: d.$id,
              name: d.name,
+             nameEn: d.nameEn || '',
+             nameFr: d.nameFr || '',
              price: d.price,
              description: d.description || '',
+             descEn: d.descEn || '',
+             descFr: d.descFr || '',
              isVisible: d.isVisible ?? true,
         }));
         

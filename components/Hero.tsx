@@ -12,7 +12,7 @@ const Hero: React.FC<HeroProps> = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { offers: fetchOffersList, loading } = useOffers();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { content } = useSiteContent();
   
   // Filter active and sort (useOffers already sorts by sortOrder)
@@ -35,7 +35,7 @@ const Hero: React.FC<HeroProps> = () => {
     return () => clearInterval(timer);
   }, [offers.length]);
 
-  const offer = offers[currentSlide] || { title: 'Cargando...', subtitle: '', image: '', link: '/offers' };
+  const offer = offers[currentSlide] || { title: 'Cargando...', subtitle: '', image: '', link: '/offers', titleEn: '', titleFr: '', subtitleEn: '', subtitleFr: '' };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +63,7 @@ const Hero: React.FC<HeroProps> = () => {
               key={currentSlide + '-title'}
               className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-brand-primary mb-5 leading-[1.1] tracking-tight animate-fade-in-up"
             >
-              {t(offer.title) || content.hero_title}
+              {i18n.language.startsWith('en') && offer.titleEn ? offer.titleEn : i18n.language.startsWith('fr') && offer.titleFr ? offer.titleFr : t(offer.title) || content.hero_title}
             </h1>
 
             {/* Subtitle */}
@@ -72,7 +72,7 @@ const Hero: React.FC<HeroProps> = () => {
               className="text-base md:text-lg text-brand-muted mb-6 leading-relaxed max-w-md animate-fade-in-up"
               style={{ animationDelay: '100ms' }}
             >
-              {t(offer.subtitle) || content.hero_subtitle}
+              {i18n.language.startsWith('en') && offer.subtitleEn ? offer.subtitleEn : i18n.language.startsWith('fr') && offer.subtitleFr ? offer.subtitleFr : t(offer.subtitle) || content.hero_subtitle}
             </p>
 
             {/* Search Bar */}

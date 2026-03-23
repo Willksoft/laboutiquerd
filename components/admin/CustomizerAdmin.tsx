@@ -182,7 +182,7 @@ const CustomizerAdmin: React.FC = () => {
 
                            {/* Traducciones */}
                            <div className="xl:col-span-2 border-t border-gray-100 pt-4 mt-2">
-                               <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traducción a Inglés</h4>
+                               <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traductor Global</h4>
                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                    <div>
                                        <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Inglés)</label>
@@ -191,6 +191,14 @@ const CustomizerAdmin: React.FC = () => {
                                    <div>
                                        <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Inglés)</label>
                                        <input type="text" placeholder="Ej: Vibrant red with white logo." value={editingPreset.descEn || ''} onChange={e => setEditingPreset({...editingPreset, descEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
+                                   </div>
+                                   <div>
+                                       <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Francés)</label>
+                                       <input type="text" placeholder="Ej: Impact Rouge" value={editingPreset.nameFr || ''} onChange={e => setEditingPreset({...editingPreset, nameFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
+                                   </div>
+                                   <div>
+                                       <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Francés)</label>
+                                       <input type="text" placeholder="Ej: Rouge vibrant avec logo blanc." value={editingPreset.descFr || ''} onChange={e => setEditingPreset({...editingPreset, descFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
                                    </div>
                                </div>
                            </div>

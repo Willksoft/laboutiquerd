@@ -27,8 +27,12 @@ export const useBraidStyles = () => {
         const mapped: BraidModel[] = docs.map((d: any) => ({
           id: d.$id,
           name: d.name,
+          nameEn: d.nameEn || '',
+          nameFr: d.nameFr || '',
           image: d.image || '',
           description: d.description || '',
+          descEn: d.descEn || '',
+          descFr: d.descFr || '',
           category: d.category || 'Damas',
           isVisible: d.isVisible ?? true,
         }));

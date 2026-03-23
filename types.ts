@@ -159,6 +159,10 @@ export interface Offer {
   link?: string;
   isActive?: boolean;
   sortOrder?: number;
+  titleEn?: string;
+  titleFr?: string;
+  subtitleEn?: string;
+  subtitleFr?: string;
 }
 
 export interface SiteContent {

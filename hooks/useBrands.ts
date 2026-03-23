@@ -17,21 +17,21 @@ export const useBrands = () => {
 
   // Default brands matching the landing page for initial seed
   const DEFAULT_BRANDS: Brand[] = [
-    { id: 'b1', name: '45', logo: '', description: '', isVisible: true },
-    { id: 'b2', name: 'Collection Club Med', logo: '', description: '', isVisible: true },
-    { id: 'b3', name: 'Quiksilver', logo: '', description: '', isVisible: true },
-    { id: 'b4', name: 'Billabong', logo: '', description: '', isVisible: true },
-    { id: 'b5', name: 'Vilebrequin', logo: '', description: '', isVisible: true },
-    { id: 'b6', name: 'Sundek', logo: '', description: '', isVisible: true },
-    { id: 'b7', name: 'Banana Moon', logo: '', description: '', isVisible: true },
-    { id: 'b8', name: 'Havaianas', logo: '', description: '', isVisible: true },
-    { id: 'b9', name: 'Livia', logo: '', description: '', isVisible: true },
-    { id: 'b10', name: 'Carbon', logo: '', description: '', isVisible: true },
-    { id: 'b11', name: 'Happy & So', logo: '', description: '', isVisible: true },
-    { id: 'b12', name: 'Gold & Silver', logo: '', description: '', isVisible: true },
-    { id: 'b13', name: 'Kreoli Bijoux', logo: '', description: '', isVisible: true },
-    { id: 'b14', name: 'Cacatoès', logo: '', description: '', isVisible: true },
-    { id: 'b15', name: 'Hipanema', logo: '', description: '', isVisible: true }
+      { id: 'b1', name: '45', logo: 'font-bold tracking-widest text-[#4A3D2A]', isVisible: true },
+      { id: 'b2', name: 'Collection Club Med', logo: 'font-serif font-bold tracking-widest text-brand-primary', isVisible: true },
+      { id: 'b3', name: 'Quiksilver', logo: 'font-sans font-black tracking-tighter text-red-600', isVisible: true },
+      { id: 'b4', name: 'Billabong', logo: 'font-sans font-bold italic tracking-wide text-gray-800', isVisible: true },
+      { id: 'b5', name: 'Vilebrequin', logo: 'font-sans font-black uppercase tracking-wide text-blue-900', isVisible: true },
+      { id: 'b6', name: 'Sundek', logo: 'font-sans font-bold text-orange-500 uppercase', isVisible: true },
+      { id: 'b7', name: 'Banana Moon', logo: 'font-cursive text-2xl md:text-3xl text-pink-500', isVisible: true },
+      { id: 'b8', name: 'Havaianas', logo: 'font-sans font-black text-yellow-500 tracking-wider', isVisible: true },
+      { id: 'b9', name: 'Livia', logo: 'font-serif italic font-bold text-gray-700', isVisible: true },
+      { id: 'b10', name: 'Carbon', logo: 'font-mono font-bold uppercase tracking-tighter text-gray-900', isVisible: true },
+      { id: 'b11', name: 'Happy & So', logo: 'font-handwriting text-xl font-bold text-purple-900', isVisible: true },
+      { id: 'b12', name: 'Gold & Silver', logo: 'font-serif font-bold text-yellow-600', isVisible: true },
+      { id: 'b13', name: 'Kreoli Bijoux', logo: 'font-sans font-light tracking-[0.2em] uppercase text-gray-800', isVisible: true },
+      { id: 'b14', name: 'Cacatoès', logo: 'font-sans font-black uppercase text-green-600', isVisible: true },
+      { id: 'b15', name: 'Hipanema', logo: 'font-serif font-bold text-red-500 tracking-wider', isVisible: true }
   ];
 
   // Fetch from Appwrite

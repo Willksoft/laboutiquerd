@@ -14,11 +14,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onCustomize, onView,
   const { t, i18n } = useTranslation();
 
   const getTranslatedText = (obj: any, field: string) => {
-      if (i18n.language === 'en') {
+      if (i18n.language.startsWith('en')) {
          const enField = field === 'name' ? 'nameEn' : 'descEn';
          if (obj[enField]) return obj[enField];
+      } else if (i18n.language.startsWith('fr')) {
+         const frField = field === 'name' ? 'nameFr' : 'descFr';
+         if (obj[frField]) return obj[frField];
       }
-      return obj[field];
+      return t(obj[field] || '');
   };
 
   // === VARIANT: OVERLAY — Club Med style (image fills card, title at bottom) ===
@@ -158,7 +161,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onCustomize, onView,
       >
         <img 
           src={product.image} 
-          alt={t(product.name)}
+          alt={getTranslatedText(product, 'name')}
           className={`w-full h-full object-cover transition-transform duration-700 ease-out ${!product.isSoldOut ? 'group-hover:scale-105' : ''}`}
         />
         {product.isSoldOut && (
@@ -192,8 +195,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onCustomize, onView,
       {/* Content */}
       <div className="p-4 flex flex-col flex-grow">
         <div className="mb-3">
-          <h3 className="font-sans font-semibold text-[15px] text-brand-primary leading-tight mb-1">{t(product.name)}</h3>
-          <p className="text-xs text-brand-muted line-clamp-2 leading-relaxed">{t(product.description)}</p>
+          <h3 className="font-sans font-semibold text-[15px] text-brand-primary leading-tight mb-1">{getTranslatedText(product, 'name')}</h3>
+          <p className="text-xs text-brand-muted line-clamp-2 leading-relaxed">{getTranslatedText(product, 'description')}</p>
         </div>
         
         <div className="mt-auto flex items-end justify-between pt-3">

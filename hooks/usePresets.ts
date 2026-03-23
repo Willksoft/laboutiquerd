@@ -27,7 +27,11 @@ export const usePresets = () => {
         const mapped: TShirtPreset[] = docs.map((d: any) => ({
           id: d.$id,
           name: d.name,
+          nameEn: d.nameEn || '',
+          nameFr: d.nameFr || '',
           description: d.description || '',
+          descEn: d.descEn || '',
+          descFr: d.descFr || '',
           logoStyle: d.logoStyle as any,
           baseColorName: d.baseColorName,
           baseColorValue: d.baseColorValue,

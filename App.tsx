@@ -480,52 +480,53 @@ function App() {
     );
   };
 
-  const renderQuickCategories = () => (
+  const renderQuickCategories = () => {
+    let categories = [];
+    try {
+       categories = JSON.parse(content.home_quick_categories || '[]');
+    } catch {
+       categories = [];
+    }
+
+    // Default fallback if empty
+    if (categories.length === 0) {
+      categories = [
+        { id: 'custom', label: 'Personalizados', icon: 'SwatchIcon' },
+        { id: 'braids', label: 'Estudio de Trenzas', icon: 'ScissorsIcon' },
+        { id: 'toys', label: 'Juguetes', icon: 'HeartIcon' },
+        { id: 'boutiques', label: 'Boutiques', icon: 'BuildingStorefrontIcon' },
+        { id: 'jewelry', label: 'Joyería Fina', icon: 'GemIcon' },
+        { id: 'gift-cards', label: 'Gift Cards', icon: 'GiftIcon' }
+      ];
+    }
+
+    const iconMap: Record<string, React.ReactNode> = {
+      SwatchIcon: <SwatchIcon className="w-6 h-6" />,
+      ScissorsIcon: <ScissorsIcon className="w-6 h-6" />,
+      HeartIcon: <HeartIcon className="w-6 h-6" />,
+      BuildingStorefrontIcon: <BuildingStorefrontIcon className="w-6 h-6" />,
+      GemIcon: <GemIcon className="w-6 h-6" />,
+      GiftIcon: <GiftIcon className="w-5 h-5" />,
+      ShoppingBagIcon: <ShoppingBagIcon className="w-6 h-6" />,
+      StarIcon: <StarIcon className="w-6 h-6" />,
+      TagIcon: <TicketIcon className="w-6 h-6" />
+    };
+
+    return (
     <div className="grid grid-cols-2 md:grid-cols-6 gap-4 px-4 container mx-auto mt-12 mb-4 relative z-20">
-      {[
-        { 
-          id: 'custom', 
-          label: t('Personalizados'), 
-          icon: <SwatchIcon className="w-6 h-6" />,
-        },
-        { 
-          id: 'braids', 
-          label: t('Estudio de Trenzas'), 
-          icon: <ScissorsIcon className="w-6 h-6" />,
-        },
-        { 
-          id: 'toys', 
-          label: t('Juguetes'), 
-          icon: <HeartIcon className="w-6 h-6" />,
-        },
-        { 
-          id: 'boutiques',
-          label: t('Boutiques'),
-          icon: <BuildingStorefrontIcon className="w-6 h-6" />,
-        },
-        { 
-          id: 'jewelry', 
-          label: t('Joyería Fina'), 
-          icon: <GemIcon className="w-6 h-6" />,
-        },
-        { 
-          id: 'gift-cards', 
-          label: t('Gift Cards'), 
-          icon: <GiftIcon className="w-5 h-5" />,
-        },
-      ].map((cat) => (
+      {categories.map((cat: any) => (
         <button
           key={cat.id}
           onClick={() => navigate('/' + cat.id)}
           className="bg-white rounded-2xl shadow-card hover:shadow-card-hover hover:-translate-y-2 hover:bg-black hover:text-white transition-all duration-300 relative overflow-hidden group h-28 md:h-36 flex flex-col items-center justify-center px-4 border border-gray-100/50 text-center"
         >
           <div className="mb-3 p-3 bg-gray-100 rounded-xl group-hover:bg-brand-accent transition-colors">
-             {cat.icon}
+             {iconMap[cat.icon] || <ShoppingBagIcon className="w-6 h-6" />}
           </div>
           
           <div className="relative z-10 flex flex-col items-center">
              <span className="font-display font-semibold text-black text-sm md:text-base tracking-tight leading-tight group-hover:text-white transition-colors">
-               {cat.label}
+               {t(cat.label)}
              </span>
              <span className="text-[10px] text-white/80 uppercase tracking-widest mt-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
                {t('Explorar')}
@@ -534,7 +535,8 @@ function App() {
         </button>
       ))}
     </div>
-  );
+    );
+  };
 
   const renderWeeklyOffers = () => {
     const discountedProducts = PRODUCTS.filter(p => p.originalPrice).slice(0, 5);

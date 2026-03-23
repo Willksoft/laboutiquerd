@@ -11,6 +11,7 @@ const resources = {
       "Estudio de Trenzas": "Studio de Tresses", "Bisutería": "Bijouterie", "Personalizados": "Personnalisés",
       "Juguetes": "Jouets", "Cuidado Personal": "Soins Personnels", "Alta Joyería": "Haute Joaillerie",
       "Gift Cards": "Cartes Cadeaux", "Joyería Fina": "Joaillerie Fine",
+      "Cargando...": "Chargement...",
       // Product names
       "Taza Personalizada": "Tasse Personnalisée", "T-Shirt Cotton": "T-Shirt Coton",
       "Gorra Trucker": "Casquette Trucker", "Mochila Urbana": "Sac à Dos Urbain",
@@ -585,7 +586,7 @@ const resources = {
       "Alta Calidad": "High Quality",
       "Joyería & Larimar": "Jewelry & Larimar",
       "Piezas exclusivas de Larimar, Ámbar y Plata 925. Disponibles en Boutique Principal y Miches.": "Exclusive Larimar, Amber, and 925 Silver pieces. Available at Main Boutique and Miches.",
-      "Explorar": "Explore",
+      "Explorar": "Explore", "Cargando...": "Loading...",
       "Club Favorite": "Club Favorite",
       "Eco-Friendly": "Eco-Friendly",
       "Familiar": "Family",

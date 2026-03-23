@@ -139,7 +139,7 @@ const BraidsAdmin: React.FC = () => {
                            </div>
 
                            <div className="md:col-span-2 border-t border-gray-100 pt-4 mt-2">
-                               <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traducción a Inglés</h4>
+                               <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traductor Global</h4>
                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                    <div>
                                        <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Inglés)</label>
@@ -148,6 +148,14 @@ const BraidsAdmin: React.FC = () => {
                                    <div>
                                        <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Inglés)</label>
                                        <input type="text" value={editingStyle.descEn || ''} onChange={e => setEditingStyle({...editingStyle, descEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
+                                   </div>
+                                   <div>
+                                       <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Francés)</label>
+                                       <input type="text" value={editingStyle.nameFr || ''} onChange={e => setEditingStyle({...editingStyle, nameFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
+                                   </div>
+                                   <div>
+                                       <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Francés)</label>
+                                       <input type="text" value={editingStyle.descFr || ''} onChange={e => setEditingStyle({...editingStyle, descFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
                                    </div>
                                </div>
                            </div>
@@ -196,7 +204,7 @@ const BraidsAdmin: React.FC = () => {
                        </div>
 
                        <div className="md:col-span-2 border-t border-gray-100 pt-4 mt-2">
-                           <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traducción a Inglés</h4>
+                           <h4 className="font-bold text-gray-700 mb-4 text-xs uppercase tracking-widest text-brand-accent">Traductor Global</h4>
                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                <div>
                                    <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Inglés)</label>
@@ -205,6 +213,14 @@ const BraidsAdmin: React.FC = () => {
                                <div>
                                    <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Inglés)</label>
                                    <input type="text" value={editingService.descEn || ''} onChange={e => setEditingService({...editingService, descEn: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
+                               </div>
+                               <div>
+                                   <label className="block text-xs font-bold text-gray-500 mb-1">Nombre (Francés)</label>
+                                   <input type="text" value={editingService.nameFr || ''} onChange={e => setEditingService({...editingService, nameFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
+                               </div>
+                               <div>
+                                   <label className="block text-xs font-bold text-gray-500 mb-1">Descripción (Francés)</label>
+                                   <input type="text" value={editingService.descFr || ''} onChange={e => setEditingService({...editingService, descFr: e.target.value})} className="w-full bg-gray-50/50 border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm"/>
                                </div>
                            </div>
                        </div>

@@ -47,11 +47,14 @@ const UniversalCustomizer: React.FC<UniversalCustomizerProps> = ({
   const { t, i18n } = useTranslation();
 
   const getTranslatedText = (obj: any, field: string) => {
-      if (i18n.language === 'en') {
+      if (i18n.language.startsWith('en')) {
          const enField = field === 'name' ? 'nameEn' : 'descEn';
          if (obj[enField]) return obj[enField];
+      } else if (i18n.language.startsWith('fr')) {
+         const frField = field === 'name' ? 'nameFr' : 'descFr';
+         if (obj[frField]) return obj[frField];
       }
-      return obj[field];
+      return t(obj[field] || '');
   };
   // Configuración específica para este producto
   const zoneConfig = PRODUCT_ZONES[product.id] || PRODUCT_ZONES['default'];
