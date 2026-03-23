@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Scissors, Calendar, List, Search, Plus, Filter, Edit2, Trash2, X, Save, EyeOff, CheckCircle, XCircle, Clock, Ban } from 'lucide-react';
 import { useBraidStyles } from '../../hooks/useBraidStyles';
 import { useBraidServices } from '../../hooks/useBraidServices';
@@ -237,9 +237,12 @@ const BraidsAdmin: React.FC = () => {
                                <label className="block text-sm font-bold text-gray-700 mb-1">{t('Nombre')}</label>
                                <input type="text" value={editingStyle.name} onChange={e => setEditingStyle({...editingStyle, name: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent"/>
                            </div>
-                           <div>
-                               <label className="block text-sm font-bold text-gray-700 mb-1">{t('URL Imagen')}</label>
-                               <input type="text" value={editingStyle.image} onChange={e => setEditingStyle({...editingStyle, image: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent text-sm text-gray-500"/>
+                           <div className="md:col-span-2">
+                               <label className="block text-sm font-bold text-gray-700 mb-1">{t('Imagen del Estilo')}</label>
+                               <ImageUploader
+                                 currentUrl={editingStyle.image || ''}
+                                 onImageChange={(url) => setEditingStyle({...editingStyle, image: url})}
+                               />
                            </div>
                            <div className="md:col-span-2">
                                <label className="block text-sm font-bold text-gray-700 mb-1">{t('Descripción')}</label>
@@ -411,7 +414,14 @@ const BraidsAdmin: React.FC = () => {
                                        </div>
                                    </div>
                                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 p-1 rounded-lg shadow-sm">
-                                       <button 
+                                                                              <button
+                                           onClick={() => setEditingStyle(style)}
+                                           className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded p-1 transition-colors"
+                                           title="Editar"
+                                       >
+                                           <Edit2 size={14} />
+                                       </button>
+<button 
                                            onClick={async () => {
                                                if (await showConfirm(`¿Estás seguro de eliminar el estilo "${style.name}"?`)) {
                                                    deleteStyle(style.id);
