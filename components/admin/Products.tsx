@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Plus, Search, Edit2, Trash2, X, Save, EyeOff, Palette, ShoppingBag, Tag } from 'lucide-react';
+import { Box, Plus, Search, Edit2, Trash2, X, Save, EyeOff, Palette, ShoppingBag, Tag, FolderPlus, Check } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import { useBrands } from '../../hooks/useBrands';
+import { useCategories } from '../../hooks/useCategories';
 import { Product } from '../../types';
 import ImageUploader from './ImageUploader';
 import CustomSelect from '../ui/CustomSelect';
@@ -14,11 +15,36 @@ const ProductsAdmin: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const { brands } = useBrands();
+  const { categories, addCategory } = useCategories();
   const { showConfirm, ConfirmDialog } = useConfirm();
   const { t } = useTranslation();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productTab, setProductTab] = useState<'custom' | 'boutique'>('boutique');
   const [brandFilter, setBrandFilter] = useState('');
+
+  // Inline category creation
+  const [showNewCatForm, setShowNewCatForm] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [savingCat, setSavingCat] = useState(false);
+
+  const handleCreateCategory = async () => {
+    const name = newCatName.trim();
+    if (!name) return;
+    setSavingCat(true);
+    try {
+      await addCategory({
+        key: name, name, nameEn: '', nameFr: '',
+        emoji: '🛍️', image: '', sortOrder: categories.length + 1, isActive: true,
+      });
+      if (editingProduct) setEditingProduct({ ...editingProduct, category: name as any });
+      setNewCatName('');
+      setShowNewCatForm(false);
+    } finally {
+      setSavingCat(false);
+    }
+  };
+
+
 
   const customProducts = useMemo(() => products.filter(p => CUSTOM_CATEGORIES.includes(p.category)), [products]);
   const boutiqueProducts = useMemo(() => products.filter(p => !CUSTOM_CATEGORIES.includes(p.category)), [products]);
@@ -241,24 +267,65 @@ const ProductsAdmin: React.FC = () => {
                      </div>
                      <div>
                          <label className="block text-sm font-bold text-gray-700 mb-1">{t('Categoría')}</label>
-                         <CustomSelect
-                           value={editingProduct.category}
-                           onChange={val => setEditingProduct({...editingProduct, category: val as any})}
-                           options={[
-                             { label: t('Merch (Custom)'), value: 'custom' },
-                             { label: t('Boutique Punta Cana'), value: 'boutique-pc' },
-                             { label: t('Boutique El Cedro'), value: 'boutique-miches' },
-                             { label: t('Boutique Playa'), value: 'boutique-beach' },
-                             { label: t('Ropa'), value: 'fashion' },
-                             { label: t('Joyería'), value: 'jewelry' },
-                             { label: t('Cuidado Personal'), value: 'personal-care' },
-                             { label: t('Bisutería'), value: 'bisuteria' },
-                             { label: t('Artesanía'), value: 'crafts' },
-                             { label: t('Gift Cards'), value: 'gift-card' },
-                             { label: t('Juguetes'), value: 'toys' }
-                           ]}
-                           variant="input"
-                         />
+                         <div className="flex gap-2 items-start">
+                           <div className="flex-1">
+                             <CustomSelect
+                               value={editingProduct.category}
+                               onChange={val => setEditingProduct({...editingProduct, category: val as any})}
+                               options={[
+                                 { label: t('Merch (Custom)'), value: 'custom' },
+                                 { label: t('Boutique Punta Cana'), value: 'boutique-pc' },
+                                 { label: t('Boutique El Cedro'), value: 'boutique-miches' },
+                                 { label: t('Boutique Playa'), value: 'boutique-beach' },
+                                 { label: t('Gift Cards'), value: 'gift-card' },
+                                 ...categories
+                                   .filter(c => c.isActive !== false)
+                                   .sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99))
+                                   .filter(c => !['custom','boutique-pc','boutique-miches','boutique-beach','gift-card'].includes(c.key))
+                                   .map(c => ({ label: ``, value: c.key }))
+                               ]}
+                               variant="input"
+                             />
+                           </div>
+                           <button
+                             type="button"
+                             onClick={() => setShowNewCatForm(v => !v)}
+                             title={t('Crear nueva categoría')}
+                             className="mt-0.5 p-2.5 rounded-xl border border-gray-200 hover:bg-black hover:text-white hover:border-black transition-all text-gray-400 shrink-0"
+                           >
+                             <FolderPlus size={16} />
+                           </button>
+                         </div>
+                         {showNewCatForm && (
+                           <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                             <p className="text-[11px] font-bold text-amber-700 uppercase tracking-wide mb-2">{t('Nueva categoría rápida')}</p>
+                             <div className="flex gap-2">
+                               <input
+                                 type="text"
+                                 value={newCatName}
+                                 onChange={e => setNewCatName(e.target.value)}
+                                 onKeyDown={e => e.key === 'Enter' && handleCreateCategory()}
+                                 placeholder={t('Nombre de la categoría...')}
+                                 autoFocus
+                                 className="flex-1 border border-amber-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                               />
+                               <button
+                                 onClick={handleCreateCategory}
+                                 disabled={savingCat || !newCatName.trim()}
+                                 className="px-3 py-1.5 bg-black text-white rounded-lg text-sm font-bold hover:bg-gray-800 disabled:opacity-40 flex items-center gap-1.5 transition-all"
+                               >
+                                 {savingCat ? '...' : <><Check size={14} />{t('Crear')}</>}
+                               </button>
+                               <button
+                                 onClick={() => { setShowNewCatForm(false); setNewCatName(''); }}
+                                 className="p-1.5 rounded-lg border border-gray-200 text-gray-400 hover:bg-gray-50"
+                               >
+                                 <X size={14} />
+                               </button>
+                             </div>
+                             <p className="text-[10px] text-amber-600 mt-1.5">{t('Se creará como categoría activa. Puedes editarla desde el módulo "Categorías".')}</p>
+                           </div>
+                         )}
                      </div>
 
                      {/* BRAND SELECTOR */}
