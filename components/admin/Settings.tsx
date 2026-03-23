@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Settings as SettingsIcon, Save, Users, Plus, Trash2, Edit2, X, Check } from 'lucide-react';
 import { useVendors } from '../../hooks/useVendors';
 import { Vendor } from '../../types';
+import CustomSelect from '../ui/CustomSelect';
+import { useConfirm } from '../../hooks/useConfirm';
 
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('vendors');
@@ -9,6 +11,7 @@ const Settings: React.FC = () => {
   const [newVendorName, setNewVendorName] = useState('');
   const [newVendorRole, setNewVendorRole] = useState<'Vendedor' | 'Gerente' | 'Admin'>('Vendedor');
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
+  const { showConfirm, ConfirmDialog } = useConfirm();
 
   const handleAddVendor = () => {
     if (!newVendorName.trim()) return;
@@ -24,8 +27,10 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full min-h-[600px] overflow-hidden md:flex-row">
-       {/* Settings Sidebar Menus */}
+    <>
+      <ConfirmDialog />
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full min-h-[600px] overflow-hidden md:flex-row">
+         {/* Settings Sidebar Menus */}
        <div className="w-full md:w-64 bg-gray-50/50 border-r border-gray-100 p-6 flex flex-col gap-2">
            <h3 className="font-serif font-black text-gray-800 text-lg mb-6 flex items-center gap-2 uppercase tracking-wide">
                <SettingsIcon size={20} className="text-brand-accent"/> Configuración
@@ -74,15 +79,16 @@ const Settings: React.FC = () => {
                                   maxLength={100}
                                   className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-accent focus:outline-none text-sm"
                                 />
-                                <select
+                                <CustomSelect
                                   value={newVendorRole}
-                                  onChange={e => setNewVendorRole(e.target.value as any)}
-                                  className="border border-gray-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-accent focus:outline-none text-sm bg-white font-bold w-full sm:w-40"
-                                >
-                                  <option value="Vendedor">Vendedor</option>
-                                  <option value="Gerente">Gerente</option>
-                                  <option value="Admin">Admin</option>
-                                </select>
+                                  onChange={val => setNewVendorRole(val as any)}
+                                  options={[
+                                    { label: 'Vendedor', value: 'Vendedor' },
+                                    { label: 'Gerente', value: 'Gerente' },
+                                    { label: 'Admin', value: 'Admin' },
+                                  ]}
+                                  variant="input"
+                                />
                                 <button
                                   onClick={handleAddVendor}
                                   disabled={!newVendorName.trim()}
@@ -128,15 +134,16 @@ const Settings: React.FC = () => {
                                             </td>
                                             <td className="p-4">
                                               {editingVendor?.id === vendor.id ? (
-                                                <select
+                                                <CustomSelect
                                                   value={editingVendor.role}
-                                                  onChange={e => setEditingVendor({...editingVendor, role: e.target.value as any})}
-                                                  className="border border-brand-accent rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-brand-accent focus:outline-none text-sm bg-white"
-                                                >
-                                                  <option value="Vendedor">Vendedor</option>
-                                                  <option value="Gerente">Gerente</option>
-                                                  <option value="Admin">Admin</option>
-                                                </select>
+                                                  onChange={val => setEditingVendor({...editingVendor, role: val as any})}
+                                                  options={[
+                                                    { label: 'Vendedor', value: 'Vendedor' },
+                                                    { label: 'Gerente', value: 'Gerente' },
+                                                    { label: 'Admin', value: 'Admin' },
+                                                  ]}
+                                                  variant="input"
+                                                />
                                               ) : (
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                                                   vendor.role === 'Admin' ? 'bg-purple-100 text-purple-700' :
@@ -156,7 +163,7 @@ const Settings: React.FC = () => {
                                               ) : (
                                                 <div className="flex justify-center gap-1">
                                                   <button onClick={() => setEditingVendor({...vendor})} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={15}/></button>
-                                                  <button onClick={() => { if (confirm(`¿Eliminar a ${vendor.name}?`)) deleteVendor(vendor.id); }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={15}/></button>
+                                                  <button onClick={async () => { if (await showConfirm(`¿Eliminar a ${vendor.name}?`)) deleteVendor(vendor.id); }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={15}/></button>
                                                 </div>
                                               )}
                                             </td>
@@ -183,6 +190,7 @@ const Settings: React.FC = () => {
            </div>
        </div>
     </div>
+    </>
   );
 };
 

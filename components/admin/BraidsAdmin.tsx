@@ -6,6 +6,7 @@ import { useReservations } from '../../hooks/useReservations';
 import { BraidModel, BraidService, ReservationStatus, BlockedTime } from '../../types';
 import BraidsCalendar from './BraidsCalendar';
 import ImageUploader from './ImageUploader';
+import { useConfirm } from '../../hooks/useConfirm';
 
 const BraidsAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('reservations');
@@ -17,6 +18,7 @@ const BraidsAdmin: React.FC = () => {
 
   const [editingStyle, setEditingStyle] = useState<BraidModel | null>(null);
   const [editingService, setEditingService] = useState<BraidService | null>(null);
+  const { showConfirm, ConfirmDialog } = useConfirm();
 
   const handleCreateNew = () => {
       if (activeTab === 'styles') {
@@ -53,6 +55,8 @@ const BraidsAdmin: React.FC = () => {
   };
 
   return (
+    <>
+    <ConfirmDialog />
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full min-h-[600px] overflow-hidden md:flex-row relative">
        {/* Sidebar */}
        <div className="w-full md:w-64 bg-gray-50/50 border-r border-gray-100 p-6 flex flex-col gap-2 shrink-0">
@@ -272,7 +276,16 @@ const BraidsAdmin: React.FC = () => {
                                        </div>
                                    </div>
                                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 p-1 rounded-lg shadow-sm">
-                                       <button onClick={() => deleteStyle(style.id)} className="text-red-500 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"><Trash2 size={14} /></button>
+                                       <button 
+                                           onClick={async () => {
+                                               if (await showConfirm(`¿Estás seguro de eliminar el estilo "${style.name}"?`)) {
+                                                   deleteStyle(style.id);
+                                               }
+                                           }} 
+                                           className="text-red-500 hover:text-red-600 hover:bg-red-50 rounded p-1 transition-colors"
+                                       >
+                                           <Trash2 size={14} />
+                                       </button>
                                    </div>
                                </div>
                            ))}
@@ -310,7 +323,16 @@ const BraidsAdmin: React.FC = () => {
                                            </td>
                                            <td className="p-4 text-center space-x-2 whitespace-nowrap">
                                               <button onClick={() => setEditingService(srv)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={16} /></button>
-                                              <button onClick={() => deleteService(srv.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                                              <button 
+                                                  onClick={async () => {
+                                                      if (await showConfirm(`¿Estás seguro de eliminar el servicio "${srv.name}"?`)) {
+                                                          deleteService(srv.id);
+                                                      }
+                                                  }} 
+                                                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                              >
+                                                  <Trash2 size={16} />
+                                              </button>
                                            </td>
                                        </tr>
                                    ))}
@@ -323,6 +345,7 @@ const BraidsAdmin: React.FC = () => {
            )}
        </div>
     </div>
+    </>
   );
 };
 

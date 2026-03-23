@@ -3,11 +3,13 @@ import { Tag, Plus, Edit2, Trash2, X, Save, Check, Image as ImageIcon, EyeOff } 
 import { useBrands } from '../../hooks/useBrands';
 import { Brand } from '../../types';
 import ImageUploader from './ImageUploader';
+import { useConfirm } from '../../hooks/useConfirm';
 
 const BrandsAdmin: React.FC = () => {
   const { brands, addBrand, updateBrand, deleteBrand } = useBrands();
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const { showConfirm, showAlert, ConfirmDialog } = useConfirm();
 
   const filteredBrands = brands.filter(b =>
     b.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -25,7 +27,7 @@ const BrandsAdmin: React.FC = () => {
 
   const handleSave = () => {
     if (!editingBrand || !editingBrand.name.trim()) {
-      alert('El nombre de la marca es requerido.');
+      showAlert('El nombre de la marca es requerido.');
       return;
     }
     if (brands.some(b => b.id === editingBrand.id)) {
@@ -37,6 +39,8 @@ const BrandsAdmin: React.FC = () => {
   };
 
   return (
+    <>
+    <ConfirmDialog />
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col h-full min-h-[600px] relative">
       {!editingBrand ? (
         <>
@@ -106,8 +110,8 @@ const BrandsAdmin: React.FC = () => {
                       <Edit2 size={16} />
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm(`¿Eliminar la marca "${brand.name}"?`)) deleteBrand(brand.id);
+                      onClick={async () => {
+                        if (await showConfirm(`¿Eliminar la marca "${brand.name}"?`)) deleteBrand(brand.id);
                       }}
                       className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
@@ -224,6 +228,7 @@ const BrandsAdmin: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

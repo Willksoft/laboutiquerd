@@ -22,17 +22,31 @@ export const useBraidServices = () => {
   // Fetch from Appwrite on mount
   useEffect(() => {
     fetchBraidServices()
-      .then((docs) => {
-        const mapped: BraidService[] = docs.map((d: any) => ({
-          id: d.$id,
-          name: d.name,
-          price: d.price,
-          description: d.description || '',
-          isVisible: d.isVisible ?? true,
-        }));
-        if (mapped.length > 0) {
-          setServices(mapped);
-          localStorage.setItem(BRAID_SERVICES_STORAGE_KEY, JSON.stringify(mapped));
+      .then(async (docs) => {
+        if (docs.length === 0) {
+           // Database is empty, let's seed the defaults
+           const mapped: BraidService[] = [];
+           for (const defaultSrv of DEFAULT_BRAID_SERVICES) {
+               try {
+                   const { id, ...data } = defaultSrv;
+                   const result = await createBraidService(data as any);
+                   mapped.push({ ...defaultSrv, id: result.$id });
+               } catch (e) {
+                   mapped.push(defaultSrv);
+               }
+           }
+           setServices(mapped);
+           localStorage.setItem(BRAID_SERVICES_STORAGE_KEY, JSON.stringify(mapped));
+        } else {
+           const mapped: BraidService[] = docs.map((d: any) => ({
+             id: d.$id,
+             name: d.name,
+             price: d.price,
+             description: d.description || '',
+             isVisible: d.isVisible ?? true,
+           }));
+           setServices(mapped);
+           localStorage.setItem(BRAID_SERVICES_STORAGE_KEY, JSON.stringify(mapped));
         }
       })
       .catch(() => { /* silently use cached data */ })

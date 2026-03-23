@@ -15,19 +15,53 @@ export const useBrands = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  // Default brands matching the landing page for initial seed
+  const DEFAULT_BRANDS: Brand[] = [
+    { id: 'b1', name: '45', logo: '', description: '', isVisible: true },
+    { id: 'b2', name: 'Collection Club Med', logo: '', description: '', isVisible: true },
+    { id: 'b3', name: 'Quiksilver', logo: '', description: '', isVisible: true },
+    { id: 'b4', name: 'Billabong', logo: '', description: '', isVisible: true },
+    { id: 'b5', name: 'Vilebrequin', logo: '', description: '', isVisible: true },
+    { id: 'b6', name: 'Sundek', logo: '', description: '', isVisible: true },
+    { id: 'b7', name: 'Banana Moon', logo: '', description: '', isVisible: true },
+    { id: 'b8', name: 'Havaianas', logo: '', description: '', isVisible: true },
+    { id: 'b9', name: 'Livia', logo: '', description: '', isVisible: true },
+    { id: 'b10', name: 'Carbon', logo: '', description: '', isVisible: true },
+    { id: 'b11', name: 'Happy & So', logo: '', description: '', isVisible: true },
+    { id: 'b12', name: 'Gold & Silver', logo: '', description: '', isVisible: true },
+    { id: 'b13', name: 'Kreoli Bijoux', logo: '', description: '', isVisible: true },
+    { id: 'b14', name: 'Cacatoès', logo: '', description: '', isVisible: true },
+    { id: 'b15', name: 'Hipanema', logo: '', description: '', isVisible: true }
+  ];
+
   // Fetch from Appwrite
   useEffect(() => {
     fetchBrands()
-      .then((docs) => {
-        const mapped: Brand[] = docs.map((d: any) => ({
-          id: d.$id,
-          name: d.name,
-          logo: d.logo || '',
-          description: d.description || '',
-          isVisible: d.isVisible ?? true,
-        }));
-        setBrands(mapped);
-        localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(mapped));
+      .then(async (docs) => {
+        if (docs.length === 0) {
+           const mapped: Brand[] = [];
+           for (const item of DEFAULT_BRANDS) {
+               try {
+                   const { id, ...data } = item;
+                   await apiCreate(data as any);
+                   mapped.push(item);
+               } catch (e) {
+                   mapped.push(item);
+               }
+           }
+           setBrands(mapped);
+           localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(mapped));
+        } else {
+            const mapped: Brand[] = docs.map((d: any) => ({
+              id: d.$id,
+              name: d.name,
+              logo: d.logo || '',
+              description: d.description || '',
+              isVisible: d.isVisible ?? true,
+            }));
+            setBrands(mapped);
+            localStorage.setItem(BRANDS_STORAGE_KEY, JSON.stringify(mapped));
+        }
       })
       .catch(() => { /* silently use cached data */ })
       .finally(() => setLoading(false));

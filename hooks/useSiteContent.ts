@@ -39,7 +39,21 @@ export const useSiteContent = () => {
   // Fetch from Appwrite
   useEffect(() => {
     fetchSiteContent()
-      .then((docs) => {
+      .then(async (docs) => {
+        if (docs.length === 0) {
+            console.log('Seeding default site content...');
+            const defaultEntries = Object.entries(DEFAULT_CONTENT);
+            setContent(DEFAULT_CONTENT);
+            localStorage.setItem(SITE_CONTENT_STORAGE_KEY, JSON.stringify(DEFAULT_CONTENT));
+            
+            for (const [key, value] of defaultEntries) {
+                try {
+                    await upsertSiteContent(key, value);
+                } catch (e) { console.error('Error seeding site content:', e); }
+            }
+            return;
+        }
+
         const fromDb: Record<string, string> = {};
         docs.forEach((d: any) => {
           fromDb[d.key] = d.value;

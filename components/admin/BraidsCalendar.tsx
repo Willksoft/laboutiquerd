@@ -8,6 +8,7 @@ import { useVendors } from '../../hooks/useVendors';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 import { Reservation, ReservationStatus, BraidService } from '../../types';
 import CustomSelect from '../ui/CustomSelect';
+import { useConfirm } from '../../hooks/useConfirm';
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -26,6 +27,7 @@ const BraidsCalendar: React.FC = () => {
   const { styles } = useBraidStyles();
   const { services } = useBraidServices();
   const { vendors } = useVendors();
+  const { showConfirm, showAlert, ConfirmDialog } = useConfirm();
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(new Date().setHours(0,0,0,0)));
@@ -142,37 +144,37 @@ const BraidsCalendar: React.FC = () => {
       }
   };
 
-  const saveReservation = () => {
+  const saveReservation = async () => {
       if (!editingRes) return;
 
       // ═══════ VALIDATION ═══════
       if (!editingRes.clientName.trim()) {
-          alert('El nombre del cliente es requerido.');
+          showAlert('El nombre del cliente es requerido.');
           return;
       }
       if (!editingRes.modelId) {
-          alert('Debes seleccionar un modelo/estilo.');
+          showAlert('Debes seleccionar un modelo/estilo.');
           return;
       }
       if (!editingRes.servicesDetails || editingRes.servicesDetails.length === 0) {
-          alert('Debes agregar al menos un servicio.');
+          showAlert('Debes agregar al menos un servicio.');
           return;
       }
       // Check past date
       const resDate = new Date(editingRes.date + 'T' + editingRes.time);
       if (resDate < new Date()) {
-          alert('No se pueden crear citas en el pasado.');
+          showAlert('No se pueden crear citas en el pasado.');
           return;
       }
       // Check blocked day
       const resDay = new Date(editingRes.date).getDay();
       if (blockedDaysOfWeek.includes(resDay)) {
-          alert('Este día está bloqueado. No se pueden crear citas.');
+          showAlert('Este día está bloqueado. No se pueden crear citas.');
           return;
       }
       // Check blocked hour
       if (blockedStandardHours.includes(editingRes.time)) {
-          alert(`La hora ${editingRes.time} está bloqueada.`);
+          showAlert(`La hora ${editingRes.time} está bloqueada.`);
           return;
       }
       // Check conflict with existing reservations (same date+time)
@@ -184,7 +186,7 @@ const BraidsCalendar: React.FC = () => {
           r.status !== 'Completada'
       );
       if (conflict) {
-          if (!confirm(`Ya existe una cita a las ${editingRes.time} con ${conflict.clientName}. ¿Deseas continuar de todos modos?`)) {
+          if (!(await showConfirm(`Ya existe una cita a las ${editingRes.time} con ${conflict.clientName}. ¿Deseas continuar de todos modos?`))) {
               return;
           }
       }
@@ -254,6 +256,7 @@ const BraidsCalendar: React.FC = () => {
 
   return (
     <>
+    <ConfirmDialog />
     {/* Stats Row */}
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">

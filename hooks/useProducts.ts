@@ -37,7 +37,31 @@ export const useProducts = () => {
   // Fetch from Appwrite on mount
   useEffect(() => {
     fetchProducts()
-      .then((docs) => {
+      .then(async (docs) => {
+        if (docs.length === 0) {
+            console.log('Seeding default products...');
+            setProducts(DEFAULT_PRODUCTS);
+            localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(DEFAULT_PRODUCTS));
+            
+            for (const item of DEFAULT_PRODUCTS) {
+                try {
+                    await apiCreate({
+                      name: sanitizeText(item.name, 200),
+                      category: item.category,
+                      price: item.price,
+                      originalPrice: item.originalPrice,
+                      image: item.image,
+                      description: item.description,
+                      brandId: item.brandId,
+                      tags: item.tags,
+                      isVisible: item.isVisible !== false,
+                      isSoldOut: item.isSoldOut || false
+                    });
+                } catch (e) { console.error('Error seeding product:', e); }
+            }
+            return;
+        }
+
         const mapped: Product[] = docs.map((d: any) => ({
           id: d.$id,
           name: d.name,

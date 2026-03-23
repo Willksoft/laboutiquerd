@@ -9,6 +9,7 @@ import { LogoStyle, TShirtPreset, OrderStatus } from '../../types';
 import TShirtMockup2D from '../TShirtMockup2D';
 import CustomSelect from '../ui/CustomSelect';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
+import { useConfirm } from '../../hooks/useConfirm';
 
 const CustomizerAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('presets');
@@ -16,10 +17,11 @@ const CustomizerAdmin: React.FC = () => {
   const navigate = useNavigate();
   
   const { presets, addPreset, updatePreset, deletePreset } = usePresets();
-  const { orders, updateOrderStatus } = useOrders();
+  const { orders, updateOrderStatus, deleteOrder } = useOrders();
 
   const [editingPreset, setEditingPreset] = useState<TShirtPreset | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ orderId: string; newStatus: OrderStatus; orderName: string } | null>(null);
+  const { showConfirm, ConfirmDialog: GlobalConfirmDialog } = useConfirm();
 
   useBodyScrollLock(!!confirmDialog);
 
@@ -49,6 +51,8 @@ const CustomizerAdmin: React.FC = () => {
   };
 
   return (
+    <>
+    <GlobalConfirmDialog />
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full min-h-[600px] overflow-hidden md:flex-row relative">
        {/* Sidebar para Módulo Customizer */}
        <div className="w-full md:w-64 bg-gray-50/50 border-r border-gray-100 p-6 flex flex-col gap-2 shrink-0">
@@ -193,7 +197,15 @@ const CustomizerAdmin: React.FC = () => {
 
                            <div className="xl:col-span-2 pt-4 flex justify-end gap-3 border-t border-gray-100 mt-4">
                                {presets.some(p => p.id === editingPreset.id) && (
-                                   <button onClick={() => { deletePreset(editingPreset.id); setEditingPreset(null); }} className="px-4 py-2 border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-colors flex items-center gap-2">
+                                   <button 
+                                      onClick={async () => { 
+                                          if (await showConfirm('¿Estás seguro de eliminar esta plantilla de diseño?')) {
+                                              deletePreset(editingPreset.id); 
+                                              setEditingPreset(null); 
+                                          }
+                                      }} 
+                                      className="px-4 py-2 border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-colors flex items-center gap-2"
+                                   >
                                        <Trash2 size={18} /> Eliminar
                                    </button>
                                )}
@@ -361,12 +373,25 @@ const CustomizerAdmin: React.FC = () => {
                                                         ]}
                                                     />
                                                 </div>
-                                                <button 
-                                                    onClick={() => navigate('/admin/receipt', { state: { items: o.items, total: o.total, backTo: '/admin/customizer' } })}
-                                                    className="flex items-center gap-2 px-4 py-2.5 bg-brand-primary text-white rounded-xl font-bold text-sm hover:bg-brand-primary/90 transition-colors shadow-sm mt-4"
-                                                >
-                                                    <Eye size={16} /> Ver Recibo
-                                                </button>
+                                                <div className="flex items-center gap-2 mt-4">
+                                                    <button 
+                                                        onClick={() => navigate('/admin/receipt', { state: { items: o.items, total: o.total, backTo: '/admin/customizer' } })}
+                                                        className="flex items-center gap-2 px-4 py-2.5 bg-brand-primary text-white rounded-xl font-bold text-sm hover:bg-brand-primary/90 transition-colors shadow-sm"
+                                                    >
+                                                        <Eye size={16} /> Ver Recibo
+                                                    </button>
+                                                    <button 
+                                                        onClick={async () => {
+                                                            if (await showConfirm('¿Estás seguro de eliminar esta orden?')) {
+                                                                deleteOrder(o.id);
+                                                            }
+                                                        }}
+                                                        className="p-2.5 border border-red-200 text-red-500 rounded-xl hover:bg-red-50 transition-colors"
+                                                        title="Eliminar Orden"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -473,6 +498,7 @@ const CustomizerAdmin: React.FC = () => {
 
 
     </div>
+    </>
   );
 };
 

@@ -22,7 +22,8 @@ export const usePresets = () => {
   // Fetch from Appwrite on mount
   useEffect(() => {
     fetchTShirtPresets()
-      .then((docs) => {
+      .then(async (docs) => {
+        const existingNames = docs.map((d: any) => d.name);
         const mapped: TShirtPreset[] = docs.map((d: any) => ({
           id: d.$id,
           name: d.name,
@@ -34,10 +35,24 @@ export const usePresets = () => {
           tags: d.tags || undefined,
           isVisible: d.isVisible ?? true,
         }));
-        if (mapped.length > 0) {
-          setPresets(mapped);
-          localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(mapped));
+
+        const missingPresets = DEFAULT_PRESETS.filter(p => !existingNames.includes(p.name));
+        
+        if (missingPresets.length > 0) {
+            console.log(`Seeding ${missingPresets.length} missing presets...`);
+            for (const preset of missingPresets) {
+                try {
+                    const { id, ...data } = preset;
+                    const result = await createTShirtPreset(data as any);
+                    mapped.push({ ...preset, id: result.$id });
+                } catch (e) {
+                    mapped.push(preset);
+                }
+            }
         }
+        
+        setPresets(mapped);
+        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(mapped));
       })
       .catch(() => { /* silently use cached data */ })
       .finally(() => setLoading(false));

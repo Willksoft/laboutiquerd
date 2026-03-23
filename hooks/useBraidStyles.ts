@@ -22,18 +22,31 @@ export const useBraidStyles = () => {
   // Fetch from Appwrite on mount
   useEffect(() => {
     fetchBraidModels()
-      .then((docs) => {
-        const mapped: BraidModel[] = docs.map((d: any) => ({
-          id: d.$id,
-          name: d.name,
-          image: d.image || '',
-          description: d.description || '',
-          category: d.category || 'Damas',
-          isVisible: d.isVisible ?? true,
-        }));
-        if (mapped.length > 0) {
-          setStyles(mapped);
-          localStorage.setItem(BRAID_STYLES_STORAGE_KEY, JSON.stringify(mapped));
+      .then(async (docs) => {
+        if (docs.length === 0) {
+            const mapped: BraidModel[] = [];
+            for (const item of DEFAULT_BRAID_STYLES) {
+                try {
+                    const { id, ...data } = item;
+                    const result = await createBraidModel(data as any);
+                    mapped.push({ ...item, id: result.$id });
+                } catch (e) {
+                    mapped.push(item);
+                }
+            }
+            setStyles(mapped);
+            localStorage.setItem(BRAID_STYLES_STORAGE_KEY, JSON.stringify(mapped));
+        } else {
+            const mapped: BraidModel[] = docs.map((d: any) => ({
+              id: d.$id,
+              name: d.name,
+              image: d.image || '',
+              description: d.description || '',
+              category: d.category || 'Damas',
+              isVisible: d.isVisible ?? true,
+            }));
+            setStyles(mapped);
+            localStorage.setItem(BRAID_STYLES_STORAGE_KEY, JSON.stringify(mapped));
         }
       })
       .catch(() => { /* silently use cached data */ })

@@ -4,6 +4,8 @@ import { useProducts } from '../../hooks/useProducts';
 import { useBrands } from '../../hooks/useBrands';
 import { Product } from '../../types';
 import ImageUploader from './ImageUploader';
+import CustomSelect from '../ui/CustomSelect';
+import { useConfirm } from '../../hooks/useConfirm';
 
 const CUSTOM_CATEGORIES = ['custom'];
 
@@ -11,6 +13,7 @@ const ProductsAdmin: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const { brands } = useBrands();
+  const { showConfirm, ConfirmDialog } = useConfirm();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productTab, setProductTab] = useState<'custom' | 'boutique'>('boutique');
   const [brandFilter, setBrandFilter] = useState('');
@@ -103,7 +106,7 @@ const ProductsAdmin: React.FC = () => {
                    </td>
                    <td className="p-4 text-center space-x-2 whitespace-nowrap">
                       <button onClick={() => setEditingProduct(product)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><Edit2 size={16} /></button>
-                      <button onClick={() => { if (confirm(`¿Eliminar "${product.name}"?`)) deleteProduct(product.id); }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                      <button onClick={async () => { if (await showConfirm(`¿Eliminar "${product.name}"?`)) deleteProduct(product.id); }} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
                    </td>
                 </tr>
              ))}
@@ -118,6 +121,8 @@ const ProductsAdmin: React.FC = () => {
   );
 
   return (
+    <>
+    <ConfirmDialog />
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col h-full min-h-[600px] relative">
       {!editingProduct ? (
          <>
@@ -166,16 +171,17 @@ const ProductsAdmin: React.FC = () => {
 
             {/* Brand filter */}
             {brands.length > 0 && (
-              <select
-                value={brandFilter}
-                onChange={e => setBrandFilter(e.target.value)}
-                className="border border-gray-200 rounded-xl px-3 py-2 text-sm font-bold bg-white focus:ring-2 focus:ring-brand-accent focus:outline-none"
-              >
-                <option value="">Todas las marcas</option>
-                {brands.filter(b => b.isVisible !== false).map(brand => (
-                  <option key={brand.id} value={brand.id}>{brand.name}</option>
-                ))}
-              </select>
+              <div className="w-56">
+                <CustomSelect
+                  value={brandFilter}
+                  onChange={val => setBrandFilter(val)}
+                  options={[
+                    { label: 'Todas las marcas', value: '' },
+                    ...brands.filter(b => b.isVisible !== false).map(b => ({ label: b.name, value: b.id }))
+                  ]}
+                  variant="input"
+                />
+              </div>
             )}
           </div>
 
@@ -233,19 +239,24 @@ const ProductsAdmin: React.FC = () => {
                      </div>
                      <div>
                          <label className="block text-sm font-bold text-gray-700 mb-1">Categoría</label>
-                         <select value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value as any})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent bg-white">
-                             <option value="custom">Merch (Custom)</option>
-                             <option value="boutique-pc">Boutique Punta Cana</option>
-                             <option value="boutique-miches">Boutique El Cedro</option>
-                             <option value="boutique-beach">Boutique Playa</option>
-                             <option value="fashion">Ropa</option>
-                             <option value="jewelry">Joyería</option>
-                             <option value="personal-care">Cuidado Personal</option>
-                             <option value="bisuteria">Bisutería</option>
-                             <option value="crafts">Artesanía</option>
-                             <option value="gift-card">Gift Cards</option>
-                             <option value="toys">Juguetes</option>
-                         </select>
+                         <CustomSelect
+                           value={editingProduct.category}
+                           onChange={val => setEditingProduct({...editingProduct, category: val as any})}
+                           options={[
+                             { label: 'Merch (Custom)', value: 'custom' },
+                             { label: 'Boutique Punta Cana', value: 'boutique-pc' },
+                             { label: 'Boutique El Cedro', value: 'boutique-miches' },
+                             { label: 'Boutique Playa', value: 'boutique-beach' },
+                             { label: 'Ropa', value: 'fashion' },
+                             { label: 'Joyería', value: 'jewelry' },
+                             { label: 'Cuidado Personal', value: 'personal-care' },
+                             { label: 'Bisutería', value: 'bisuteria' },
+                             { label: 'Artesanía', value: 'crafts' },
+                             { label: 'Gift Cards', value: 'gift-card' },
+                             { label: 'Juguetes', value: 'toys' }
+                           ]}
+                           variant="input"
+                         />
                      </div>
 
                      {/* BRAND SELECTOR */}
@@ -253,16 +264,15 @@ const ProductsAdmin: React.FC = () => {
                          <label className="block text-sm font-bold text-gray-700 mb-1 flex items-center gap-1">
                            <Tag size={14} className="text-purple-500" /> Marca
                          </label>
-                         <select
+                         <CustomSelect
                            value={editingProduct.brandId || ''}
-                           onChange={e => setEditingProduct({...editingProduct, brandId: e.target.value || undefined})}
-                           className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent bg-white"
-                         >
-                           <option value="">Sin marca</option>
-                           {brands.filter(b => b.isVisible !== false).map(brand => (
-                             <option key={brand.id} value={brand.id}>{brand.name}</option>
-                           ))}
-                         </select>
+                           onChange={val => setEditingProduct({...editingProduct, brandId: val || undefined})}
+                           options={[
+                             { label: 'Sin marca específica (Global)', value: '' },
+                             ...brands.map(b => ({ label: b.name, value: b.id }))
+                           ]}
+                           variant="input"
+                         />
                          {brands.length === 0 && (
                            <p className="text-[10px] text-gray-400 mt-1">No hay marcas creadas. Créalas en la sección "Marcas" del menú.</p>
                          )}
@@ -322,8 +332,9 @@ const ProductsAdmin: React.FC = () => {
                  </div>
              </div>
          </div>
-      )}
+       )}
     </div>
+    </>
   );
 };
 
