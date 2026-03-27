@@ -219,11 +219,6 @@ function CatalogTemplate() {
   const [title, setTitle] = useState('Catálogo de Trenzas');
   const [subtitle, setSubtitle] = useState('Club Med Boutique — Reservaciones martes a domingo');
 
-  /* Pre-fetch all images + logo as base64 so they print across origins */
-  const imgUrls = visible.map(s => s.image).filter(Boolean);
-  const imgCache = useImageCache(imgUrls);
-  const logoCache = useImageCache([LOGO]);
-  const logoSrc = logoCache[LOGO] || LOGO;
 
   const modelPages: typeof visible[] = [];
   for (let i = 0; i < Math.max(visible.length, 1); i += CATALOG_PER_PAGE) {
@@ -249,7 +244,7 @@ function CatalogTemplate() {
                   </p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <img src={logoSrc} alt="Club Med" style={{ height: 48, objectFit: 'contain' }} />
+                  <img src={LOGO} alt="Club Med" style={{ height: 48, objectFit: 'contain' }} onError={e => (e.currentTarget.style.display = 'none')} />
                   <span style={{ fontWeight: 900, color: NAVY, fontSize: 11, lineHeight: 1.3 }}>
                     Club Med<br /><span style={{ fontWeight: 400 }}>Boutique</span>
                   </span>
@@ -266,10 +261,9 @@ function CatalogTemplate() {
                 <div key={s.id} style={{ border: '1px solid #ddd', borderRadius: 8, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.07)' }}>
                   <div style={{ height: CATALOG_IMG_H, backgroundColor: '#f0f0f0', overflow: 'hidden' }}>
                     <img
-                      src={imgCache[s.image] || s.image}
+                      src={s.image}
                       alt={s.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                      crossOrigin="anonymous"
                     />
                   </div>
                   <div style={{ backgroundColor: NAVY, padding: '5px 8px' }}>
@@ -279,6 +273,7 @@ function CatalogTemplate() {
                 </div>
               ))}
             </div>
+
 
             {pi === modelPages.length - 1 && services.length > 0 && (
               <div style={{ marginTop: 14, borderTop: `2px solid ${NAVY}`, paddingTop: 10 }}>
