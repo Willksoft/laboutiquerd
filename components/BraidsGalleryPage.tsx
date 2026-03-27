@@ -5,7 +5,8 @@ import { ArrowLeftIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/
 import { Scissors, ZoomIn, X, Images } from 'lucide-react';
 import { useBraidStyles } from '../hooks/useBraidStyles';
 
-const CATEGORIES = ['Todos', 'Damas', 'Niñas', 'Hombres', 'Especiales'];
+const CATEGORIES = ['Todos', 'Damas'];
+
 
 const BraidsGalleryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ const BraidsGalleryPage: React.FC = () => {
             {t('galleryTitle', 'Galería de Modelos')}
           </h1>
           <p className="text-white/60 max-w-xl text-[15px]">
-            {t('gallerySubtitle', 'Explora todos nuestros estilos de trenzas caribeñas y africanas. Haz clic en cualquier foto para ampliarla.')}
+            {t('gallerySubtitle', 'Explora todos nuestros modelos de trenzas caribeñas. Haz clic en cualquier foto para ampliarla.')}
           </p>
         </div>
       </div>

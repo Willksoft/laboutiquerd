@@ -685,7 +685,7 @@ const resources = {
       "Agrega vendedores arriba para asignarlos a ventas y reservas.": "Ajoutez des vendeurs ci-dessus pour les assigner aux ventes et réservations.",
       // Braids Gallery Page
       "galleryTitle": "Galerie de Modèles",
-      "gallerySubtitle": "Explorez tous nos styles de tresses caribéennes et africaines. Cliquez sur n'importe quelle photo pour l'agrandir.",
+      "gallerySubtitle": "Explorez tous nos modèles de tresses caribéennes. Cliquez sur n'importe quelle photo pour l'agrandir.",
       "galleryCatalog": "Catalogue de Styles",
       "galleryBannerTitle": "Explorez tous nos modèles de tresses",
       "galleryBannerCta": "Voir la Galerie Complète",
@@ -1335,7 +1335,7 @@ const resources = {
       "Agrega vendedores arriba para asignarlos a ventas y reservas.": "Add sellers above to assign them to sales and reservations.",
       // Braids Gallery Page
       "galleryTitle": "Models Gallery",
-      "gallerySubtitle": "Browse all our Caribbean and African braid styles. Click any photo to enlarge it.",
+      "gallerySubtitle": "Browse all our Caribbean braid styles. Click any photo to enlarge it.",
       "galleryCatalog": "Style Catalog",
       "galleryBannerTitle": "Explore all our braid models",
       "galleryBannerCta": "View Full Gallery",
@@ -1570,7 +1570,7 @@ const resources = {
       "delete": "Eliminar",
       // Braids Gallery Page
       "galleryTitle": "Galería de Modelos",
-      "gallerySubtitle": "Explora todos nuestros estilos de trenzas caribeñas y africanas. Haz clic en cualquier foto para ampliarla.",
+      "gallerySubtitle": "Explora todos nuestros estilos de trenzas caribeñas y caribeñas. Haz clic en cualquier foto para ampliarla.",
       "galleryCatalog": "Catálogo de Estilos",
       "galleryBannerTitle": "Explora todos nuestros modelos de trenzas",
       "galleryBannerCta": "Ver Galería Completa",
