@@ -7,7 +7,8 @@ import { toast } from './Toast';
 import { useTranslation } from 'react-i18next';
 import { useBraidStyles } from '../hooks/useBraidStyles';
 import { useBraidServices } from '../hooks/useBraidServices';
-import { useReservations, STANDARD_HOURS } from '../hooks/useReservations';
+import { useReservations } from '../hooks/useReservations';
+
 import { useVendors } from '../hooks/useVendors';
 import { useSiteContent } from '../hooks/useSiteContent';
 import CustomSelect from './ui/CustomSelect';
@@ -103,7 +104,8 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
 
   const { discountPercent, hairQuantity } = getDiscountData();
 
-  const { reservations, blockedDaysOfWeek, blockedStandardHours } = useReservations();
+  const { reservations, blockedDaysOfWeek, blockedStandardHours, customHours } = useReservations();
+
   const { getValue } = useSiteContent();
   
   const holidays = useMemo(() => {
@@ -116,24 +118,22 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
 
   // Generate available hours bounded by business_hours
   const availableHours = useMemo(() => {
-      const startH = parseInt(businessHours.start.split(':')[0]);
-      const startM = parseInt(businessHours.start.split(':')[1]);
-      const endH = parseInt(businessHours.end.split(':')[0]);
-      const endM = parseInt(businessHours.end.split(':')[1]);
-      
-      const startMinutes = startH * 60 + startM;
-      const endMinutes = endH * 60 + endM;
+      const startMinutes = (() => {
+          const [h, m] = businessHours.start.split(':').map(Number);
+          return h * 60 + m;
+      })();
+      const endMinutes = (() => {
+          const [h, m] = businessHours.end.split(':').map(Number);
+          return h * 60 + m;
+      })();
 
-      return STANDARD_HOURS.filter(time => {
-          // '09:00 AM' -> 9 * 60 = 540 | '02:30 PM' -> 14.5 * 60
-          const [timePart, period] = time.val.split(' ');
-          let [h, m] = timePart.split(':').map(Number);
-          if (period === 'PM' && h !== 12) h += 12;
-          if (period === 'AM' && h === 12) h = 0;
-          const currentMinutes = h * 60 + m;
-          return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+      return customHours.filter(time => {
+          const [h, m] = time.val.split(':').map(Number);
+          const current = h * 60 + m;
+          return current >= startMinutes && current <= endMinutes;
       });
-  }, [businessHours]);
+  }, [businessHours, customHours]);
+
 
   // Hours already reserved for the selected date
   const reservedHoursForDate = useMemo(() => {

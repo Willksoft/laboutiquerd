@@ -8,14 +8,40 @@ const BLOCKED_TIMES_STORAGE_KEY = 'laboutiquerd_blocked_times';
 const BLOCKED_DAYS_STORAGE_KEY = 'laboutiquerd_blocked_days';
 const BLOCKED_HOURS_STORAGE_KEY = 'laboutiquerd_blocked_hours';
 
-export const STANDARD_HOURS = [
-  { val: "09:00", label: "09:00 AM" },
+const CUSTOM_HOURS_STORAGE_KEY = 'laboutiquerd_custom_hours';
+
+/** Default clinic hours – editable from admin panel */
+export const DEFAULT_HOURS = [
+  { val: "09:00", label: "9:00 AM" },
   { val: "10:00", label: "10:00 AM" },
   { val: "11:00", label: "11:00 AM" },
-  { val: "14:00", label: "02:00 PM" },
-  { val: "15:00", label: "03:00 PM" },
-  { val: "16:00", label: "04:00 PM" }
+  { val: "14:00", label: "2:00 PM" },
+  { val: "15:00", label: "3:00 PM" },
+  { val: "17:00", label: "5:00 PM" },
+  { val: "18:00", label: "6:00 PM" },
 ];
+
+function loadCustomHours() {
+  try {
+    const stored = localStorage.getItem(CUSTOM_HOURS_STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch { /* ignore */ }
+  return DEFAULT_HOURS;
+}
+
+function to12h(val: string): string {
+  const [hStr, mStr] = val.split(':');
+  const h = parseInt(hStr, 10);
+  const m = mStr || '00';
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m} ${suffix}`;
+}
+
+/** Exported so any component can read the live default list */
+export const STANDARD_HOURS = loadCustomHours();
+
+
 
 export const useReservations = () => {
   const [reservations, setReservations] = useState<Reservation[]>(() => {
@@ -50,6 +76,8 @@ export const useReservations = () => {
     } catch(e) { /* ignore */ }
     return [];
   });
+
+  const [customHours, setCustomHours] = useState<{ val: string; label: string }[]>(() => loadCustomHours());
 
   // Fetch from Appwrite on mount
   useEffect(() => {
@@ -210,6 +238,30 @@ export const useReservations = () => {
       }
   };
 
+  const persistCustomHours = (hours: { val: string; label: string }[]) => {
+      // Sort by time value
+      const sorted = [...hours].sort((a, b) => a.val.localeCompare(b.val));
+      setCustomHours(sorted);
+      localStorage.setItem(CUSTOM_HOURS_STORAGE_KEY, JSON.stringify(sorted));
+      window.dispatchEvent(new Event('bookingsUpdated'));
+  };
+
+  const addCustomHour = (val: string) => {
+      if (!val) return;
+      const [h24] = val.split(':');
+      const normalized = val.padStart(5, '0'); // ensure HH:MM
+      if (customHours.some(h => h.val === normalized)) return; // already exists
+      persistCustomHours([...customHours, { val: normalized, label: to12h(normalized) }]);
+  };
+
+  const removeCustomHour = (val: string) => {
+      persistCustomHours(customHours.filter(h => h.val !== val));
+      // Also remove from blocked list if it was there
+      if (blockedStandardHours.includes(val)) {
+          persistBlockedStandardHours(blockedStandardHours.filter(h => h !== val));
+      }
+  };
+
   return { 
       reservations, 
       updateReservationStatus, 
@@ -223,6 +275,9 @@ export const useReservations = () => {
       toggleBlockedDayOfWeek,
       blockedStandardHours,
       toggleBlockedStandardHour,
+      customHours,
+      addCustomHour,
+      removeCustomHour,
       loading
   };
 };

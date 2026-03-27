@@ -23,7 +23,8 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> =
 type ViewMode = 'calendar' | 'list';
 
 const BraidsCalendar: React.FC = () => {
-  const { reservations, addReservation, updateReservation, deleteReservation, updateReservationStatus, blockedTimes, addBlockedTime, removeBlockedTime, blockedDaysOfWeek, toggleBlockedDayOfWeek, blockedStandardHours, toggleBlockedStandardHour } = useReservations();
+  const { reservations, addReservation, updateReservation, deleteReservation, updateReservationStatus, blockedTimes, addBlockedTime, removeBlockedTime, blockedDaysOfWeek, toggleBlockedDayOfWeek, blockedStandardHours, toggleBlockedStandardHour, customHours, addCustomHour, removeCustomHour } = useReservations();
+
   const { styles } = useBraidStyles();
   const { services } = useBraidServices();
   const { vendors } = useVendors();
@@ -43,6 +44,8 @@ const BraidsCalendar: React.FC = () => {
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [blockType, setBlockType] = useState<'hora' | 'dia'>('hora');
   const [blockTimeValue, setBlockTimeValue] = useState('10:00');
+  const [newHourInput, setNewHourInput] = useState('08:00');
+
 
   // Lock body scroll when any modal is open
   useBodyScrollLock(!!editingRes || !!deletingResId || showBlockModal);
@@ -390,22 +393,55 @@ const BraidsCalendar: React.FC = () => {
                   </div>
 
                   <div className="border border-gray-100 p-4 rounded-xl">
-                      <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-widest">Horas Desactivadas (Global)</p>
-                      <div className="flex flex-wrap gap-1.5">
-                          {STANDARD_HOURS.map((h) => {
+                      <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-widest">Horas Disponibles</p>
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                          {customHours.map((h) => {
                               const isBlocked = blockedStandardHours.includes(h.val);
                               return (
-                                  <button
-                                      key={h.val}
-                                      onClick={() => toggleBlockedStandardHour(h.val)}
-                                      className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-colors ${isBlocked ? 'bg-red-500 text-white shadow-sm' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                                  >
-                                      {h.val}
-                                  </button>
+                                  <div key={h.val} className="flex items-center gap-0.5">
+                                      <button
+                                          onClick={() => toggleBlockedStandardHour(h.val)}
+                                          title={isBlocked ? 'Click para desbloquear' : 'Click para bloquear'}
+                                          className={`px-2.5 py-1 text-[11px] font-bold rounded-l-lg transition-colors ${
+                                              isBlocked
+                                                  ? 'bg-red-500 text-white shadow-sm'
+                                                  : 'bg-gray-100 text-gray-600 hover:bg-brand-accent/20 hover:text-brand-primary'
+                                          }`}
+                                      >
+                                          {h.label}
+                                      </button>
+                                      <button
+                                          onClick={() => removeCustomHour(h.val)}
+                                          title="Eliminar esta hora"
+                                          className="px-1.5 py-1 text-[10px] rounded-r-lg bg-gray-200 text-gray-400 hover:bg-red-500 hover:text-white transition-colors"
+                                      >
+                                          <X size={10}/>
+                                      </button>
+                                  </div>
                               );
                           })}
+                          {customHours.length === 0 && (
+                              <p className="text-xs text-gray-400 italic">Sin horas configuradas</p>
+                          )}
                       </div>
+                      {/* Add new hour */}
+                      <div className="flex items-center gap-2 border-t border-gray-100 pt-3">
+                          <input
+                              type="time"
+                              value={newHourInput}
+                              onChange={e => setNewHourInput(e.target.value)}
+                              className="flex-1 text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-brand-accent outline-none"
+                          />
+                          <button
+                              onClick={() => { addCustomHour(newHourInput); }}
+                              className="bg-brand-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-brand-accent hover:text-brand-primary transition-colors whitespace-nowrap"
+                          >
+                              + Agregar
+                          </button>
+                      </div>
+                      <p className="text-[10px] text-gray-400 mt-2">Rojo = bloqueada globalmente. X = eliminar hora.</p>
                   </div>
+
               </div>
 
               <div className="flex justify-between items-center mt-2">
@@ -769,7 +805,7 @@ const BraidsCalendar: React.FC = () => {
                         <div>
                             <label className="block text-[11px] font-bold text-gray-400 mb-2">Hora * <span className="text-gray-300 font-normal">(Sincronizado con vista pública)</span></label>
                             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                                {STANDARD_HOURS.map(h => {
+                                {customHours.map(h => {
                                     const isBlocked = blockedStandardHours.includes(h.val);
                                     const isSel = editingRes.time === h.val;
                                     return (
@@ -791,6 +827,7 @@ const BraidsCalendar: React.FC = () => {
                                 })}
                             </div>
                         </div>
+
                     </div>
 
                     {/* ── Servicios (con cantidad) ── */}
