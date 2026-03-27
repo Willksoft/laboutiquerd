@@ -1,15 +1,17 @@
-﻿import React, { useState } from 'react';
-import { Scissors, Calendar, List, Search, Plus, Filter, Edit2, Trash2, X, Save, EyeOff, CheckCircle, XCircle, Clock, Ban } from 'lucide-react';
+import React, { useState } from 'react';
+import { Scissors, Calendar, List, Search, Plus, Filter, Edit2, Trash2, X, Save, EyeOff, CheckCircle, XCircle, Clock, Ban, Printer } from 'lucide-react';
 import { useBraidStyles } from '../../hooks/useBraidStyles';
 import { useBraidServices } from '../../hooks/useBraidServices';
 import { useReservations } from '../../hooks/useReservations';
 import { BraidModel, BraidService, ReservationStatus, BlockedTime } from '../../types';
 import BraidsCalendar from './BraidsCalendar';
+import PrintMenu from './PrintMenu';
 import ImageUploader from './ImageUploader';
 import { useConfirm } from '../../hooks/useConfirm';
 import { useSiteContent } from '../../hooks/useSiteContent';
 import { toast } from '../Toast';
 import { useTranslation } from 'react-i18next';
+
 
 const BraidsAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState('reservations');
@@ -187,6 +189,7 @@ const BraidsAdmin: React.FC = () => {
               { id: 'styles', label: t('Estilos (Imágenes)'), icon: <List size={18}/> },
               { id: 'services', label: t('Servicios y Precios'), icon: <Scissors size={18}/> },
               { id: 'settings', label: t('Horarios y Agenda'), icon: <Clock size={18}/> },
+               { id: 'print', label: 'Imprimir Menu', icon: <Printer size={18}/> },
            ].map(tab => (
                <button 
                   key={tab.id}
@@ -390,6 +393,10 @@ const BraidsAdmin: React.FC = () => {
                        <BraidsCalendar />
                    )}
 
+
+                    {activeTab === 'print' && (
+                        <PrintMenu />
+                    )}
                    {activeTab === 'styles' && (
                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                            {styles.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase())).map((style) => (
@@ -584,3 +591,5 @@ const BraidsAdmin: React.FC = () => {
 };
 
 export default BraidsAdmin;
+
+
