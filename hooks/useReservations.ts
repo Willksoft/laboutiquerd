@@ -19,6 +19,7 @@ export const DEFAULT_HOURS = [
   { val: "15:00", label: "3:00 PM" },
   { val: "17:00", label: "5:00 PM" },
   { val: "18:00", label: "6:00 PM" },
+  { val: "19:00", label: "7:00 PM" },
 ];
 
 function loadCustomHours() {
