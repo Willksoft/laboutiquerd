@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { BraidModel } from '../types';
-import { BRAID_MODELS as DEFAULT_BRAID_STYLES } from '../constants';
 import { useTranslation } from 'react-i18next';
-import { fetchBraidModels, createBraidModel, updateBraidModel, deleteBraidModel } from '../lib/appwrite';
+import { fetchBraidModels, updateBraidModel, deleteBraidModel, createBraidModel } from '../lib/appwrite';
+
 
 const BRAID_STYLES_STORAGE_KEY = 'laboutiquerd_braid_styles';
 
@@ -14,16 +14,16 @@ export const useBraidStyles = () => {
     } catch (e) {
       /* ignore corrupt data */
     }
-    return DEFAULT_BRAID_STYLES;
+    return [];
+
   });
   const [loading, setLoading] = useState(true);
   const { i18n } = useTranslation();
 
-  // Fetch from Appwrite on mount
+  // Fetch from Appwrite on mount – NO seeding, data is managed via admin panel
   useEffect(() => {
     fetchBraidModels()
-      .then(async (docs) => {
-        const existingNames = docs.map((d: any) => d.name);
+      .then((docs) => {
         const mapped: BraidModel[] = docs.map((d: any) => ({
           id: d.$id,
           name: d.name,
@@ -36,23 +36,6 @@ export const useBraidStyles = () => {
           category: d.category || 'Damas',
           isVisible: d.isVisible ?? true,
         }));
-        
-        const missingStyles = DEFAULT_BRAID_STYLES.filter(p => !existingNames.includes(p.name));
-        
-        if (missingStyles.length > 0) {
-            console.log(`Seeding ${missingStyles.length} missing braid styles...`);
-            for (const style of missingStyles) {
-                try {
-                    const { id, ...data } = style;
-                    const result = await createBraidModel(data as any);
-                    mapped.push({ ...style, id: result.$id });
-                } catch (e) {
-                    console.error('Failed to seed braid style:', style.name, e);
-                    mapped.push(style);
-                }
-            }
-        }
-        
         setStyles(mapped);
         localStorage.setItem(BRAID_STYLES_STORAGE_KEY, JSON.stringify(mapped));
       })
