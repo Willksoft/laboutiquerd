@@ -23,6 +23,40 @@ type Template = 'weekly' | 'catalog' | 'schedule';
 type DayKey = 'Lunes' | 'Martes' | 'Miercoles' | 'Jueves' | 'Viernes' | 'Sabado' | 'Domingo';
 const ALL_DAYS: DayKey[] = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
 
+/* ── Convert a URL to a base64 data-URL so it prints across origins ── */
+async function toDataUrl(url: string): Promise<string> {
+  try {
+    const res = await fetch(url, { credentials: 'omit', cache: 'force-cache' });
+    if (!res.ok) return url;
+    const blob = await res.blob();
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror   = () => resolve(url);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return url;
+  }
+}
+
+/* Hook: pre-fetch a list of URLs and return a {url -> dataUrl} cache */
+function useImageCache(urls: string[]): Record<string, string> {
+  const [cache, setCache] = useState<Record<string, string>>({});
+  const key = urls.join('|');
+  useEffect(() => {
+    if (!urls.length) return;
+    let cancelled = false;
+    (async () => {
+      const pairs = await Promise.all(urls.map(async u => [u, await toDataUrl(u)] as const));
+      if (!cancelled) setCache(Object.fromEntries(pairs));
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return cache;
+}
+
 /* ── Inline-editable text ─────────────────────────── */
 function InlineEdit({ value, onChange, style, multiline, placeholder = 'Escribe aquí...' }: {
   value: string; onChange: (v: string) => void;
@@ -174,6 +208,10 @@ function WeeklyTemplate({ hours, activeDays }: { hours: string[]; activeDays: Da
    TEMPLATE 2 – Braid Catalog (gallery + prices)
    12 models per page, 4-column grid
 ══════════════════════════════════════════════════════ */
+/* 3 cols × 3 rows = 9 models per page, images 210 px tall */
+const CATALOG_PER_PAGE = 9;
+const CATALOG_IMG_H    = 210;
+
 function CatalogTemplate() {
   const { styles } = useBraidStyles();
   const { services } = useBraidServices();
@@ -181,8 +219,16 @@ function CatalogTemplate() {
   const [title, setTitle] = useState('Catálogo de Trenzas');
   const [subtitle, setSubtitle] = useState('Club Med Boutique — Reservaciones martes a domingo');
 
+  /* Pre-fetch all images + logo as base64 so they print across origins */
+  const imgUrls = visible.map(s => s.image).filter(Boolean);
+  const imgCache = useImageCache(imgUrls);
+  const logoCache = useImageCache([LOGO]);
+  const logoSrc = logoCache[LOGO] || LOGO;
+
   const modelPages: typeof visible[] = [];
-  for (let i = 0; i < Math.max(visible.length, 1); i += 12) modelPages.push(visible.slice(i, i + 12));
+  for (let i = 0; i < Math.max(visible.length, 1); i += CATALOG_PER_PAGE) {
+    modelPages.push(visible.slice(i, i + CATALOG_PER_PAGE));
+  }
 
   const td: React.CSSProperties = { border: '1px solid #ddd', padding: '4px 8px', fontSize: 8.5 };
 
@@ -203,7 +249,7 @@ function CatalogTemplate() {
                   </p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <img src={LOGO} alt="Club Med" style={{ height: 48, objectFit: 'contain' }} onError={e => (e.currentTarget.style.display = 'none')} />
+                  <img src={logoSrc} alt="Club Med" style={{ height: 48, objectFit: 'contain' }} />
                   <span style={{ fontWeight: 900, color: NAVY, fontSize: 11, lineHeight: 1.3 }}>
                     Club Med<br /><span style={{ fontWeight: 400 }}>Boutique</span>
                   </span>
@@ -215,14 +261,19 @@ function CatalogTemplate() {
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
               {pageModels.map(s => (
-                <div key={s.id} style={{ border: '1px solid #ddd', borderRadius: 6, overflow: 'hidden' }}>
-                  <div style={{ height: 140, backgroundColor: '#f0f0f0', overflow: 'hidden' }}>
-                    <img src={s.image} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <div key={s.id} style={{ border: '1px solid #ddd', borderRadius: 8, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,.07)' }}>
+                  <div style={{ height: CATALOG_IMG_H, backgroundColor: '#f0f0f0', overflow: 'hidden' }}>
+                    <img
+                      src={imgCache[s.image] || s.image}
+                      alt={s.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      crossOrigin="anonymous"
+                    />
                   </div>
-                  <div style={{ backgroundColor: NAVY, padding: '4px 6px' }}>
-                    <p style={{ margin: 0, fontSize: 7, fontWeight: 700, color: '#fff', textAlign: 'center',
+                  <div style={{ backgroundColor: NAVY, padding: '5px 8px' }}>
+                    <p style={{ margin: 0, fontSize: 8, fontWeight: 700, color: '#fff', textAlign: 'center',
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</p>
                   </div>
                 </div>
@@ -371,7 +422,6 @@ const PrintMenu: React.FC = () => {
           page-break-after: always;
           break-after: page;
           box-shadow: none !important;
-          /* Remove screen scaling — print at natural size */
           width: ${docW}px !important;
           height: ${docH}px !important;
         }
@@ -379,7 +429,19 @@ const PrintMenu: React.FC = () => {
         [title="Click para editar"] { border-bottom: none !important; cursor: default !important; }
       }
     `,
+    /* Wait for all img tags to be replaced with preloaded base64 srcs */
+    onBeforePrint: async () => {
+      if (!contentRef.current) return;
+      const imgs = Array.from(contentRef.current.querySelectorAll('img')) as HTMLImageElement[];
+      await Promise.all(imgs.map(async img => {
+        const src = img.getAttribute('src') || '';
+        if (!src || src.startsWith('data:')) return;
+        const dataUrl = await toDataUrl(src);
+        img.src = dataUrl;
+      }));
+    },
   });
+
 
   /* ── PDF via jsPDF + html2canvas ── */
   const handleDownloadPdf = useCallback(async () => {
