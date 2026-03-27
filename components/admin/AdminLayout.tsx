@@ -39,7 +39,7 @@ const AdminLayout: React.FC = () => {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white shadow-xl lg:shadow-none lg:border-r border-gray-200 transform transition-transform duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-xl lg:shadow-none lg:border-r border-gray-200 transform transition-transform duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         {/* Sidebar Header */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100 flex-shrink-0">
           <div className="font-serif font-black text-2xl text-brand-primary tracking-tight">CM | ADMIN</div>
@@ -134,8 +134,8 @@ const AdminLayout: React.FC = () => {
         </header>
 
         {/* Page Content Scrollable Area */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8 custom-scrollbar">
-          <div className="max-w-7xl mx-auto h-full">
+        <div className="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-5 custom-scrollbar">
+          <div className="w-full h-full">
             <Outlet />
           </div>
         </div>

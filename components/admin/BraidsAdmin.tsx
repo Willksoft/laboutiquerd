@@ -303,7 +303,7 @@ const BraidsAdmin: React.FC = () => {
                        <button onClick={() => setEditingService(null)} className="text-gray-500 hover:bg-gray-200 p-2 rounded-full"><X size={20} /></button>
                    </div>
                    
-                   <div className="bg-white p-6 rounded-2xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6 shadow-sm max-w-4xl mx-auto">
+                   <div className="bg-white p-6 rounded-2xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6 shadow-sm">
                        <div>
                            <label className="block text-sm font-bold text-gray-700 mb-1">{t('Nombre del Servicio')}</label>
                            <input type="text" value={editingService.name} onChange={e => setEditingService({...editingService, name: e.target.value})} className="w-full border border-gray-200 p-2 rounded-xl focus:ring-2 outline-none focus:ring-brand-accent"/>
@@ -398,7 +398,7 @@ const BraidsAdmin: React.FC = () => {
                         <PrintMenu />
                     )}
                    {activeTab === 'styles' && (
-                       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
                            {styles.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase())).map((style) => (
                                <div key={style.id} className={`bg-white rounded-xl border overflow-hidden shadow-sm hover:shadow-md transition-all relative group flex flex-col ${style.isVisible === false ? 'border-dashed border-gray-300 opacity-60' : 'border-gray-200'}`}>
                                    <div className="aspect-[3/4] relative overflow-hidden bg-gray-100">
@@ -494,7 +494,7 @@ const BraidsAdmin: React.FC = () => {
                    )}
 
                    {activeTab === 'settings' && (
-                       <div className="max-w-2xl">
+                       <div className="w-full max-w-3xl">
                            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mb-6">
                                <h3 className="font-bold text-lg text-gray-800 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2"><Clock size={20} className="text-brand-accent" /> {t('Horario Comercial')}</h3>
                                <div className="grid grid-cols-2 gap-4">
