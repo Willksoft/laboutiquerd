@@ -329,7 +329,8 @@ function App() {
               onClick={() => navigate('/braids/gallery')}
               className="inline-flex items-center gap-2 bg-brand-primary text-white font-bold px-8 py-3.5 rounded-2xl hover:bg-brand-primary/90 transition-all hover:-translate-y-0.5 shadow-lg hover:shadow-xl text-sm"
             >
-              📸 {t('Ver Galería Completa de Modelos')}
+              <ScissorsIcon className="w-4 h-4" />
+              {t('galleryBtnLabel', 'Ver Galería Completa de Modelos')}
             </button>
           </div>
        </section>

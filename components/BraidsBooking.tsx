@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Sparkles, Plus, Minus, Ticket, Trash2, Scissors, Info, Image as ImageIcon, CheckCircle, ZoomIn, X, User, DoorOpen } from 'lucide-react';
 import { CartItem } from '../types';
 import TicketReceipt from './TicketReceipt';
@@ -16,6 +17,7 @@ interface BraidsBookingProps {
 }
 
 const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
+  const navigate = useNavigate();
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
@@ -457,8 +459,42 @@ const BraidsBooking: React.FC<BraidsBookingProps> = ({ onGenerateTicket }) => {
         </div>
 
         {/* Right Side: Reservation Ticket Overview */}
-        <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col flex-shrink-0 sticky top-24 h-fit max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar overflow-x-hidden">
+        <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col flex-shrink-0 sticky top-24 h-fit max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar overflow-x-hidden gap-4">
+
+            {/* ── Gallery Banner ── */}
+            {visibleModels.length > 0 && (
+              <div
+                className="relative rounded-[2rem] overflow-hidden h-48 cursor-pointer group flex-shrink-0"
+                onClick={() => navigate('/braids/gallery')}
+              >
+                {/* rotating background images */}
+                <img
+                  src={visibleModels[0].image}
+                  alt="gallery"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                {/* small thumbnails strip */}
+                <div className="absolute top-3 right-3 flex gap-1.5">
+                  {visibleModels.slice(1, 4).map(m => (
+                    <div key={m.id} className="w-10 h-10 rounded-lg overflow-hidden border-2 border-white/40 shadow-md">
+                      <img src={m.image} alt={m.name} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <p className="text-white/70 text-[11px] font-bold uppercase tracking-widest mb-1">{t('galleryCatalog', 'Catálogo de Estilos')}</p>
+                  <p className="text-white font-bold text-lg leading-tight">{t('galleryBannerTitle', 'Explora todos nuestros modelos de trenzas')}</p>
+                  <span className="inline-flex items-center gap-1.5 mt-2 bg-brand-accent text-brand-primary text-xs font-black px-3 py-1.5 rounded-full group-hover:bg-yellow-300 transition-colors">
+                    <ImageIcon size={12} />
+                    {t('galleryBannerCta', 'Ver Galería Completa')}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="bg-brand-primary text-white rounded-[2rem] p-8 md:p-10 flex flex-col shadow-2xl relative overflow-hidden">
+
                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
                 <div className="flex justify-between items-center mb-4 relative">
                     <h3 className="font-serif font-bold text-3xl flex items-center gap-3">

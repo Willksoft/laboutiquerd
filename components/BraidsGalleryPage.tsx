@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeftIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Scissors, ZoomIn, X } from 'lucide-react';
+import { Scissors, ZoomIn, X, Images } from 'lucide-react';
 import { useBraidStyles } from '../hooks/useBraidStyles';
 
 const CATEGORIES = ['Todos', 'Damas', 'Niñas', 'Hombres', 'Especiales'];
@@ -75,7 +75,7 @@ const BraidsGalleryPage: React.FC = () => {
             className="flex items-center gap-2 text-white/60 hover:text-brand-accent transition-colors text-sm font-medium mb-6 group"
           >
             <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            {t('Volver a Reservas')}
+            {t('backToBooking', 'Volver a Reservas')}
           </button>
 
           <div className="flex items-center gap-3 mb-3">
@@ -85,10 +85,10 @@ const BraidsGalleryPage: React.FC = () => {
           </div>
           <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-3 flex items-center gap-3">
             <Scissors className="text-brand-accent" size={36} />
-            {t('Galería de Modelos')}
+            {t('galleryTitle', 'Galería de Modelos')}
           </h1>
           <p className="text-white/60 max-w-xl text-[15px]">
-            {t('Explora todos nuestros estilos de trenzas caribeñas y africanas. Haz clic en cualquier foto para ampliarla.')}
+            {t('gallerySubtitle', 'Explora todos nuestros estilos de trenzas caribeñas y africanas. Haz clic en cualquier foto para ampliarla.')}
           </p>
         </div>
       </div>
@@ -202,13 +202,13 @@ const BraidsGalleryPage: React.FC = () => {
 
       {/* CTA */}
       <div className="mt-16 text-center px-4">
-        <p className="text-gray-500 mb-4">{t('¿Encontraste tu estilo ideal?')}</p>
+        <p className="text-gray-500 mb-4">{t('galleryFoundStyle', '¿Encontraste tu estilo ideal?')}</p>
         <button
           onClick={() => navigate('/braids')}
           className="bg-brand-primary text-white font-bold px-8 py-4 rounded-2xl hover:bg-brand-primary/90 transition-all hover:-translate-y-0.5 shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
         >
           <Scissors size={18} />
-          {t('Ir a Reservar mi Cita')}
+          {t('goBookAppointment', 'Ir a Reservar mi Cita')}
         </button>
       </div>
     </div>
