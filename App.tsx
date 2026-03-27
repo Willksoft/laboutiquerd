@@ -39,6 +39,7 @@ import ProductDetailPage from './components/ProductDetailPage';
 import Customizer from './components/Customizer';
 import UniversalCustomizer from './components/UniversalCustomizer';
 import BraidsBooking from './components/BraidsBooking';
+import BraidsGalleryPage from './components/BraidsGalleryPage';
 import ModelGallery from './components/ModelGallery'; 
 import TicketPage from './components/TicketPage'; 
 import Brands from './components/Brands'; 
@@ -319,6 +320,17 @@ function App() {
                    </div>
                 </div>
              </div>
+          </div>
+
+          {/* Gallery CTA */}
+          <div className="text-center py-10 border-t border-black/5">
+            <p className="text-sm text-gray-500 mb-4">{t('¿Quieres ver todos nuestros modelos antes de reservar?')}</p>
+            <button
+              onClick={() => navigate('/braids/gallery')}
+              className="inline-flex items-center gap-2 bg-brand-primary text-white font-bold px-8 py-3.5 rounded-2xl hover:bg-brand-primary/90 transition-all hover:-translate-y-0.5 shadow-lg hover:shadow-xl text-sm"
+            >
+              📸 {t('Ver Galería Completa de Modelos')}
+            </button>
           </div>
        </section>
      );
@@ -1033,6 +1045,16 @@ function App() {
                 url="/braids"
               />
               {renderBraidsSection()}
+            </>
+          } />
+          <Route path="/braids/gallery" element={
+            <>
+              <SEO
+                title="Galería de Modelos de Trenzas"
+                description="Explora todos nuestros modelos de trenzas caribeñas y africanas. Encuentra el estilo perfecto para ti."
+                url="/braids/gallery"
+              />
+              <BraidsGalleryPage />
             </>
           } />
           <Route path="/bisuteria" element={
