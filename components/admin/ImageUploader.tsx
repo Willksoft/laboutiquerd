@@ -53,8 +53,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   // --- File selected → either go to crop or upload directly ---
   const handleFile = (file: File) => {
-    if (!file.type.startsWith('image/') && !file.type.includes('svg')) {
-      setError('Solo se permiten imágenes (JPG, PNG, SVG, WebP)');
+    // Strict MIME whitelist — SVG is intentionally blocked (XSS vector via embedded scripts)
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setError('Solo se permiten imágenes JPG, PNG, WebP o GIF. SVG no está permitido por seguridad.');
       return;
     }
     if (file.size > 10 * 1024 * 1024) { setError('Máximo 10MB por imagen'); return; }

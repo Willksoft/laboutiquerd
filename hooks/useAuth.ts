@@ -10,6 +10,13 @@ export interface AuthUser {
 }
 
 const AUTH_STORAGE_KEY = 'laboutiquerd_auth';
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+interface LoginAttempts {
+  count: number;
+  lastAttempt: number;
+}
 
 export const useAuth = () => {
   const [user, setUser] = useState<AuthUser | null>(() => {
@@ -68,8 +75,25 @@ export const useAuth = () => {
     };
   }, []);
 
+  const [loginAttempts, setLoginAttempts] = useState<LoginAttempts>(() => {
+    try {
+      const stored = localStorage.getItem('laboutiquerd_login_attempts');
+      return stored ? JSON.parse(stored) : { count: 0, lastAttempt: 0 };
+    } catch { return { count: 0, lastAttempt: 0 }; }
+  });
+
   const login = useCallback(async (email: string, password: string): Promise<AuthUser> => {
-    // Try Appwrite first
+    // — Brute-force protection —
+    const now = Date.now();
+    const timeSinceLast = now - loginAttempts.lastAttempt;
+    const currentAttempts = timeSinceLast > LOCKOUT_DURATION_MS ? 0 : loginAttempts.count;
+
+    if (currentAttempts >= MAX_LOGIN_ATTEMPTS) {
+      const remaining = Math.ceil((LOCKOUT_DURATION_MS - timeSinceLast) / 60000);
+      throw new Error(`Demasiados intentos fallidos. Espera ${remaining} minuto${remaining !== 1 ? 's' : ''} antes de intentar de nuevo.`);
+    }
+
+    // Try Appwrite session
     try {
       await account.createEmailPasswordSession(email, password);
       const acc = await account.get();
@@ -83,12 +107,21 @@ export const useAuth = () => {
       };
       setUser(authUser);
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));
+      // Reset attempts on success
+      setLoginAttempts({ count: 0, lastAttempt: 0 });
+      localStorage.removeItem('laboutiquerd_login_attempts');
       window.dispatchEvent(new Event('authChanged'));
       return authUser;
     } catch (err: any) {
-      throw new Error(err.message || 'Credenciales inválidas');
+      // Track failed attempt
+      const failedAttempts: LoginAttempts = { count: currentAttempts + 1, lastAttempt: Date.now() };
+      setLoginAttempts(failedAttempts);
+      localStorage.setItem('laboutiquerd_login_attempts', JSON.stringify(failedAttempts));
+      const left = MAX_LOGIN_ATTEMPTS - failedAttempts.count;
+      const suffix = left > 0 ? ` (${left} intento${left !== 1 ? 's' : ''} restante${left !== 1 ? 's' : ''})` : '';
+      throw new Error((err.message || 'Credenciales inválidas') + suffix);
     }
-  }, []);
+  }, [loginAttempts]);
 
   const logout = useCallback(async () => {
     try {
@@ -106,6 +139,7 @@ export const useAuth = () => {
       'laboutiquerd_blocked_hours',
       'laboutiquerd_custom_hours',
       'laboutiquerd_vendors',
+      'laboutiquerd_login_attempts',
     ];
     sensitiveKeys.forEach(key => localStorage.removeItem(key));
     window.dispatchEvent(new Event('authChanged'));
