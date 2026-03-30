@@ -82,6 +82,18 @@ const SECTIONS: SectionConfig[] = [
       { key: 'footer_text', label: 'Texto del footer', type: 'text', placeholder: '© Boutique...', maxLength: 200 },
     ]
   },
+  {
+    id: 'social',
+    title: 'Redes Sociales',
+    icon: <Globe size={18} />,
+    fields: [
+      { key: 'social_instagram', label: 'Instagram', type: 'url', placeholder: 'https://instagram.com/tutienda' },
+      { key: 'social_facebook',  label: 'Facebook',  type: 'url', placeholder: 'https://facebook.com/tutienda' },
+      { key: 'social_tiktok',    label: 'TikTok',    type: 'url', placeholder: 'https://tiktok.com/@tutienda' },
+      { key: 'social_youtube',   label: 'YouTube',   type: 'url', placeholder: 'https://youtube.com/@tutienda' },
+      { key: 'social_twitter',   label: 'X / Twitter', type: 'url', placeholder: 'https://x.com/tutienda' },
+    ]
+  },
 ];
 
 const SiteContentAdmin: React.FC = () => {

@@ -450,8 +450,8 @@ const Settings: React.FC = () => {
                       </div>
                     </Field>
                   ))}
-                  <div className="md:col-span-2 bg-amber-50 border border-amber-100 rounded-xl p-4 text-xs text-amber-700">
-                    <strong>Nota:</strong> Los íconos de redes sociales se mostrarán en el footer de la tienda cuando se complete la integración del footer dinámico.
+                  <div className="md:col-span-2 bg-green-50 border border-green-100 rounded-xl p-4 text-xs text-green-700">
+                    <strong>✅ Activo:</strong> Los íconos se muestran en el footer de la tienda. Solo aparecen los que tengan URL configurada. Deja en blanco para ocultar.
                   </div>
                 </Section>
               </div>
