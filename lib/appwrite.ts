@@ -108,7 +108,10 @@ export const fetchOrderByCode = async (code: string) => {
 };
 
 export const createOrder = async (data: Record<string, unknown>) => {
-  const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+  // High-entropy ID: prefix + timestamp (base36) + random suffix → e.g. ORD-M5X3K2-A4F
+  const ts = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).substr(2, 3).toUpperCase();
+  const orderId = `ORD-${ts}-${rand}`;
   return databases.createDocument(DATABASE_ID, COLLECTIONS.ORDERS, orderId, data);
 };
 
@@ -143,7 +146,10 @@ export const fetchReservationByCode = async (code: string) => {
 };
 
 export const createReservation = async (data: Record<string, unknown>) => {
-  const reservationId = `BKG-${Math.floor(1000 + Math.random() * 9000)}`;
+  // High-entropy ID: prefix + timestamp (base36) + random suffix → e.g. BKG-M5X3K2-B7C
+  const ts = Date.now().toString(36).toUpperCase();
+  const rand = Math.random().toString(36).substr(2, 3).toUpperCase();
+  const reservationId = `BKG-${ts}-${rand}`;
   return databases.createDocument(DATABASE_ID, COLLECTIONS.RESERVATIONS, reservationId, data);
 };
 
@@ -327,9 +333,9 @@ export const fetchCategories = async () => {
 export const createCategory = async (data: Record<string, unknown>) => {
   const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
   return databases.createDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, ID.unique(), cleanData, [
-    Permission.read(Role.any()),
-    Permission.update(Role.any()),
-    Permission.delete(Role.any()),
+    Permission.read(Role.any()),      // Public read — needed for the store to display categories
+    Permission.update(Role.users()),  // Only authenticated users can update
+    Permission.delete(Role.users()),  // Only authenticated users can delete
   ]);
 };
 
@@ -365,9 +371,9 @@ export const createService = async (data: Record<string, unknown>) => {
   if (!collId) throw new Error('VITE_APPWRITE_SERVICES_COLLECTION is not set in Vercel environment variables');
   const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
   return databases.createDocument(DATABASE_ID, collId, ID.unique(), cleanData, [
-    Permission.read(Role.any()),
-    Permission.update(Role.any()),
-    Permission.delete(Role.any()),
+    Permission.read(Role.any()),      // Public read — needed for header services to show
+    Permission.update(Role.users()),  // Only authenticated users can update
+    Permission.delete(Role.users()),  // Only authenticated users can delete
   ]);
 };
 

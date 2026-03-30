@@ -40,17 +40,7 @@ export const useAuth = () => {
         localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));
       })
       .catch(() => {
-        // No active session — check localStorage for offline support
-        try {
-          const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            if (parsed.loggedIn) {
-              setUser(parsed);
-              return;
-            }
-          }
-        } catch (e) { /* ignore */ }
+        // No valid Appwrite session — clear any stale localStorage data
         setUser(null);
         localStorage.removeItem(AUTH_STORAGE_KEY);
       })
@@ -105,7 +95,19 @@ export const useAuth = () => {
       await account.deleteSession('current');
     } catch (e) { /* session might already be expired */ }
     setUser(null);
+    // Clear auth token
     localStorage.removeItem(AUTH_STORAGE_KEY);
+    // Clear all operational cache keys (sensitive customer/order data)
+    const sensitiveKeys = [
+      'laboutiquerd_orders',
+      'laboutiquerd_reservations',
+      'laboutiquerd_blocked_times',
+      'laboutiquerd_blocked_days',
+      'laboutiquerd_blocked_hours',
+      'laboutiquerd_custom_hours',
+      'laboutiquerd_vendors',
+    ];
+    sensitiveKeys.forEach(key => localStorage.removeItem(key));
     window.dispatchEvent(new Event('authChanged'));
   }, []);
 
