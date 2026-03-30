@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeftIcon, TagIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { Product } from '../types';
+import SEO from './SEO';
 
 interface ProductDetailPageProps {
   products: Product[];
@@ -87,6 +88,20 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ products, onCusto
 
   return (
     <div className="min-h-screen bg-gray-50 pt-6 pb-20">
+      <SEO 
+        title={getTranslatedText(product, 'name')}
+        description={getTranslatedText(product, 'description') as string}
+        image={product.image}
+        url={`/product/${product.id}`}
+        type="product"
+        product={{
+          name: getTranslatedText(product, 'name'),
+          price: product.price,
+          currency: 'DOP',
+          image: product.image,
+          category: product.category,
+        }}
+      />
 
       {/* Lightbox overlay */}
       {lightboxOpen && (

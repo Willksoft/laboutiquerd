@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import ProductSidebar from './ProductSidebar';
 import { Product } from '../types';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
+import SEO from './SEO';
 
 interface ProductPageLayoutProps {
   title: string;
@@ -23,6 +24,8 @@ export default function ProductPageLayout({
 
   return (
     <div className="pt-8 pb-16">
+      <SEO title={title} description={subtitle} url={`/${title.toLowerCase()}`} />
+      
       {/* Page Header */}
       <div className="container mx-auto px-4 mb-8">
         <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">{title}</h1>

@@ -28,6 +28,10 @@
   ],
   "rewrites": [
     {
+      "source": "/product/(.*)",
+      "destination": "/api/product?id=$1"
+    },
+    {
       "source": "/([^.]*)",
       "destination": "/"
     }

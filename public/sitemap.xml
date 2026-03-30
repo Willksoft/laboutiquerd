@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Home -->
+  <url>
+    <loc>https://laboutiquerd.com/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://laboutiquerd.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://laboutiquerd.com/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://laboutiquerd.com/?lang=fr"/>
+  </url>
+
+  <!-- Tienda / Products -->
+  <url>
+    <loc>https://laboutiquerd.com/tienda</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Trenzas / Braids -->
+  <url>
+    <loc>https://laboutiquerd.com/trenzas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Boutiques -->
+  <url>
+    <loc>https://laboutiquerd.com/boutiques</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Marcas -->
+  <url>
+    <loc>https://laboutiquerd.com/marcas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Servicios -->
+  <url>
+    <loc>https://laboutiquerd.com/servicios</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Artesanía -->
+  <url>
+    <loc>https://laboutiquerd.com/artesania</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Gift Cards -->
+  <url>
+    <loc>https://laboutiquerd.com/giftcards</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- T-Shirt Designer -->
+  <url>
+    <loc>https://laboutiquerd.com/diseñador</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+</urlset>
