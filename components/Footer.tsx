@@ -135,8 +135,8 @@ const Footer: React.FC = () => {
             © {new Date().getFullYear()} {content.store_name || 'Boutique'}. {t('Todos los derechos reservados.')}
           </p>
           <div className="flex gap-6">
-            <span className="text-white/30 text-xs hover:text-brand-accent transition-colors cursor-pointer">{t('Privacidad')}</span>
-            <span className="text-white/30 text-xs hover:text-brand-accent transition-colors cursor-pointer">{t('Términos')}</span>
+            <Link to="/privacy" className="text-white/30 text-xs hover:text-brand-accent transition-colors cursor-pointer">{t('Privacidad')}</Link>
+            <Link to="/terms" className="text-white/30 text-xs hover:text-brand-accent transition-colors cursor-pointer">{t('Términos')}</Link>
             <span className="text-white/30 text-xs hover:text-brand-accent transition-colors cursor-pointer">{t('Cookies')}</span>
           </div>
         </div>

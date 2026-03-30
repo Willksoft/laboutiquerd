@@ -47,6 +47,7 @@ import CheckoutPage from './components/CheckoutPage';
 import CartPage from './components/CartPage';
 import OrderTracking from './components/OrderTracking';
 import ProductPageLayout from './components/ProductPageLayout';
+import LegalPage from './components/LegalPage';
 import { ToastContainer } from './components/Toast';
 
 import AdminLayout from './components/admin/AdminLayout';
@@ -1189,6 +1190,9 @@ function App() {
               onUpdateQuantity={updateQuantity}
             />
           } />
+
+          <Route path="/terms" element={<LegalPage type="terms" />} />
+          <Route path="/privacy" element={<LegalPage type="privacy" />} />
 
           {/* ═══════════════ ADMIN ROUTES ═══════════════ */}
           <Route path="/login" element={<AdminLogin />} />
