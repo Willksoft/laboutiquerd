@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, Users, ShoppingBag, ArrowRight, Activity, DollarSign, Package, Calendar, Clock, User, MapPin, FileDown } from 'lucide-react';
+import { TrendingUp, Users, ShoppingBag, ArrowRight, Activity, DollarSign, Package, Calendar, Clock, User, MapPin, FileDown, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
 import { useOrders } from '../../hooks/useOrders';
 import { useReservations } from '../../hooks/useReservations';
 import { useTranslation } from 'react-i18next';
@@ -26,12 +26,14 @@ const Dashboard: React.FC = () => {
   const todayOrders = orders.filter(o => {
     if (!o.date) return false;
     return o.date.split('T')[0] === todayISO;
-  }).length;
+  });
 
-  const todayReservations = reservations.filter(r => {
+  const todayReservationsList = reservations.filter(r => {
     if (!r.date) return false;
     return r.date.split('T')[0] === todayISO;
-  }).length;
+  }).sort((a, b) => a.time.localeCompare(b.time));
+
+  const upcomingReservations = todayReservationsList.filter(r => r.status === 'Pendiente' || r.status === 'Confirmada');
 
   // Recent 5 orders
   const recentOrders = [...orders]
@@ -42,6 +44,13 @@ const Dashboard: React.FC = () => {
   const recentReservations = [...reservations]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
+
+  // Week sales comparison
+  const weekAgo = new Date(today);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const thisWeekSales = orders
+    .filter(o => o.date && new Date(o.date) >= weekAgo)
+    .reduce((s, o) => s + (o.total || 0), 0);
 
   // ═══════ CSV EXPORT ═══════
   const exportOrdersCSV = () => {
@@ -97,6 +106,13 @@ const Dashboard: React.FC = () => {
     'No Show': 'bg-gray-100 text-gray-600 border-gray-300',
   };
 
+  const STATUS_ICONS: Record<string, React.ReactNode> = {
+    'Pendiente': <AlertCircle size={12} className="text-yellow-500" />,
+    'Confirmada': <CheckCircle2 size={12} className="text-blue-500" />,
+    'Completada': <CheckCircle2 size={12} className="text-green-500" />,
+    'Cancelada': <XCircle size={12} className="text-red-500" />,
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between md:items-end gap-4">
@@ -115,27 +131,88 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* KPI Grid — REAL DATA */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
          {[
            { title: t('Ventas Totales'), value: `RD$ ${totalSales.toLocaleString('es-DO', { minimumFractionDigits: 2 })}`, icon: <DollarSign className="text-emerald-500" size={24}/>, trend: `${totalOrders} ${t('órdenes')}`, color: 'from-emerald-500/10 to-transparent border-emerald-500/20' },
-           { title: t('Hoy'), value: `${todayOrders} ${t('pedidos')}`, icon: <ShoppingBag className="text-brand-accent" size={24}/>, trend: `${todayReservations} ${t('citas')}`, color: 'from-brand-accent/10 text-brand-primary border-brand-accent/30' },
+           { title: t('Ventas Semana'), value: `RD$ ${thisWeekSales.toLocaleString('es-DO', { minimumFractionDigits: 2 })}`, icon: <TrendingUp className="text-cyan-500" size={24}/>, trend: t('últimos 7 días'), color: 'from-cyan-500/10 to-transparent border-cyan-500/20' },
            { title: t('Citas Trenzas'), value: String(totalReservations), icon: <Users className="text-blue-500" size={24}/>, trend: `${pendingReservations} ${t('pendientes')}`, color: 'from-blue-500/10 to-transparent border-blue-500/20' },
            { title: t('Pendientes'), value: String(pendingOrders), icon: <Activity className="text-purple-500" size={24}/>, trend: t('órdenes por gestionar'), color: 'from-purple-500/10 to-transparent border-purple-500/20' }
          ].map((kpi, i) => (
-             <div key={i} className={`bg-white rounded-2xl p-6 border shadow-sm flex flex-col justify-between bg-gradient-to-br ${kpi.color}`}>
-                 <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
-                     <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">{kpi.title}</span>
+             <div key={i} className={`bg-white rounded-2xl p-5 border shadow-sm flex flex-col justify-between bg-gradient-to-br ${kpi.color}`}>
+                 <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
+                     <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">{kpi.title}</span>
                      {kpi.icon}
                  </div>
                  <div className="flex items-end justify-between">
-                     <span className="text-3xl font-black text-gray-800 tracking-tighter">{kpi.value}</span>
-                     <span className="text-xs font-bold text-gray-500 bg-gray-50 px-2 py-1 rounded-md flex items-center gap-1">
+                     <span className="text-2xl lg:text-3xl font-black text-gray-800 tracking-tighter">{kpi.value}</span>
+                     <span className="text-[10px] font-bold text-gray-500 bg-gray-50 px-2 py-1 rounded-md flex items-center gap-1">
                          {kpi.trend}
                      </span>
                  </div>
              </div>
          ))}
       </div>
+
+      {/* ═══════ TODAY'S AGENDA ═══════ */}
+      {(todayReservationsList.length > 0 || todayOrders.length > 0) && (
+        <div className="bg-gradient-to-br from-brand-primary to-brand-primary/90 rounded-2xl p-6 text-white shadow-lg">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="font-black text-lg uppercase tracking-wider flex items-center gap-2">
+              <Calendar size={20} className="text-brand-accent" /> {t('Agenda de Hoy')}
+            </h3>
+            <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold">
+              {new Date().toLocaleDateString('es-DO', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </span>
+          </div>
+
+          {/* Today's Reservations Timeline */}
+          {todayReservationsList.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+              {todayReservationsList.map((res) => (
+                <div key={res.id} className={`bg-white/10 backdrop-blur-sm rounded-xl p-4 border transition-all hover:bg-white/15 ${
+                  res.status === 'Completada' ? 'border-green-500/30 opacity-60' : 
+                  res.status === 'Cancelada' ? 'border-red-500/30 opacity-40 line-through' : 
+                  'border-white/20'
+                }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-brand-accent font-black text-lg">{res.time}</span>
+                    <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      res.status === 'Confirmada' ? 'bg-blue-500/30 text-blue-200' :
+                      res.status === 'Completada' ? 'bg-green-500/30 text-green-200' :
+                      res.status === 'Cancelada' ? 'bg-red-500/30 text-red-200' :
+                      'bg-yellow-500/30 text-yellow-200'
+                    }`}>
+                      {STATUS_ICONS[res.status] || null}
+                      {res.status}
+                    </span>
+                  </div>
+                  <p className="font-bold text-white text-sm truncate">{res.clientName}</p>
+                  <p className="text-white/60 text-xs truncate">{res.modelName}</p>
+                  <div className="flex items-center justify-between mt-2 text-white/50 text-[10px]">
+                    {res.room && <span className="flex items-center gap-0.5"><MapPin size={8}/> {res.room}</span>}
+                    <span className="font-bold text-brand-accent">RD${res.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-white/50 text-sm">{t('No hay citas programadas para hoy.')}</p>
+          )}
+
+          {/* Summary bar */}
+          <div className="flex items-center gap-6 mt-4 pt-4 border-t border-white/10 text-xs">
+            <span className="font-bold text-white/80">
+              <span className="text-brand-accent font-black text-lg mr-1">{todayReservationsList.length}</span> {t('citas hoy')}
+            </span>
+            <span className="font-bold text-white/80">
+              <span className="text-brand-accent font-black text-lg mr-1">{upcomingReservations.length}</span> {t('por atender')}
+            </span>
+            <span className="font-bold text-white/80">
+              <span className="text-brand-accent font-black text-lg mr-1">{todayOrders.length}</span> {t('pedidos hoy')}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Main Content: Recent Orders + Recent Reservations */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -161,7 +238,7 @@ const Dashboard: React.FC = () => {
                              <div className="min-w-0">
                                  <p className="font-bold text-gray-800 text-sm truncate">{order.clientName}</p>
                                  <div className="flex items-center gap-2 text-[10px] text-gray-400">
-                                     <span className="font-mono">{order.id}</span>
+                                     <span className="font-mono">{order.id.slice(0, 8)}</span>
                                      {order.room && <><span>•</span><span className="flex items-center gap-0.5"><MapPin size={8}/> {order.room}</span></>}
                                  </div>
                              </div>
